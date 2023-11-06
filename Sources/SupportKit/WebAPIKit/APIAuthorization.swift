@@ -1,5 +1,4 @@
 import Foundation
-import TaskKit
 
 public struct APIAuthorization: Codable, Updatable {
     public let accessToken: String
