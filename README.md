@@ -1,1 +1,1 @@
-# swift-supportkit
+# SupportKit
