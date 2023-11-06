@@ -17,8 +17,8 @@ public struct DismissButton<Label>: View where Label: View {
         self.label = Image(image)
     }
     
-    public init(symbol: String) where Label == Image {
-        self.label = Image(systemName: symbol)
+    public init(systemImage: String) where Label == Image {
+        self.label = Image(systemName: systemImage)
     }
     
     public var body: some View {

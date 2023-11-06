@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct APIImage<Placeholder: View>: View {
+public struct RemoteImage<Placeholder: View>: View {
     private let url: URL?
     private let scaledToFill: Bool
     private let placeholder: () -> Placeholder
@@ -26,7 +26,7 @@ public struct APIImage<Placeholder: View>: View {
                     .resizable()
                     .scaledToFit()
             }
-        } placeholder: { 
+        } placeholder: {
             placeholder()
         }
     }

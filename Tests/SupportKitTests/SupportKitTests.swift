@@ -1,7 +1,7 @@
 import XCTest
-@testable import WebAPIKit
+@testable import SupportKit
 
-final class WebAPIKitTests: XCTestCase {
+final class SupportKitTests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest

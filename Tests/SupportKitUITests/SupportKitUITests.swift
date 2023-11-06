@@ -1,7 +1,7 @@
 import XCTest
-@testable import TaskKit
+@testable import SupportKitUI
 
-final class TaskKitTests: XCTestCase {
+final class SupportKitUITests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest

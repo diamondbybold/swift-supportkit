@@ -11,30 +11,25 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "NavigationKit",
-            targets: ["NavigationKit"]),
+            name: "SupportKit",
+            targets: ["SupportKit"]),
         .library(
-            name: "TaskKit",
-            targets: ["TaskKit"]),
-        .library(
-            name: "WebAPIKit",
-            targets: ["WebAPIKit"])
+            name: "SupportKitUI",
+            targets: ["SupportKitUI"]),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "NavigationKit"),
+            name: "SupportKit"),
         .target(
-            name: "TaskKit"),
-        .target(
-            name: "WebAPIKit",
-            dependencies: ["TaskKit"]),
+            name: "SupportKitUI",
+            dependencies: ["SupportKit"]),
         .testTarget(
-            name: "TaskKitTests",
-            dependencies: ["TaskKit"]),
+            name: "SupportKitTests",
+            dependencies: ["SupportKit"]),
         .testTarget(
-            name: "WebAPIKitTests",
-            dependencies: ["WebAPIKit"])
+            name: "SupportKitUITests",
+            dependencies: ["SupportKitUI"])
     ]
 )

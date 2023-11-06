@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 struct FetchViewModifier<T: APIModel>: ViewModifier {
     @ObservedObject var store: APIStore<T>

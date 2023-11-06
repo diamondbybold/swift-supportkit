@@ -25,8 +25,8 @@ public struct NavigationButton<Label, Route>: View where Label: View, Route: Nav
         self.route = route
     }
     
-    public init(symbol: String, mode: Mode, route: Route) where Label == Image {
-        self.label = Image(systemName: symbol)
+    public init(systemImage: String, mode: Mode, route: Route) where Label == Image {
+        self.label = Image(systemName: systemImage)
         self.mode = mode
         self.route = route
     }

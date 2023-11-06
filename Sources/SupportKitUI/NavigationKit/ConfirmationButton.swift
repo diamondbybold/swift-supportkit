@@ -44,12 +44,12 @@ public struct ConfirmationButton<Label>: View where Label: View {
         self.action = action
     }
     
-    public init(symbol: String,
+    public init(systemImage: String,
                 title: LocalizedStringKey,
                 message: LocalizedStringKey? = nil,
                 actionLabel: LocalizedStringKey,
                 action: @escaping () -> Void) where Label == Image {
-        self.label = Image(systemName: symbol)
+        self.label = Image(systemName: systemImage)
         self.title = title
         self.message = message
         self.actionLabel = actionLabel

@@ -21,8 +21,8 @@ public struct DismissContainerButton<Label>: View where Label: View {
         self.withConfirmation = withConfirmation
     }
     
-    public init(symbol: String, withConfirmation: Bool = false) where Label == Image {
-        self.label = Image(systemName: symbol)
+    public init(systemImage: String, withConfirmation: Bool = false) where Label == Image {
+        self.label = Image(systemName: systemImage)
         self.withConfirmation = withConfirmation
     }
     
