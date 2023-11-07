@@ -10,6 +10,8 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
         case failed
     }
     
+    public override init() { }
+    
     public func requestPermission() async -> Bool {
         await AVCaptureDevice.requestAccess(for: .video)
     }

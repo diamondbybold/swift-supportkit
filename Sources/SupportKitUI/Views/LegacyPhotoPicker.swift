@@ -9,6 +9,8 @@ public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
         case failed
     }
     
+    public init() { }
+    
     public func request(tint: Color? = nil) async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
