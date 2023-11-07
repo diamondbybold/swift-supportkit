@@ -1,6 +1,6 @@
 import SwiftUI
 
-public class InterfaceOrientationAppDelegate: NSObject, UIApplicationDelegate {
+open class InterfaceOrientationAppDelegate: NSObject, UIApplicationDelegate {
     public static var interfaceOrientation: UIInterfaceOrientationMask = .portrait {
         didSet {
             UIApplication.shared.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
