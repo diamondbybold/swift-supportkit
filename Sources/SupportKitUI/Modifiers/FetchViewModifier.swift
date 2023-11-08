@@ -13,10 +13,12 @@ struct FetchViewModifier: ViewModifier {
         let isInvalidated: Bool
     }
     
+    var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
+    
     func body(content: Content) -> some View {
         content
             .task(id: FetchTaskId(phase: phase, isInvalidated: store.state.isInvalidated)) {
-                if phase == .active,
+                if (phase == .active || isPreview),
                    store.state.needsUpdate(expiration) {
                     await perform()
                 }
