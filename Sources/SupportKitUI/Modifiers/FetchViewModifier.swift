@@ -1,8 +1,8 @@
 import SwiftUI
 import SupportKit
 
-struct FetchViewModifier<T: APIModel>: ViewModifier {
-    @ObservedObject var store: APIStore<T>
+struct FetchViewModifier: ViewModifier {
+    @ObservedObject var store: Store
     let expiration: TimeInterval
     let perform: () async -> Void
     
@@ -26,9 +26,9 @@ struct FetchViewModifier<T: APIModel>: ViewModifier {
 
 extension View {
     @MainActor
-    public func fetch<T: APIModel>(_ store: APIStore<T>,
-                                   expiration: TimeInterval = 120,
-                                   perform: @escaping () async -> Void) -> some View {
+    public func fetch(_ store: Store,
+                      expiration: TimeInterval = 120,
+                      perform: @escaping () async -> Void) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: perform))
     }
     
