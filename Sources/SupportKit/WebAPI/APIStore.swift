@@ -29,7 +29,9 @@ open class APIStore<T: APIModel>: Store {
     public override init() {
         super.init()
         tracking { [weak self] in
-            await self?.collection.handleUpdates()
+            for await object in T.updates {
+                self?.collection.update(object)
+            }
         }
     }
     

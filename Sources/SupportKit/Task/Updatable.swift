@@ -41,12 +41,3 @@ extension Array where Element: Identifiable {
         }
     }
 }
-
-extension Array where Element: Identifiable & Updatable {
-    public mutating func handleUpdates(completion: ((Element?) -> Void)? = nil) async {
-        for await object in Element.updates {
-            update(object)
-            completion?(object)
-        }
-    }
-}
