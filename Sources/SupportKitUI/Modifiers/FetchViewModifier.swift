@@ -30,8 +30,15 @@ extension View {
     @MainActor
     public func fetch(_ store: Store,
                       expiration: TimeInterval = 120,
-                      perform: @escaping () async -> Void) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: perform))
+                      perform: @escaping () async throws -> Void) -> some View {
+        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+            do {
+                try await perform()
+                store.state = .updated(Date.now)
+            } catch {
+                store.state = .error(error)
+            }
+        }))
     }
     
     @MainActor

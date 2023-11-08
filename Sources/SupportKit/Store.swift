@@ -18,7 +18,6 @@ open class Store: ObservableObject, Invalidatable {
 extension Store {
     public enum State {
         case initial
-        case updating
         case updated(Date)
         case invalidated
         case error(Error)
@@ -31,14 +30,6 @@ extension Store {
             case let .updated(date):
                 return date.hasExpired(in: expiration)
             default:
-                return false
-            }
-        }
-        
-        public var isUpdating: Bool {
-            if case .updating = self {
-                return true
-            } else {
                 return false
             }
         }
