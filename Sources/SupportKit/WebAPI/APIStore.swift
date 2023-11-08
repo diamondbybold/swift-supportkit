@@ -29,7 +29,7 @@ open class APIStore<T: APIModel>: Store {
     public override init() {
         super.init()
         tracking { [weak self] in
-            for await object in T.updates {
+            for await object in T.updates.compactMap({ $0.object as? T }) {
                 self?.collection.update(object)
             }
         }

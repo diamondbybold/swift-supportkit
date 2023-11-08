@@ -1,25 +1,16 @@
 import Foundation
 
-fileprivate var updatableContinuations: [String: Any] = [:]
-
 public protocol Updatable { }
 
 extension Updatable {
-    public static var updates: AsyncStream<Self> {
-        let key = UUID().uuidString
-        let sequence = AsyncStream.makeStream(of: Self.self)
-        sequence.continuation.onTermination = { @Sendable _ in
-            updatableContinuations.removeValue(forKey: key)
-        }
-        updatableContinuations[key] = sequence.continuation
-        return sequence.stream
+    private static var notification: Notification.Name { .init("Update\(Self.self)Notification") }
+    
+    public static var updates: NotificationCenter.Notifications {
+        NotificationCenter.default.notifications(named: Self.notification)
     }
     
     public static func update(_ object: Self) {
-        updatableContinuations
-            .values
-            .compactMap { $0 as? AsyncStream<Self>.Continuation }
-            .forEach { $0.yield(object) }
+        NotificationCenter.default.post(name: Self.notification, object: object)
     }
 }
 

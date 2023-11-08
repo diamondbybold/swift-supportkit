@@ -8,11 +8,13 @@ open class Store: ObservableObject, Invalidatable {
     
     public init() {
         tracking { [weak self] in
-            for await _ in Self.invalidates {
-                self?.state = .invalidated
+            for await _ in Self.invalidates.map({ $0.object }) {
+                self?.invalidate()
             }
         }
     }
+    
+    public func invalidate() { state = .invalidated }
 }
 
 extension Store {

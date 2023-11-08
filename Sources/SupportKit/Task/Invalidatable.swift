@@ -1,24 +1,15 @@
 import Foundation
 
-fileprivate var invalidatableContinuations: [String: Any] = [:]
-
 public protocol Invalidatable { }
 
 extension Invalidatable {
-    public static var invalidates: AsyncStream<Void> {
-        let key = UUID().uuidString
-        let sequence = AsyncStream.makeStream(of: Void.self)
-        sequence.continuation.onTermination = { @Sendable _ in
-            invalidatableContinuations.removeValue(forKey: key)
-        }
-        invalidatableContinuations[key] = sequence.continuation
-        return sequence.stream
+    private static var notification: Notification.Name { .init("Invalidate\(Self.self)Notification") }
+    
+    public static var invalidates: NotificationCenter.Notifications {
+        NotificationCenter.default.notifications(named: Self.notification)
     }
     
-    public static func invalidate() {
-        invalidatableContinuations
-            .values
-            .compactMap { $0 as? AsyncStream<Void>.Continuation }
-            .forEach { $0.yield() }
+    public func invalidate() {
+        NotificationCenter.default.post(name: Self.notification, object: nil)
     }
 }
