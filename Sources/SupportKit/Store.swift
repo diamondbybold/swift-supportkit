@@ -13,6 +13,8 @@ open class Store: ObservableObject, Invalidatable {
             }
         }
     }
+    
+    public func invalidate() { state = .invalidated }
 }
 
 extension Store {

@@ -3,7 +3,7 @@ import Foundation
 public protocol Updatable { }
 
 extension Updatable {
-    private static var notification: Notification.Name { .init("Update\(Self.self)Notification") }
+    public static var notification: Notification.Name { .init("Update\(Self.self)Notification") }
     
     public static var updates: NotificationCenter.Notifications {
         NotificationCenter.default.notifications(named: Self.notification)
