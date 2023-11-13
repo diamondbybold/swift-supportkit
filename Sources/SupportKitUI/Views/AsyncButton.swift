@@ -5,6 +5,8 @@ public struct AsyncButton<Label>: View where Label: View {
     private let role: ButtonRole?
     private let action: () async -> Void
     
+    @State private var waiting: Bool = false
+    
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
                 action: @escaping () async -> Void) where Label == Text {
@@ -40,10 +42,17 @@ public struct AsyncButton<Label>: View where Label: View {
     public var body: some View {
         Button(role: role) {
             Task {
+                waiting = true
                 await action()
+                waiting = false
             }
         } label: {
-            label
+            if waiting {
+                ProgressView()
+            } else {
+                label
+            }
         }
+        .allowsHitTesting(!waiting)
     }
 }
