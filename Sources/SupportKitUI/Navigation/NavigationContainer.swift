@@ -24,9 +24,23 @@ struct NavigationContainer<Root: View>: View {
         .fullScreenCover(item: $navigationContext.fullScreenCover) { item in
             AnyView(item.content())
         }
+        .confirmationDialog(navigationContext.confirmation?.title ?? "",
+                            isPresented: .present(value: $navigationContext.confirmation),
+                            titleVisibility: .visible) {
+            if let confirmation = navigationContext.confirmation {
+                Button(confirmation.actionLabel, role: confirmation.actionRole) {
+                    confirmation.action()
+                }
+            }
+        } message: {
+            if let message = navigationContext.confirmation?.message {
+                Text(message)
+            }
+        }
         .confirmationDialog(dismissConfirmation.title,
-                            isPresented: $showConfirmation) {
-            Button(dismissConfirmation.actionLabel, role: .destructive) {
+                            isPresented: $showConfirmation,
+                            titleVisibility: .visible) {
+            Button(dismissConfirmation.actionLabel, role: dismissConfirmation.actionRole) {
                 dismissConfirmation.action()
                 dismiss()
             }
@@ -52,7 +66,7 @@ extension View {
         NavigationContainer { self }
     }
     
-    public func navigationContainer(dismissConfirmation: DismissConfirmation) -> some View {
+    public func navigationContainer(dismissConfirmation: ActionConfirmation) -> some View {
         NavigationContainer { self }
             .environment(\.dismissConfirmation, dismissConfirmation)
     }
@@ -63,7 +77,7 @@ extension View {
     }
     
     public func navigationContainer<T: ObservableObject>(_ contextObject: T,
-                                                         dismissConfirmation: DismissConfirmation) -> some View {
+                                                         dismissConfirmation: ActionConfirmation) -> some View {
         NavigationContainer { self }
             .environmentObject(contextObject)
             .environment(\.dismissConfirmation, dismissConfirmation)
@@ -99,21 +113,14 @@ extension View {
 }
 
 // MARK: - Environment Values
-public struct DismissConfirmation {
-    let title: LocalizedStringKey
-    var message: LocalizedStringKey? = nil
-    let actionLabel: LocalizedStringKey
-    var action: () -> Void = { }
-}
-
 struct DismissConfirmationKey: EnvironmentKey {
-    static let defaultValue: DismissConfirmation = DismissConfirmation(title: "Are you sure?",
-                                                                       actionLabel: "Yes")
+    static let defaultValue: ActionConfirmation = ActionConfirmation(title: "Are you sure?",
+                                                                     actionLabel: "Yes")
 }
 
 extension EnvironmentValues {
-    var dismissConfirmation: DismissConfirmation {
-        get { self[DismissConfirmationKey.self] } 
+    var dismissConfirmation: ActionConfirmation {
+        get { self[DismissConfirmationKey.self] }
         set { self[DismissConfirmationKey.self] = newValue }
     }
 }

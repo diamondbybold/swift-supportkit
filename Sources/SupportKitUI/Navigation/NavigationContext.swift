@@ -5,6 +5,7 @@ public class NavigationContext: ObservableObject {
     @Published var path: [DestinationData] = []
     @Published var sheet: DestinationData? = nil
     @Published var fullScreenCover: DestinationData? = nil
+    @Published var confirmation: ActionConfirmation? = nil
     
     var onDismiss: (Bool) -> Void = { _ in }
     
@@ -21,6 +22,8 @@ public class NavigationContext: ObservableObject {
             fullScreenCover = DestinationData(content: content)
         }
     }
+    
+    public func confirmation(_ confirmation: ActionConfirmation) { self.confirmation = confirmation }
     
     public func dismiss(withConfirmation: Bool = false) { onDismiss(withConfirmation) }
 }
@@ -47,4 +50,13 @@ extension NavigationContext {
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
+}
+
+// MARK: - Confirmation
+public struct ActionConfirmation {
+    public let title: LocalizedStringKey
+    public var message: LocalizedStringKey? = nil
+    public let actionLabel: LocalizedStringKey
+    public var actionRole: ButtonRole? = nil
+    public var action: () -> Void = { }
 }
