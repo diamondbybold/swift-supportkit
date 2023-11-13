@@ -19,6 +19,14 @@ extension View {
 }
 
 extension View {
+    public func disableTransition(_ disabled: Bool = true) -> some View {
+        self.transaction { transaction in
+            transaction.disablesAnimations = disabled
+        }
+    }
+}
+
+extension View {
     public func withAnimationAsync(_ duration: Double, _ body: @escaping () -> Void) async {
         await withCheckedContinuation { continuation in
             withAnimation(.linear(duration: duration)) {
