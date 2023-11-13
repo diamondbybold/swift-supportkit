@@ -1,6 +1,22 @@
 import Foundation
 
 extension JSONEncoder {
+    public static let camelCase: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .useDefaultKeys
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }()
+    
+    public static let snakeCase: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }()
+}
+
+extension JSONEncoder {
     enum JSONValue: Encodable {
         case null
         case encodable(Encodable)

@@ -1,61 +1,49 @@
 import SwiftUI
 
-public struct NavigationButton<Label, Route>: View where Label: View, Route: NavigationRoute {
+public struct NavigationButton<Label>: View where Label: View {
     private let label: Label
-    private let mode: Mode
-    private let route: Route
+    private let destination: NavigationContext.Destination
+    private let content: () -> any View
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
-    public init(_ titleKey: LocalizedStringKey, mode: Mode, route: Route) where Label == Text {
+    public init(_ titleKey: LocalizedStringKey,
+                destination: NavigationContext.Destination,
+                @ViewBuilder content: @escaping () -> any View) where Label == Text {
         self.label = Text(titleKey)
-        self.mode = mode
-        self.route = route
+        self.destination = destination
+        self.content = content
     }
     
-    public init(mode: Mode, route: Route, @ViewBuilder label: () -> Label) {
+    public init(destination: NavigationContext.Destination,
+                @ViewBuilder content: @escaping () -> any View,
+                @ViewBuilder label: () -> Label) {
         self.label = label()
-        self.mode = mode
-        self.route = route
+        self.destination = destination
+        self.content = content
     }
     
-    public init(image: String, mode: Mode, route: Route) where Label == Image {
+    public init(image: String,
+                destination: NavigationContext.Destination,
+                @ViewBuilder content: @escaping () -> any View) where Label == Image {
         self.label = Image(image)
-        self.mode = mode
-        self.route = route
+        self.destination = destination
+        self.content = content
     }
     
-    public init(systemImage: String, mode: Mode, route: Route) where Label == Image {
+    public init(systemImage: String,
+                destination: NavigationContext.Destination,
+                @ViewBuilder content: @escaping () -> any View) where Label == Image {
         self.label = Image(systemName: systemImage)
-        self.mode = mode
-        self.route = route
+        self.destination = destination
+        self.content = content
     }
     
     public var body: some View {
         Button {
-            switch mode {
-            case .destination:
-                navigationContext.destination(route)
-            case .sheet:
-                navigationContext.sheet(route)
-            case .fullScreenCover, .overlay:
-                navigationContext.fullScreenCover(route)
-            }
+            navigationContext.destination(destination, content: content)
         } label: {
             label
         }
-        .transaction { transaction in
-            transaction.disablesAnimations = mode == .overlay
-        }
-    }
-}
-
-// Support Types
-extension NavigationButton {
-    public enum Mode {
-        case destination
-        case sheet
-        case fullScreenCover
-        case overlay
     }
 }

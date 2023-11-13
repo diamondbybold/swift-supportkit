@@ -13,16 +13,16 @@ struct NavigationContainer<Root: View>: View {
     var body: some View {
         NavigationStack(path: $navigationContext.path) {
             root()
-                .navigationDestination(for: NavigationContext.Data.self) { data in
-                    AnyView(data.route.view)
+                .navigationDestination(for: NavigationContext.DestinationData.self) { data in
+                    AnyView(data.content())
                 }
         }
         .environmentObject(navigationContext)
         .sheet(item: $navigationContext.sheet) { item in
-            AnyView(item.route.view)
+            AnyView(item.content())
         }
-        .fullScreenCover(item: $navigationContext.fullScreenCover) { data in
-            AnyView(data.route.view)
+        .fullScreenCover(item: $navigationContext.fullScreenCover) { item in
+            AnyView(item.content())
         }
         .confirmationDialog(dismissConfirmation.title,
                             isPresented: $showConfirmation) {

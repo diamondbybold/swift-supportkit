@@ -1,6 +1,6 @@
 import Foundation
 
-public struct APIRequest<T: Decodable> {
+public struct APIRequest {
     public var path: String = ""
     public var version: String? = nil
     public var method: APIMethod = .get
@@ -13,7 +13,7 @@ public struct APIRequest<T: Decodable> {
 
 // MARK: - Integration
 extension APIRequest {
-    public func urlRequest(baseURL: URL, encoder: JSONEncoder) -> URLRequest {
+    public func urlRequest(baseURL: URL) -> URLRequest {
         // Compose URL
         var url = baseURL
         
@@ -43,10 +43,24 @@ extension APIRequest {
         
         // Request body
         switch body {
-        case .jsonAny(let value):
-            request.httpBody = try? encoder.encodeAny(value)
-        case .jsonObject(let object):
-            request.httpBody = try? encoder.encode(object)
+        case let .jsonAny(value, encoder):
+            do {
+                request.httpBody = try encoder.encodeAny(value)
+            } catch {
+                request.httpBody = nil
+#if DEBUG
+                print("[Encoding Error] \(error)")
+#endif
+            }
+        case let .jsonObject(object, encoder):
+            do {
+                request.httpBody = try encoder.encode(object)
+            } catch {
+                request.httpBody = nil
+#if DEBUG
+                print("[Encoding Error] \(error)")
+#endif
+            }
         case .formData(let dict):
             var data: [String] = []
             

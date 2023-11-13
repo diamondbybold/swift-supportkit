@@ -6,23 +6,20 @@ public protocol APIGateway {
     var baseURL: URL { get }
     var version: String? { get }
     
-    var encoder: JSONEncoder { get }
-    var decoder: JSONDecoder { get }
+    func request(_ request: APIRequest) async throws -> APIResponse
     
-    func request<T: Decodable>(_ request: APIRequest<T>) async throws -> APIResponse<T>
-    
-    func willSendRequest<T>(_ request: inout APIRequest<T>) async throws
-    func didReceiveResponse<T>(_ response: inout APIResponse<T>, request: APIRequest<T>) async throws
+    func willSendRequest(_ request: inout APIRequest) async throws
+    func didReceiveResponse(_ response: inout APIResponse) async throws
 }
 
 // MARK: - Default Implementation
 extension APIGateway {
     @discardableResult
-    public func request<T>(_ request: APIRequest<T>) async throws -> APIResponse<T> {
+    public func request(_ request: APIRequest) async throws -> APIResponse {
         var request = request
         try await willSendRequest(&request)
         
-        let urlRequest = request.urlRequest(baseURL: baseURL, encoder: encoder)
+        let urlRequest = request.urlRequest(baseURL: baseURL)
         
 #if DEBUG
         print(urlRequest.cURLDescription())
@@ -38,18 +35,14 @@ extension APIGateway {
             
             guard let urlResponse = result.response as? HTTPURLResponse else { throw APIError.unavailable }
             
-            do {
-                let resource = try decoder.decode(T.self, from: result.data)
-                
-                return .init(resource: resource,
-                             code: urlResponse.statusCode,
-                             headers: (urlResponse.allHeaderFields as? [String: String]) ?? [:])
-            } catch {
-#if DEBUG
-                print("[Error] \(error)")
-#endif
-                throw error
-            }
+            var resource = APIResponse(request: request,
+                                       statusCode: urlResponse.statusCode,
+                                       headers: (urlResponse.allHeaderFields as? [String: String]) ?? [:],
+                                       data: result.data)
+            
+            try await didReceiveResponse(&resource)
+            
+            return resource
         } catch URLError.cancelled {
             throw CancellationError()
         } catch URLError.dataNotAllowed, URLError.notConnectedToInternet {
@@ -65,8 +58,13 @@ extension APIGateway {
         }
     }
     
-    public func willSendRequest<T>(_ request: inout APIRequest<T>) async throws { }
-    public func didReceiveResponse<T>(_ response: inout APIResponse<T>, request: APIRequest<T>) async throws { }
+    public func willSendRequest(_ request: inout APIRequest) async throws { }
+    public func didReceiveResponse(_ response: inout APIResponse) async throws { }
+}
+
+// MARK: - Request Extensions
+extension APIRequest {
+    public func response(on gateway: APIGateway) async throws -> APIResponse { try await gateway.request(self) }
 }
 
 // MARK: - Utilities

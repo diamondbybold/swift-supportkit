@@ -2,44 +2,49 @@ import SwiftUI
 
 @MainActor
 public class NavigationContext: ObservableObject {
-    @Published var path: [Data] = []
-    @Published var sheet: Data? = nil
-    @Published var fullScreenCover: Data? = nil
+    @Published var path: [DestinationData] = []
+    @Published var sheet: DestinationData? = nil
+    @Published var fullScreenCover: DestinationData? = nil
     
     var onDismiss: (Bool) -> Void = { _ in }
     
-    public func destination(_ route: any NavigationRoute) { path.append(Data(route)) }
-    public func sheet(_ route: any NavigationRoute) { fullScreenCover = nil; sheet = Data(route) }
-    public func fullScreenCover(_ route: any NavigationRoute) { sheet = nil; fullScreenCover = Data(route) }
+    public func destination(_ destination: Destination,
+                            @ViewBuilder content: @escaping () -> any View) { 
+        switch destination {
+        case .stack:
+            path.append(DestinationData(content: content))
+        case .sheet:
+            fullScreenCover = nil
+            sheet = DestinationData(content: content)
+        case .fullScreenCover:
+            sheet = nil
+            fullScreenCover = DestinationData(content: content)
+        }
+    }
     
     public func dismiss(withConfirmation: Bool = false) { onDismiss(withConfirmation) }
 }
 
-// MARK: - Destination Routes
+// MARK: - Stack Management
 extension NavigationContext {
-    public var destinationRoutes: [any NavigationRoute] { path.map { $0.route } }
-    
-    public func replaceDestinationRoutesWith(_ routes: [any NavigationRoute]) { path = routes.map { Data($0) } }
-    public func removeAllDestinationRoutes() { path.removeAll() }
-    public func removeLastDestinationRoute(_ k: Int = 1) { path.removeLast(k) }
+    public var destinationCountInStack: Int { path.count }
+    public func removeAllDestinationsInStack() { path.removeAll() }
+    public func removeLastDestinationInStack(_ k: Int = 1) { path.removeLast(k) }
 }
 
 // MARK: - Support Types
 extension NavigationContext {
-    struct Data: Identifiable, Hashable {
+    public enum Destination {
+        case stack
+        case sheet
+        case fullScreenCover
+    }
+    
+    struct DestinationData: Identifiable, Hashable {
         let id = UUID()
-        let route: any NavigationRoute
-        
-        init(_ route: any NavigationRoute) { self.route = route }
+        let content: () -> any View
         
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
-}
-
-public protocol NavigationRoute {
-    associatedtype V: View
-    
-    @ViewBuilder
-    var view: V { get }
 }
