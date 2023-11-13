@@ -113,13 +113,13 @@ extension View {
 }
 
 // MARK: - Environment Values
-struct DismissConfirmationKey: EnvironmentKey {
-    static let defaultValue: ActionConfirmation = ActionConfirmation(title: "Are you sure?",
-                                                                     actionLabel: "Yes")
+public struct DismissConfirmationKey: EnvironmentKey {
+    public static let defaultValue: ActionConfirmation = ActionConfirmation(title: "Are you sure?",
+                                                                            actionLabel: "Yes")
 }
 
 extension EnvironmentValues {
-    var dismissConfirmation: ActionConfirmation {
+    public var dismissConfirmation: ActionConfirmation {
         get { self[DismissConfirmationKey.self] }
         set { self[DismissConfirmationKey.self] = newValue }
     }
