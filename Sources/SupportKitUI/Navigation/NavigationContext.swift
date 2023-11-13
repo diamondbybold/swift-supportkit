@@ -55,8 +55,20 @@ extension NavigationContext {
 // MARK: - Confirmation
 public struct ActionConfirmation {
     public let title: LocalizedStringKey
-    public var message: LocalizedStringKey? = nil
+    public let message: LocalizedStringKey?
     public let actionLabel: LocalizedStringKey
-    public var actionRole: ButtonRole? = nil
-    public var action: () -> Void = { }
+    public let actionRole: ButtonRole?
+    public let action: () -> Void
+    
+    public init(title: LocalizedStringKey,
+                message: LocalizedStringKey? = nil,
+                actionLabel: LocalizedStringKey,
+                actionRole: ButtonRole? = nil,
+                action: @escaping () -> Void = { }) {
+        self.title = title
+        self.message = message
+        self.actionLabel = actionLabel
+        self.actionRole = actionRole
+        self.action = action
+    }
 }
