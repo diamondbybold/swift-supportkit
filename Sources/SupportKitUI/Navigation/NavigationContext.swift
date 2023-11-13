@@ -5,9 +5,9 @@ public class NavigationContext: ObservableObject {
     @Published var path: [DestinationData] = []
     @Published var sheet: DestinationData? = nil
     @Published var fullScreenCover: DestinationData? = nil
-    @Published var confirmation: ActionConfirmation? = nil
+    @Published var confirmation: Confirmation? = nil
     
-    var onDismiss: (Bool) -> Void = { _ in }
+    var onDismiss: () -> Void = { }
     
     public func destination(_ destination: Destination,
                             @ViewBuilder content: @escaping () -> any View) { 
@@ -23,9 +23,19 @@ public class NavigationContext: ObservableObject {
         }
     }
     
-    public func confirmation(_ confirmation: ActionConfirmation) { self.confirmation = confirmation }
+    public func confirmation(title: LocalizedStringKey,
+                             message: LocalizedStringKey? = nil,
+                             actionLabel: LocalizedStringKey,
+                             actionRole: ButtonRole? = nil,
+                             action: @escaping () -> Void) {
+        self.confirmation = .init(title: title,
+                                  message: message,
+                                  actionLabel: actionLabel,
+                                  actionRole: actionRole,
+                                  action: action)
+    }
     
-    public func dismiss(withConfirmation: Bool = false) { onDismiss(withConfirmation) }
+    public func dismiss() { onDismiss() }
 }
 
 // MARK: - Stack Management
@@ -50,25 +60,12 @@ extension NavigationContext {
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
-}
-
-// MARK: - Confirmation
-public struct ActionConfirmation {
-    public let title: LocalizedStringKey
-    public let message: LocalizedStringKey?
-    public let actionLabel: LocalizedStringKey
-    public let actionRole: ButtonRole?
-    public let action: () -> Void
     
-    public init(title: LocalizedStringKey,
-                message: LocalizedStringKey? = nil,
-                actionLabel: LocalizedStringKey,
-                actionRole: ButtonRole? = nil,
-                action: @escaping () -> Void = { }) {
-        self.title = title
-        self.message = message
-        self.actionLabel = actionLabel
-        self.actionRole = actionRole
-        self.action = action
+    struct Confirmation {
+        let title: LocalizedStringKey
+        let message: LocalizedStringKey?
+        let actionLabel: LocalizedStringKey
+        let actionRole: ButtonRole?
+        let action: () -> Void
     }
 }

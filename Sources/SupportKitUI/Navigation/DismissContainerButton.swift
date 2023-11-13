@@ -2,33 +2,33 @@ import SwiftUI
 
 public struct DismissContainerButton<Label>: View where Label: View {
     private let label: Label
-    private let withConfirmation: Bool
+    private let role: ButtonRole?
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
-    public init(_ titleKey: LocalizedStringKey, withConfirmation: Bool = false) where Label == Text {
+    public init(_ titleKey: LocalizedStringKey, role: ButtonRole? = nil) where Label == Text {
         self.label = Text(titleKey)
-        self.withConfirmation = withConfirmation
+        self.role = role
     }
     
-    public init(withConfirmation: Bool = false, @ViewBuilder label: () -> Label) {
+    public init(role: ButtonRole? = nil, @ViewBuilder label: () -> Label) {
         self.label = label()
-        self.withConfirmation = withConfirmation
+        self.role = role
     }
     
-    public init(image: String, withConfirmation: Bool = false) where Label == Image {
+    public init(image: String, role: ButtonRole? = nil) where Label == Image {
         self.label = Image(image)
-        self.withConfirmation = withConfirmation
+        self.role = role
     }
     
-    public init(systemImage: String, withConfirmation: Bool = false) where Label == Image {
+    public init(systemImage: String, role: ButtonRole? = nil) where Label == Image {
         self.label = Image(systemName: systemImage)
-        self.withConfirmation = withConfirmation
+        self.role = role
     }
     
     public var body: some View {
-        Button {
-            navigationContext.dismiss(withConfirmation: withConfirmation)
+        Button(role: role) {
+            navigationContext.dismiss()
         } label: {
             label
         }

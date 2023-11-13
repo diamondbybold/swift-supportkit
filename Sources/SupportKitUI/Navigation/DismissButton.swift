@@ -2,27 +2,35 @@ import SwiftUI
 
 public struct DismissButton<Label>: View where Label: View {
     private let label: Label
+    private let role: ButtonRole?
     
     @Environment(\.dismiss) private var dismiss
     
-    public init(_ titleKey: LocalizedStringKey) where Label == Text {
+    public init(_ titleKey: LocalizedStringKey,
+                role: ButtonRole? = nil) where Label == Text {
         self.label = Text(titleKey)
+        self.role = role
     }
     
-    public init(@ViewBuilder label: () -> Label) {
+    public init(role: ButtonRole? = nil, @ViewBuilder label: () -> Label) {
         self.label = label()
+        self.role = role
     }
     
-    public init(image: String) where Label == Image {
+    public init(image: String,
+                role: ButtonRole? = nil) where Label == Image {
         self.label = Image(image)
+        self.role = role
     }
     
-    public init(systemImage: String) where Label == Image {
+    public init(systemImage: String,
+                role: ButtonRole? = nil) where Label == Image {
         self.label = Image(systemName: systemImage)
+        self.role = role
     }
     
     public var body: some View {
-        Button {
+        Button(role: role) {
             dismiss()
         } label: {
             label

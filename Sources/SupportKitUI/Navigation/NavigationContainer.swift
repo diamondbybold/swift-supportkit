@@ -4,7 +4,6 @@ struct NavigationContainer<Root: View>: View {
     @StateObject private var navigationContext = NavigationContext()
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.dismissConfirmation) private var dismissConfirmation
     @State private var showConfirmation: Bool = false
     
     @ViewBuilder
@@ -37,25 +36,9 @@ struct NavigationContainer<Root: View>: View {
                 Text(message)
             }
         }
-        .confirmationDialog(dismissConfirmation.title,
-                            isPresented: $showConfirmation,
-                            titleVisibility: .visible) {
-            Button(dismissConfirmation.actionLabel, role: dismissConfirmation.actionRole) {
-                dismissConfirmation.action()
-                dismiss()
-            }
-        } message: {
-            if let message = dismissConfirmation.message {
-                Text(message)
-            }
-        }
         .onAppear {
-            navigationContext.onDismiss = { withConfirmation in
-                if withConfirmation {
-                    showConfirmation = true
-                } else {
-                    dismiss()
-                }
+            navigationContext.onDismiss = {
+                dismiss()
             }
         }
     }
@@ -66,21 +49,9 @@ extension View {
         NavigationContainer { self }
     }
     
-    public func navigationContainer(dismissConfirmation: ActionConfirmation) -> some View {
-        NavigationContainer { self }
-            .environment(\.dismissConfirmation, dismissConfirmation)
-    }
-    
     public func navigationContainer<T: ObservableObject>(_ contextObject: T) -> some View {
         NavigationContainer { self }
             .environmentObject(contextObject)
-    }
-    
-    public func navigationContainer<T: ObservableObject>(_ contextObject: T,
-                                                         dismissConfirmation: ActionConfirmation) -> some View {
-        NavigationContainer { self }
-            .environmentObject(contextObject)
-            .environment(\.dismissConfirmation, dismissConfirmation)
     }
     
     public func navigationContainer(title: LocalizedStringKey,
@@ -109,18 +80,5 @@ extension View {
         NavigationContainer { self }
             .tabItem { Label(title, systemImage: symbol) }
             .environmentObject(contextObject)
-    }
-}
-
-// MARK: - Environment Values
-public struct DismissConfirmationKey: EnvironmentKey {
-    public static let defaultValue: ActionConfirmation = ActionConfirmation(title: "Are you sure?",
-                                                                            actionLabel: "Yes")
-}
-
-extension EnvironmentValues {
-    public var dismissConfirmation: ActionConfirmation {
-        get { self[DismissConfirmationKey.self] }
-        set { self[DismissConfirmationKey.self] = newValue }
     }
 }
