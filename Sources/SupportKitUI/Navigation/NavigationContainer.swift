@@ -25,10 +25,8 @@ struct NavigationContainer<Root: View>: View {
         .confirmationDialog(navigationContext.confirmation?.title ?? "",
                             isPresented: .present(value: $navigationContext.confirmation),
                             titleVisibility: .visible) {
-            if let confirmation = navigationContext.confirmation {
-                Button(confirmation.actionLabel, role: confirmation.actionRole) {
-                    confirmation.action()
-                }
+            if let actions = navigationContext.confirmation?.actions {
+                AnyView(actions())
             }
         } message: {
             if let message = navigationContext.confirmation?.message {
@@ -37,7 +35,9 @@ struct NavigationContainer<Root: View>: View {
         }
         .alert(navigationContext.alert?.title ?? "",
                isPresented: .present(value: $navigationContext.alert)) {
-            Button("OK") { }
+            if let actions = navigationContext.alert?.actions {
+                AnyView(actions())
+            }
         } message: {
             if let message = navigationContext.alert?.message {
                 Text(message)

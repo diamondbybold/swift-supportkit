@@ -6,7 +6,7 @@ public class NavigationContext: ObservableObject {
     @Published var sheet: DestinationData? = nil
     @Published var fullScreenCover: DestinationData? = nil
     
-    @Published var confirmation: Confirmation? = nil
+    @Published var confirmation: Alert? = nil
     @Published var alert: Alert? = nil
     
     var onDismiss: () -> Void = { }
@@ -25,22 +25,19 @@ public class NavigationContext: ObservableObject {
         }
     }
     
-    public func confirmation(title: LocalizedStringKey,
-                             message: LocalizedStringKey? = nil,
-                             actionLabel: LocalizedStringKey,
-                             actionRole: ButtonRole? = nil,
-                             action: @escaping () -> Void) {
-        self.confirmation = .init(title: title,
-                                  message: message,
-                                  actionLabel: actionLabel,
-                                  actionRole: actionRole,
-                                  action: action)
-    }
-    
     public func alert(title: LocalizedStringKey,
-                      message: LocalizedStringKey? = nil) {
-        self.alert = .init(title: title,
-                           message: message)
+                      message: LocalizedStringKey? = nil,
+                      confirmation: Bool,
+                      @ViewBuilder actions: @escaping () -> any View) {
+        if confirmation {
+            self.confirmation = .init(title: title,
+                                      message: message,
+                                      actions: actions)
+        } else {
+            self.alert = .init(title: title,
+                               message: message,
+                               actions: actions)
+        }
     }
     
     public func dismiss() { onDismiss() }
@@ -69,16 +66,9 @@ extension NavigationContext {
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
     
-    struct Confirmation {
-        let title: LocalizedStringKey
-        let message: LocalizedStringKey?
-        let actionLabel: LocalizedStringKey
-        let actionRole: ButtonRole?
-        let action: () -> Void
-    }
-    
     struct Alert {
         let title: LocalizedStringKey
         let message: LocalizedStringKey?
+        let actions: () -> any View
     }
 }

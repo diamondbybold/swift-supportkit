@@ -58,7 +58,10 @@ public struct AsyncThrowingButton<Label>: View where Label: View {
             try await action()
         } catch let e as LocalizedError {
             navigationContext.alert(title: LocalizedStringKey(e.errorDescription ?? ""),
-                                    message: LocalizedStringKey(e.recoverySuggestion ?? ""))
+                                    message: LocalizedStringKey(e.recoverySuggestion ?? ""),
+                                    confirmation: false) {
+                Button("OK") { }
+            }
         } catch { }
         
         waiting = false
