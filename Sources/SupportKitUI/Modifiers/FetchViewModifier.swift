@@ -10,16 +10,16 @@ struct FetchViewModifier: ViewModifier {
     
     struct FetchTaskId: Equatable {
         let phase: ScenePhase
-        let isInvalidated: Bool
+        let lastInvalidate: Date
     }
     
     var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
     func body(content: Content) -> some View {
         content
-            .task(id: FetchTaskId(phase: phase, isInvalidated: store.state.isInvalidated)) {
+            .task(id: FetchTaskId(phase: phase, lastInvalidate: store.lastInvalidate)) {
                 if (phase == .active || isPreview),
-                   store.state.needsUpdate(expiration) {
+                   store.needsUpdate(expiration) {
                     await perform()
                 }
             }
@@ -33,10 +33,13 @@ extension View {
                       perform: @escaping () async throws -> Void) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.ready = false
+                store.error = nil
                 try await perform()
-                store.state = .updated(Date.now)
+                store.ready = true
             } catch {
-                store.state = .error(error)
+                store.ready = false
+                store.error = error
             }
         }))
     }
@@ -47,9 +50,13 @@ extension View {
                                            task: @escaping () async throws -> T?) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.ready = false
+                store.error = nil
                 store.resource = try await task()
+                store.ready = true
             } catch {
-                store.state = .error(error)
+                store.ready = false
+                store.error = error
             }
         }))
     }
@@ -60,9 +67,13 @@ extension View {
                                              task: @escaping () async throws -> [T]) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.ready = false
+                store.error = nil
                 store.collection = try await task()
+                store.ready = true
             } catch {
-                store.state = .error(error)
+                store.ready = false
+                store.error = error
             }
         }))
     }
@@ -73,12 +84,16 @@ extension View {
                                                   task: @escaping () async throws -> ([T], Int)) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.ready = false
+                store.error = nil
                 let (c, t) = try await task()
                 store.collection = c
                 store.total = t
                 store.currentPage = 1
+                store.ready = true
             } catch {
-                store.state = .error(error)
+                store.ready = false
+                store.error = error
             }
         }))
     }
@@ -88,11 +103,12 @@ extension View {
                                               task: @escaping () async throws -> [T]) -> some View {
         self.task {
             do {
+                store.moreContentError = nil
                 let c = try await task()
                 store.collection.append(contentsOf: c)
                 store.currentPage += 1
             } catch {
-                store.state = .moreContentError(error)
+                store.moreContentError = error
             }
         }
     }

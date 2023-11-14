@@ -14,7 +14,7 @@ open class APIStore<T: APIModel>: Store {
     
     public var collection: [T] = [] {
         willSet { objectWillChange.send() }
-        didSet { state = .updated(Date.now) }
+        didSet { lastUpdate = .now }
     }
     
     public var contentUnavailable: Bool { collection.isEmpty }
@@ -23,11 +23,11 @@ open class APIStore<T: APIModel>: Store {
     @Published public var currentPage: Int = 1
     public var pageSize: Int = 30
     public var hasMoreContent: Bool { collection.count < total }
-    
-    deinit { untracking() }
+    @Published public var moreContentError: Error? = nil
     
     public override init() {
         super.init()
+        
         tracking { [weak self] in
             for await object in T.updates.compactMap({ $0.object as? T }) {
                 self?.collection.update(object)
