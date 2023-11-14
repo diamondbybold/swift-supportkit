@@ -26,7 +26,7 @@ struct NavigationContainer<Root: View>: View {
                             isPresented: .present(value: $navigationContext.confirmation),
                             titleVisibility: .visible) {
             if let actions = navigationContext.confirmation?.actions {
-                AnyView(actions())
+                AnyView(actions().environmentObject(navigationContext))
             }
         } message: {
             if let message = navigationContext.confirmation?.message {
@@ -36,7 +36,7 @@ struct NavigationContainer<Root: View>: View {
         .alert(navigationContext.alert?.title ?? "",
                isPresented: .present(value: $navigationContext.alert)) {
             if let actions = navigationContext.alert?.actions {
-                AnyView(actions())
+                AnyView(actions().environmentObject(navigationContext))
             }
         } message: {
             if let message = navigationContext.alert?.message {
