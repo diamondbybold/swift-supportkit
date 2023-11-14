@@ -1,15 +1,15 @@
 import SwiftUI
 import SupportKit
 
-public struct AsyncThrowingButton<Label, E: LocalizedError>: View where Label: View {
+public struct AsyncThrowingButton<Label>: View where Label: View {
     private let label: Label
     private let role: ButtonRole?
     private let debounce: Bool
     private let action: () async throws -> Void
     
     @State private var waiting: Bool = false
-    @State private var showAlert: Bool = false
-    @State private var error: E? = nil
+    
+    @EnvironmentObject private var navigationContext: NavigationContext
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -53,11 +53,14 @@ public struct AsyncThrowingButton<Label, E: LocalizedError>: View where Label: V
     
     private func performTask() async {
         waiting = true
+        
         do {
             try await action()
-        } catch {
-            self.error = error as? E
-        }
+        } catch let e as LocalizedError {
+            navigationContext.alert(title: LocalizedStringKey(e.errorDescription ?? ""),
+                                    message: LocalizedStringKey(e.recoverySuggestion ?? ""))
+        } catch { }
+        
         waiting = false
     }
     
@@ -73,14 +76,6 @@ public struct AsyncThrowingButton<Label, E: LocalizedError>: View where Label: V
                 ProgressView()
             } else {
                 label
-            }
-        }
-        .allowsHitTesting(!waiting)
-        .alert(isPresented: $showAlert, error: error) { _ in
-            Button("OK") { }
-        } message: { error in
-            if let suggestion = error.recoverySuggestion {
-                Text(suggestion)
             }
         }
     }

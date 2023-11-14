@@ -4,7 +4,6 @@ struct NavigationContainer<Root: View>: View {
     @StateObject private var navigationContext = NavigationContext()
     
     @Environment(\.dismiss) private var dismiss
-    @State private var showConfirmation: Bool = false
     
     @ViewBuilder
     let root: () -> Root
@@ -33,6 +32,14 @@ struct NavigationContainer<Root: View>: View {
             }
         } message: {
             if let message = navigationContext.confirmation?.message {
+                Text(message)
+            }
+        }
+        .alert(navigationContext.alert?.title ?? "",
+               isPresented: .present(value: $navigationContext.alert)) {
+            Button("OK") { }
+        } message: {
+            if let message = navigationContext.alert?.message {
                 Text(message)
             }
         }

@@ -5,7 +5,9 @@ public class NavigationContext: ObservableObject {
     @Published var path: [DestinationData] = []
     @Published var sheet: DestinationData? = nil
     @Published var fullScreenCover: DestinationData? = nil
+    
     @Published var confirmation: Confirmation? = nil
+    @Published var alert: Alert? = nil
     
     var onDismiss: () -> Void = { }
     
@@ -33,6 +35,12 @@ public class NavigationContext: ObservableObject {
                                   actionLabel: actionLabel,
                                   actionRole: actionRole,
                                   action: action)
+    }
+    
+    public func alert(title: LocalizedStringKey,
+                      message: LocalizedStringKey? = nil) {
+        self.alert = .init(title: title,
+                           message: message)
     }
     
     public func dismiss() { onDismiss() }
@@ -67,5 +75,10 @@ extension NavigationContext {
         let actionLabel: LocalizedStringKey
         let actionRole: ButtonRole?
         let action: () -> Void
+    }
+    
+    struct Alert {
+        let title: LocalizedStringKey
+        let message: LocalizedStringKey?
     }
 }
