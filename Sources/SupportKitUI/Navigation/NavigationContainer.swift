@@ -56,36 +56,15 @@ extension View {
         NavigationContainer { self }
     }
     
-    public func navigationContainer<T: ObservableObject>(_ contextObject: T) -> some View {
-        NavigationContainer { self }
-            .environmentObject(contextObject)
-    }
-    
     public func navigationContainer(title: LocalizedStringKey,
                                     image: String) -> some View {
         NavigationContainer { self }
             .tabItem { Label(title, image: image) }
     }
     
-    public func navigationContainer<T: ObservableObject>(_ contextObject: T,
-                                                         title: LocalizedStringKey,
-                                                         image: String) -> some View {
-        NavigationContainer { self }
-            .tabItem { Label(title, image: image) }
-            .environmentObject(contextObject)
-    }
-    
     public func navigationContainer(title: LocalizedStringKey,
-                                    symbol: String) -> some View {
+                                    systemImage: String) -> some View {
         NavigationContainer { self }
-            .tabItem { Label(title, systemImage: symbol) }
-    }
-    
-    public func navigationContainer<T: ObservableObject>(_ contextObject: T,
-                                                         title: LocalizedStringKey,
-                                                         symbol: String) -> some View {
-        NavigationContainer { self }
-            .tabItem { Label(title, systemImage: symbol) }
-            .environmentObject(contextObject)
+            .tabItem { Label(title, systemImage: systemImage) }
     }
 }
