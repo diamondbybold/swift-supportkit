@@ -33,15 +33,29 @@ extension View {
                       perform: @escaping () async throws -> Void) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.ready = false
                 store.error = nil
                 try await perform()
-                store.ready = true
             } catch {
-                store.ready = false
                 store.error = error
             }
         }))
+    }
+    
+    @MainActor
+    public func fetch<NRV: View,
+                      EV: View>(_ store: Store,
+                                expiration: TimeInterval = 120,
+                                perform: @escaping () async throws -> Void,
+                                notReadView: () -> NRV,
+                                errorView: (Error) -> EV) -> some View {
+        self.overlay {
+            if !store.isReady {
+                notReadView()
+            } else if let e = store.error {
+                errorView(e)
+            }
+        }
+        .fetch(store, expiration: expiration, perform: perform)
     }
     
     @MainActor
@@ -50,15 +64,34 @@ extension View {
                                            task: @escaping () async throws -> T?) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.ready = false
                 store.error = nil
                 store.resource = try await task()
-                store.ready = true
             } catch {
-                store.ready = false
                 store.error = error
             }
         }))
+    }
+    
+    @MainActor
+    public func fetchResource<T: APIModel,
+                              NRV: View,
+                              EV: View,
+                              UV: View>(_ store: APIStore<T>,
+                                        expiration: TimeInterval = 120,
+                                        task: @escaping () async throws -> T?,
+                                        notReadView: () -> NRV,
+                                        errorView: (Error) -> EV,
+                                        unavailableView: () -> UV) -> some View {
+        self.overlay {
+            if !store.isReady {
+                notReadView()
+            } else if let e = store.error {
+                errorView(e)
+            } else if store.contentUnavailable {
+                unavailableView()
+            }
+        }
+        .fetchResource(store, expiration: expiration, task: task)
     }
     
     @MainActor
@@ -67,15 +100,34 @@ extension View {
                                              task: @escaping () async throws -> [T]) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.ready = false
                 store.error = nil
                 store.collection = try await task()
-                store.ready = true
             } catch {
-                store.ready = false
                 store.error = error
             }
         }))
+    }
+    
+    @MainActor
+    public func fetchCollection<T: APIModel,
+                                FV: View,
+                                EV: View,
+                                UV: View>(_ store: APIStore<T>,
+                                          expiration: TimeInterval = 120,
+                                          task: @escaping () async throws -> [T],
+                                          notReadView: () -> FV,
+                                          errorView: (Error) -> EV,
+                                          unavailableView: () -> UV) -> some View {
+        self.overlay {
+            if !store.isReady {
+                notReadView()
+            } else if let e = store.error {
+                errorView(e)
+            } else if store.contentUnavailable {
+                unavailableView()
+            }
+        }
+        .fetchCollection(store, expiration: expiration, task: task)
     }
     
     @MainActor
@@ -84,18 +136,37 @@ extension View {
                                                   task: @escaping () async throws -> ([T], Int)) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.ready = false
                 store.error = nil
                 let (c, t) = try await task()
                 store.collection = c
                 store.total = t
                 store.currentPage = 1
-                store.ready = true
             } catch {
-                store.ready = false
                 store.error = error
             }
         }))
+    }
+    
+    @MainActor
+    public func fetchPagedCollection<T: APIModel,
+                                     NRV: View,
+                                     EV: View,
+                                     UV: View>(_ store: APIStore<T>,
+                                               expiration: TimeInterval = 120,
+                                               task: @escaping () async throws -> ([T], Int),
+                                               notReadView: () -> NRV,
+                                               errorView: (Error) -> EV,
+                                               unavailableView: () -> UV) -> some View {
+        self.overlay {
+            if !store.isReady {
+                notReadView()
+            } else if let e = store.error {
+                errorView(e)
+            } else if store.contentUnavailable {
+                unavailableView()
+            }
+        }
+        .fetchPagedCollection(store, expiration: expiration, task: task)
     }
     
     @MainActor

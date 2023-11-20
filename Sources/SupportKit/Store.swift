@@ -1,12 +1,17 @@
 import Foundation
 
-open class Store: Context, Invalidatable {
+@MainActor
+open class Store: ObservableObject, Invalidatable {
     @Published public var lastUpdate: Date = .distantPast
     @Published public var lastInvalidate: Date = .distantPast
     
-    public override init() {
-        super.init()
-        
+    @Published public var error: Error? = nil
+    
+    public var isReady: Bool { !(lastUpdate == .distantPast && lastInvalidate == .distantPast) }
+    
+    deinit { untracking() }
+    
+    public init() {
         tracking { [weak self] in
             for await _ in Self.invalidates.map({ $0.object }) {
                 self?.invalidate()
@@ -14,9 +19,6 @@ open class Store: Context, Invalidatable {
         }
     }
     
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
-        lastUpdate.hasExpired(in: expiration)
-    }
-    
-    public func invalidate() { lastInvalidate = .now }
+    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool { lastUpdate.hasExpired(in: expiration) }
+    public func invalidate() { lastUpdate = .distantPast; lastInvalidate = .now }
 }
