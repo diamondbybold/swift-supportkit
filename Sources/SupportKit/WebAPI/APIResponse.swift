@@ -85,31 +85,24 @@ public struct APIResponse {
     }
 }
 
-// MARK: - Envelope
+// MARK: - Container
 extension APIResponse {
     struct EmptyMeta: Decodable { }
     
-    public func envelopeResource<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> APIEnvelope<D, M> {
-        let res: APIEnvelope<D, M> = try resource(decoder)
+    public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> APIContainer<D, M> {
+        let res: APIContainer<D, M> = try resource(decoder)
         if let errors = res.errors { throw errors }
         return res
     }
     
-    public func envelopeResource<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: APIEnvelope<D, EmptyMeta> = try resource(decoder)
+    public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
+        let res: APIContainer<D, EmptyMeta> = try resource(decoder)
         if let errors = res.errors { throw errors }
         return res.data
     }
     
-    public func nullableEnvelopeResource<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> APIEnvelope<D, M>? {
-        let res: APIEnvelope<D, M>? = try nullableResource(decoder)
-        guard let res else { return nil }
-        if let errors = res.errors { throw errors }
-        return res
-    }
-    
-    public func envelopeResource<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
-        let res: APIEnvelope<D, EmptyMeta>? = try nullableResource(decoder)
+    public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
+        let res: APIContainer<D, EmptyMeta>? = try nullableResource(decoder)
         guard let res else { return nil }
         if let errors = res.errors { throw errors }
         return res.data
