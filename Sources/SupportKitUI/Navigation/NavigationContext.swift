@@ -12,16 +12,21 @@ public class NavigationContext: ObservableObject {
     var onDismiss: () -> Void = { }
     
     public func destination(_ destination: Destination,
-                            @ViewBuilder content: @escaping () -> any View) { 
-        switch destination {
-        case .stack:
-            path.append(DestinationData(content: content))
-        case .sheet:
-            fullScreenCover = nil
-            sheet = DestinationData(content: content)
-        case .fullScreenCover:
-            sheet = nil
-            fullScreenCover = DestinationData(content: content)
+                            disableTransition: Bool = false,
+                            @ViewBuilder content: @escaping () -> any View) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = disableTransition
+        withTransaction(transaction) {
+            switch destination {
+            case .stack:
+                path.append(DestinationData(content: content))
+            case .sheet:
+                fullScreenCover = nil
+                sheet = DestinationData(content: content)
+            case .fullScreenCover:
+                sheet = nil
+                fullScreenCover = DestinationData(content: content)
+            }
         }
     }
     
@@ -46,8 +51,22 @@ public class NavigationContext: ObservableObject {
 // MARK: - Stack Management
 extension NavigationContext {
     public var destinationCountInStack: Int { path.count }
-    public func removeAllDestinationsInStack() { path.removeAll() }
-    public func removeLastDestinationInStack(_ k: Int = 1) { path.removeLast(k) }
+    
+    public func removeAllDestinationsInStack(disableTransition: Bool = false) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = disableTransition
+        withTransaction(transaction) {
+            path.removeAll()
+        }
+    }
+    
+    public func removeLastDestinationInStack(_ k: Int = 1, disableTransition: Bool = false) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = disableTransition
+        withTransaction(transaction) {
+            path.removeLast(k)
+        }
+    }
 }
 
 // MARK: - Support Types
