@@ -43,16 +43,20 @@ extension View {
     
     @MainActor
     public func fetch<NRV: View,
+                      CUV: View,
                       EV: View>(_ store: Store,
                                 expiration: TimeInterval = 120,
                                 perform: @escaping () async throws -> Void,
                                 notReadView: () -> NRV,
+                                contentUnavailableView: () -> CUV,
                                 errorView: (Error) -> EV) -> some View {
         self.overlay {
             if !store.isReady {
                 notReadView()
             } else if let e = store.error {
                 errorView(e)
+            } else if store.contentUnavailable {
+                contentUnavailableView()
             }
         }
         .fetch(store, expiration: expiration, perform: perform)
@@ -75,20 +79,20 @@ extension View {
     @MainActor
     public func fetchResource<T: APIModel,
                               NRV: View,
-                              EV: View,
-                              UV: View>(_ store: APIStore<T>,
+                              CUV: View,
+                              EV: View>(_ store: APIStore<T>,
                                         expiration: TimeInterval = 120,
                                         task: @escaping () async throws -> T?,
                                         notReadView: () -> NRV,
-                                        errorView: (Error) -> EV,
-                                        unavailableView: () -> UV) -> some View {
+                                        contentUnavailableView: () -> CUV,
+                                        errorView: (Error) -> EV) -> some View {
         self.overlay {
             if !store.isReady {
                 notReadView()
             } else if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
-                unavailableView()
+                contentUnavailableView()
             }
         }
         .fetchResource(store, expiration: expiration, task: task)
@@ -111,20 +115,20 @@ extension View {
     @MainActor
     public func fetchCollection<T: APIModel,
                                 FV: View,
-                                EV: View,
-                                UV: View>(_ store: APIStore<T>,
+                                CUV: View,
+                                EV: View>(_ store: APIStore<T>,
                                           expiration: TimeInterval = 120,
                                           task: @escaping () async throws -> [T],
                                           notReadView: () -> FV,
-                                          errorView: (Error) -> EV,
-                                          unavailableView: () -> UV) -> some View {
+                                          contentUnavailableView: () -> CUV,
+                                          errorView: (Error) -> EV) -> some View {
         self.overlay {
             if !store.isReady {
                 notReadView()
             } else if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
-                unavailableView()
+                contentUnavailableView()
             }
         }
         .fetchCollection(store, expiration: expiration, task: task)
@@ -150,20 +154,20 @@ extension View {
     @MainActor
     public func fetchPagedCollection<T: APIModel,
                                      NRV: View,
-                                     EV: View,
-                                     UV: View>(_ store: APIStore<T>,
+                                     CUV: View,
+                                     EV: View>(_ store: APIStore<T>,
                                                expiration: TimeInterval = 120,
                                                task: @escaping () async throws -> ([T], Int),
                                                notReadView: () -> NRV,
-                                               errorView: (Error) -> EV,
-                                               unavailableView: () -> UV) -> some View {
+                                               contentUnavailableView: () -> CUV,
+                                               errorView: (Error) -> EV) -> some View {
         self.overlay {
             if !store.isReady {
                 notReadView()
             } else if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
-                unavailableView()
+                contentUnavailableView()
             }
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
