@@ -5,6 +5,7 @@ public class NavigationContext: ObservableObject {
     @Published var path: [DestinationData] = []
     @Published var sheet: DestinationData? = nil
     @Published var fullScreenCover: DestinationData? = nil
+    @Published var popover: DestinationData? = nil
     
     @Published var confirmation: Alert? = nil
     @Published var alert: Alert? = nil
@@ -22,10 +23,16 @@ public class NavigationContext: ObservableObject {
                 path.append(DestinationData(content: content))
             case .sheet:
                 fullScreenCover = nil
+                popover = nil
                 sheet = DestinationData(content: content)
             case .fullScreenCover:
                 sheet = nil
+                popover = nil
                 fullScreenCover = DestinationData(content: content)
+            case .popover:
+                sheet = nil
+                fullScreenCover = nil
+                popover = DestinationData(content: content)
             }
         }
     }
@@ -75,6 +82,7 @@ extension NavigationContext {
         case stack
         case sheet
         case fullScreenCover
+        case popover
     }
     
     struct DestinationData: Identifiable, Hashable {
