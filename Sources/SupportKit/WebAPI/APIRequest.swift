@@ -1,14 +1,32 @@
 import Foundation
 
 public struct APIRequest {
-    public var path: String = ""
-    public var version: String? = nil
-    public var method: APIMethod = .get
-    public var query: [String: String?] = [:]
-    public var body: APIBody? = nil
-    public var headers: [String: String] = [:]
-    public var cachePolicy: URLRequest.CachePolicy? = .useProtocolCachePolicy
-    public var retry: Bool = true
+    public var path: String
+    public var version: String?
+    public var method: APIMethod
+    public var query: [String: String?]
+    public var body: APIBody?
+    public var headers: [String: String]
+    public var cachePolicy: URLRequest.CachePolicy?
+    public var retry: Bool
+    
+    public init(path: String,
+                version: String? = nil,
+                method: APIMethod = .get,
+                query: [String: String?] = [:],
+                body: APIBody? = nil,
+                headers: [String: String] = [:],
+                cachePolicy: URLRequest.CachePolicy? = nil,
+                retry: Bool = true) {
+        self.path = path
+        self.version = version
+        self.method = method
+        self.query = query
+        self.body = body
+        self.headers = headers
+        self.cachePolicy = cachePolicy
+        self.retry = retry
+    }
 }
 
 // MARK: - Integration
