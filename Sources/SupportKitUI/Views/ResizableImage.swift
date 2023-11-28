@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct LocalImage: View {
+public struct ResizableImage: View {
     private let name: String
     private let scaledToFill: Bool
     
