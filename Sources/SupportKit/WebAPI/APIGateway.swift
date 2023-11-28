@@ -19,7 +19,7 @@ extension APIGateway {
         var request = request
         try await willSendRequest(&request)
         
-        let urlRequest = request.urlRequest(baseURL: baseURL)
+        let urlRequest = request.urlRequest(baseURL: baseURL, version: version)
         
 #if DEBUG
         print(urlRequest.cURLDescription())

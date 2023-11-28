@@ -31,13 +31,13 @@ public struct APIRequest {
 
 // MARK: - Integration
 extension APIRequest {
-    public func urlRequest(baseURL: URL) -> URLRequest {
+    public func urlRequest(baseURL: URL, version: String? = nil) -> URLRequest {
         // Compose URL
         var url = baseURL
         
-        if let v = version {
-            if !v.isEmpty { url = url.appendingPathComponent(v) }
-        } else if let v = self.version {
+        if let v = self.version, !v.isEmpty {
+            url = url.appendingPathComponent(v)
+        } else if let v = version {
             url = url.appendingPathComponent(v)
         }
         
