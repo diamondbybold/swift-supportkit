@@ -9,7 +9,7 @@ public struct APIContainer<D: Decodable, M: Decodable>: Decodable {
 
 public struct APIContainerError: LocalizedError, Decodable {
     public let status: String
-    public let code: String?
+//    public let code: String?
     public let title: String?
     public let detail: String?
     
