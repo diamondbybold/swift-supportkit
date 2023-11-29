@@ -12,6 +12,9 @@ public struct APIContainerError: LocalizedError, Decodable {
     public let code: String?
     public let title: String?
     public let detail: String?
+    
+    public var failureReason: String? { title }
+    public var recoverySuggestion: String? { detail }
 }
 
 extension Array: Error where Element == APIContainerError { }
