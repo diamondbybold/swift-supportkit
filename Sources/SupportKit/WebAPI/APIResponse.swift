@@ -97,7 +97,7 @@ extension APIResponse {
     
     public struct ContainerError: LocalizedError, Decodable {
         public let status: String
-        //    public let code: String?
+//        public let code: String?
         public let title: String?
         public let detail: String?
         
@@ -113,8 +113,10 @@ extension APIResponse {
     }
     
     public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: (data: D, meta: EmptyMeta) = try container(decoder)
-        return res.data
+        let res: Container<D, EmptyMeta> = try decoder.decode(Container<D, EmptyMeta>.self, from: data)
+        if let errors = res.errors { throw errors }
+        guard let data = res.data else { throw APIError.unavailable }
+        return data
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
