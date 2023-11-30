@@ -9,7 +9,7 @@ public struct APIContainer<D: Decodable, M: Decodable>: Decodable {
 
 public struct APIContainerError: LocalizedError, Decodable {
     public let status: String
-//    public let code: String?
+    //    public let code: String?
     public let title: String?
     public let detail: String?
     
@@ -17,4 +17,7 @@ public struct APIContainerError: LocalizedError, Decodable {
     public var recoverySuggestion: String? { detail }
 }
 
-extension Array: Error where Element == APIContainerError { }
+extension Array: Error, LocalizedError where Element == APIContainerError {
+    public var failureReason: String? { first?.failureReason }
+    public var recoverySuggestion: String? { first?.recoverySuggestion }
+}

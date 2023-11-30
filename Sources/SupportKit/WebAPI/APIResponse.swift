@@ -90,21 +90,18 @@ extension APIResponse {
     struct EmptyMeta: Decodable { }
     
     public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> APIContainer<D, M> {
-        let res: APIContainer<D, M> = try resource(decoder)
+        let res: APIContainer<D, M> = try decoder.decode(APIContainer<D, M>.self, from: data)
         if let errors = res.errors { throw errors }
         return res
     }
     
     public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: APIContainer<D, EmptyMeta> = try resource(decoder)
-        if let errors = res.errors { throw errors }
+        let res: APIContainer<D, EmptyMeta> = try container(decoder)
         return res.data
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
-        let res: APIContainer<D, EmptyMeta>? = try nullableResource(decoder)
-        guard let res else { return nil }
-        if let errors = res.errors { throw errors }
-        return res.data
+        guard statusCode != 204 else { return nil }
+        return try resourceInContainer(decoder)
     }
 }
