@@ -94,6 +94,7 @@ extension APIResponse {
     }
     
     struct EmptyMeta: Decodable { }
+    struct PaginationMeta: Decodable { let count: Int?; let total: Int? }
     
     public struct ContainerError: LocalizedError, Decodable {
         public let status: String
@@ -117,6 +118,13 @@ extension APIResponse {
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return data
+    }
+    
+    public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (items: D, count: Int) {
+        let res: Container<D, PaginationMeta> = try decoder.decode(Container<D, PaginationMeta>.self, from: data)
+        if let errors = res.errors { throw errors }
+        guard let data = res.data else { throw APIError.unavailable }
+        return (items: data, count: res.meta?.count ?? res.meta?.total ?? 0)
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
