@@ -95,13 +95,9 @@ extension APIResponse {
         return res
     }
     
-    public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: APIContainer<D, EmptyMeta> = try container(decoder)
-        return res.data
-    }
-    
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
         guard statusCode != 204 else { return nil }
-        return try resourceInContainer(decoder)
+        let res: APIContainer<D, EmptyMeta> = try container(decoder)
+        return res.data
     }
 }
