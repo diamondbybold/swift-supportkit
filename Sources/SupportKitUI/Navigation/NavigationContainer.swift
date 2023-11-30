@@ -54,12 +54,12 @@ struct NavigationContainer<Root: View>: View {
     }
 }
 
-struct CustomPathNavigationContainer<Root: View>: View {
+struct CustomPathNavigationContainer<Root: View, T: Hashable>: View {
     @StateObject private var navigationContext = NavigationContext()
     
     @Environment(\.dismiss) private var dismiss
     
-    let path: Binding<NavigationPath>
+    let path: Binding<[T]>
     
     @ViewBuilder
     let root: () -> Root
@@ -112,7 +112,7 @@ extension View {
         NavigationContainer { self }
     }
     
-    public func navigationContainer(path: Binding<NavigationPath>) -> some View {
+    public func navigationContainer<T: Hashable>(path: Binding<[T]>) -> some View {
         CustomPathNavigationContainer(path: path) { self }
     }
     
