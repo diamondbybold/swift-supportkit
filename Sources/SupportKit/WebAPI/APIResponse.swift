@@ -87,23 +87,43 @@ public struct APIResponse {
 
 // MARK: - Container
 extension APIResponse {
+    struct Container<D: Decodable, M: Decodable>: Decodable {
+        public let data: D?
+        public let meta: M?
+        public let errors: [ContainerError]?
+    }
+    
     struct EmptyMeta: Decodable { }
     
-    public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> APIContainer<D, M> {
-        let res: APIContainer<D, M> = try decoder.decode(APIContainer<D, M>.self, from: data)
+    public struct ContainerError: LocalizedError, Decodable {
+        public let status: String
+        //    public let code: String?
+        public let title: String?
+        public let detail: String?
+        
+        public var failureReason: String? { title }
+        public var recoverySuggestion: String? { detail }
+    }
+    
+    public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D, meta: M) {
+        let res: Container<D, M> = try decoder.decode(Container<D, M>.self, from: data)
         if let errors = res.errors { throw errors }
-        return res
+        guard let data = res.data, let meta = res.meta else { throw APIError.unavailable }
+        return (data: data, meta: meta)
     }
     
     public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: APIContainer<D, EmptyMeta> = try container(decoder)
-        guard let data = res.data else { throw APIError.unavailable }
-        return data
+        let res: (data: D, meta: EmptyMeta) = try container(decoder)
+        return res.data
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
         guard statusCode != 204 else { return nil }
-        let res: APIContainer<D, EmptyMeta> = try container(decoder)
-        return res.data
+        return try resourceInContainer(decoder)
     }
+}
+
+extension Array: Error, LocalizedError where Element == APIResponse.ContainerError {
+    public var failureReason: String? { first?.failureReason }
+    public var recoverySuggestion: String? { first?.recoverySuggestion }
 }
