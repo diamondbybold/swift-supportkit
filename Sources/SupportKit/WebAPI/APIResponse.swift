@@ -98,7 +98,7 @@ extension APIResponse {
     
     public struct ContainerError: LocalizedError, Decodable {
         public let status: String
-//        public let code: String?
+        //        public let code: String?
         public let title: String?
         public let detail: String?
         
@@ -107,21 +107,48 @@ extension APIResponse {
     }
     
     public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D, meta: M) {
-        let res: Container<D, M> = try decoder.decode(Container<D, M>.self, from: data)
+        let res: Container<D, M>
+        do {
+            res = try decoder.decode(Container<D, M>.self, from: data)
+        } catch {
+#if DEBUG
+            print("[Decoding Error] \(error)")
+            print("[Error] Unavailable")
+#endif
+            throw APIError.unavailable
+        }
         if let errors = res.errors { throw errors }
         guard let data = res.data, let meta = res.meta else { throw APIError.unavailable }
         return (data: data, meta: meta)
     }
     
     public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
-        let res: Container<D, EmptyMeta> = try decoder.decode(Container<D, EmptyMeta>.self, from: data)
+        let res: Container<D, EmptyMeta>
+        do {
+            res = try decoder.decode(Container<D, EmptyMeta>.self, from: data)
+        } catch {
+#if DEBUG
+            print("[Decoding Error] \(error)")
+            print("[Error] Unavailable")
+#endif
+            throw APIError.unavailable
+        }
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return data
     }
     
     public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (items: D, count: Int) {
-        let res: Container<D, PaginationMeta> = try decoder.decode(Container<D, PaginationMeta>.self, from: data)
+        let res: Container<D, PaginationMeta>
+        do {
+            res = try decoder.decode(Container<D, PaginationMeta>.self, from: data)
+        } catch {
+#if DEBUG
+            print("[Decoding Error] \(error)")
+            print("[Error] Unavailable")
+#endif
+            throw APIError.unavailable
+        }
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return (items: data, count: res.meta?.count ?? res.meta?.total ?? 0)
