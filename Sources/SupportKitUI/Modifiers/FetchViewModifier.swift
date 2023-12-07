@@ -51,12 +51,12 @@ extension View {
                                 contentUnavailableView: () -> CUV,
                                 errorView: (Error) -> EV) -> some View {
         self.overlay {
-            if !store.isReady {
-                notReadView()
-            } else if let e = store.error {
+            if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
                 contentUnavailableView()
+            } else if !store.isReady {
+                notReadView()
             }
         }
         .fetch(store, expiration: expiration, perform: perform)
@@ -87,12 +87,12 @@ extension View {
                                         contentUnavailableView: () -> CUV,
                                         errorView: (Error) -> EV) -> some View {
         self.overlay {
-            if !store.isReady {
-                notReadView()
-            } else if let e = store.error {
+            if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
                 contentUnavailableView()
+            } else if !store.isReady {
+                notReadView()
             }
         }
         .fetchResource(store, expiration: expiration, task: task)
@@ -123,12 +123,12 @@ extension View {
                                           contentUnavailableView: () -> CUV,
                                           errorView: (Error) -> EV) -> some View {
         self.overlay {
-            if !store.isReady {
-                notReadView()
-            } else if let e = store.error {
+            if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
                 contentUnavailableView()
+            } else if !store.isReady {
+                notReadView()
             }
         }
         .fetchCollection(store, expiration: expiration, task: task)
@@ -162,12 +162,12 @@ extension View {
                                                contentUnavailableView: () -> CUV,
                                                errorView: (Error) -> EV) -> some View {
         self.overlay {
-            if !store.isReady {
-                notReadView()
-            } else if let e = store.error {
+            if let e = store.error {
                 errorView(e)
             } else if store.contentUnavailable {
                 contentUnavailableView()
+            } else if !store.isReady {
+                notReadView()
             }
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
