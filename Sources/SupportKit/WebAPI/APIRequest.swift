@@ -80,17 +80,6 @@ extension APIRequest {
 #endif
             }
         case .formData(let dict):
-            var data: [String] = []
-            
-            for (k, v) in dict {
-                if let v = v {
-                    data.append(k + "=" + (v.addingPercentEncodingForURLFormValue ?? ""))
-                }
-            }
-            
-            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.httpBody = data.joined(separator: "&").data(using: .utf8)!
-        case .multiFormData(let dict):
             let boundary = UUID().uuidString
             var data = Data()
             
@@ -113,6 +102,28 @@ extension APIRequest {
                     data += fieldString.data(using: .utf8)!
                     data += value
                     data += "\r\n".data(using: .utf8)!
+                } else if let stringArray = v as? [String] {
+                    for value in stringArray {
+                        var fieldString = "--\(boundary)\r\n"
+                        fieldString += "Content-Disposition: form-data; name=\"\(k)\"\r\n"
+                        fieldString += "Content-Type: text/plain; charset=utf-8\r\n"
+                        fieldString += "Content-Transfer-Encoding: binary\r\n"
+                        fieldString += "\r\n"
+                        fieldString += value
+                        fieldString += "\r\n"
+                        data += fieldString.data(using: .utf8)!
+                    }
+                } else if let dataArray = v as? [Data] {
+                    for value in dataArray {
+                        var fieldString = "--\(boundary)\r\n"
+                        fieldString += "Content-Disposition: form-data; name=\"\(k)\"; filename=\"\(UUID().uuidString).jpg\"\r\n"
+                        fieldString += "Content-Type: image/jpeg\r\n"
+                        fieldString += "Content-Transfer-Encoding: binary\r\n"
+                        fieldString += "\r\n"
+                        data += fieldString.data(using: .utf8)!
+                        data += value
+                        data += "\r\n".data(using: .utf8)!
+                    }
                 }
             }
             
