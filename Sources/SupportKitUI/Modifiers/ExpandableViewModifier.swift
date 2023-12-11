@@ -18,7 +18,7 @@ struct ExpandableViewModifier: ViewModifier {
                             .frame(width: 50)
                         
                         Button(label) { withAnimation { expanded = true } }
-                            .background(.white)
+                            .background(backgroundColor)
                     }
                     .fixedSize()
                 }
