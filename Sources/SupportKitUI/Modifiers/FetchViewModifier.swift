@@ -47,7 +47,7 @@ extension View {
                       EV: View>(_ store: Store,
                                 expiration: TimeInterval = 120,
                                 perform: @escaping () async throws -> Void,
-                                notReadView: () -> NRV,
+                                notReadyView: () -> NRV,
                                 contentUnavailableView: () -> CUV,
                                 errorView: (Error) -> EV) -> some View {
         self.overlay {
@@ -56,7 +56,7 @@ extension View {
             } else if store.contentUnavailable {
                 contentUnavailableView()
             } else if !store.isReady {
-                notReadView()
+                notReadyView()
             }
         }
         .fetch(store, expiration: expiration, perform: perform)
@@ -83,7 +83,7 @@ extension View {
                               EV: View>(_ store: APIStore<T>,
                                         expiration: TimeInterval = 120,
                                         task: @escaping () async throws -> T?,
-                                        notReadView: () -> NRV,
+                                        notReadyView: () -> NRV,
                                         contentUnavailableView: () -> CUV,
                                         errorView: (Error) -> EV) -> some View {
         self.overlay {
@@ -92,7 +92,7 @@ extension View {
             } else if store.contentUnavailable {
                 contentUnavailableView()
             } else if !store.isReady {
-                notReadView()
+                notReadyView()
             }
         }
         .fetchResource(store, expiration: expiration, task: task)
@@ -119,7 +119,7 @@ extension View {
                                 EV: View>(_ store: APIStore<T>,
                                           expiration: TimeInterval = 120,
                                           task: @escaping () async throws -> [T],
-                                          notReadView: () -> FV,
+                                          notReadyView: () -> FV,
                                           contentUnavailableView: () -> CUV,
                                           errorView: (Error) -> EV) -> some View {
         self.overlay {
@@ -128,7 +128,7 @@ extension View {
             } else if store.contentUnavailable {
                 contentUnavailableView()
             } else if !store.isReady {
-                notReadView()
+                notReadyView()
             }
         }
         .fetchCollection(store, expiration: expiration, task: task)
@@ -158,7 +158,7 @@ extension View {
                                      EV: View>(_ store: APIStore<T>,
                                                expiration: TimeInterval = 120,
                                                task: @escaping () async throws -> ([T], Int),
-                                               notReadView: () -> NRV,
+                                               notReadyView: () -> NRV,
                                                contentUnavailableView: () -> CUV,
                                                errorView: (Error) -> EV) -> some View {
         self.overlay {
@@ -167,7 +167,7 @@ extension View {
             } else if store.contentUnavailable {
                 contentUnavailableView()
             } else if !store.isReady {
-                notReadView()
+                notReadyView()
             }
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
