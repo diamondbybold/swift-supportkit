@@ -3,6 +3,7 @@ import SwiftUI
 struct ExpandableViewModifier: ViewModifier {
     let label: LocalizedStringKey
     let maxHeight: CGFloat
+    let backgroundColor: Color
     
     @State private var expanded: Bool = false
     
@@ -13,10 +14,10 @@ struct ExpandableViewModifier: ViewModifier {
             content
                 .overlay(alignment: .bottomTrailing) {
                     HStack(spacing: 0) {
-                        LinearGradient(colors: [.clear, .white], startPoint: .leading, endPoint: .trailing)
+                        LinearGradient(colors: [.clear, backgroundColor], startPoint: .leading, endPoint: .trailing)
                             .frame(width: 50)
                         
-                        Button(label) { expanded = true }
+                        Button(label) { withAnimation { expanded = true } }
                             .background(.white)
                     }
                     .fixedSize()
@@ -28,7 +29,7 @@ struct ExpandableViewModifier: ViewModifier {
 }
 
 extension View {
-    public func expandable(_ label: LocalizedStringKey, maxHeight: CGFloat) -> some View {
-        self.modifier(ExpandableViewModifier(label: label, maxHeight: maxHeight))
+    public func expandable(_ label: LocalizedStringKey, maxHeight: CGFloat, backgroundColor: Color) -> some View {
+        self.modifier(ExpandableViewModifier(label: label, maxHeight: maxHeight, backgroundColor: backgroundColor))
     }
 }
