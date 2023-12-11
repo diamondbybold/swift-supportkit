@@ -8,7 +8,7 @@ open class Store: ObservableObject, Invalidatable {
     @Published public var error: Error? = nil
     
     public var isReady: Bool { !(lastUpdate == .distantPast && lastInvalidate == .distantPast) }
-    public var contentUnavailable: Bool { false }
+    open var contentUnavailable: Bool { false }
     
     deinit { untracking() }
     
