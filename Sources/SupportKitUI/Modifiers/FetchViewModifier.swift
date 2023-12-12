@@ -44,20 +44,26 @@ extension View {
     @MainActor
     public func fetch<NRV: View,
                       CUV: View,
-                      EV: View>(_ store: Store,
-                                expiration: TimeInterval = 120,
-                                perform: @escaping () async throws -> Void,
-                                notReadyView: () -> NRV,
-                                contentUnavailableView: () -> CUV,
-                                errorView: (Error) -> EV) -> some View {
+                      EV: View,
+                      SS: ShapeStyle>(_ store: Store,
+                                      expiration: TimeInterval = 120,
+                                      perform: @escaping () async throws -> Void,
+                                      notReadyView: () -> NRV,
+                                      contentUnavailableView: () -> CUV,
+                                      errorView: (Error) -> EV,
+                                      backgroundStyle: SS = .clear) -> some View {
         self.overlay {
-            if let e = store.error {
-                errorView(e)
-            } else if store.contentUnavailable {
-                contentUnavailableView()
-            } else if !store.isReady {
-                notReadyView()
+            Group {
+                if let e = store.error {
+                    errorView(e)
+                } else if store.contentUnavailable {
+                    contentUnavailableView()
+                } else if !store.isReady {
+                    notReadyView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(backgroundStyle)
         }
         .fetch(store, expiration: expiration, perform: perform)
     }
@@ -80,20 +86,26 @@ extension View {
     public func fetchResource<T: APIModel,
                               NRV: View,
                               CUV: View,
-                              EV: View>(_ store: APIStore<T>,
-                                        expiration: TimeInterval = 120,
-                                        task: @escaping () async throws -> T?,
-                                        notReadyView: () -> NRV,
-                                        contentUnavailableView: () -> CUV,
-                                        errorView: (Error) -> EV) -> some View {
+                              EV: View,
+                              SS: ShapeStyle>(_ store: APIStore<T>,
+                                              expiration: TimeInterval = 120,
+                                              task: @escaping () async throws -> T?,
+                                              notReadyView: () -> NRV,
+                                              contentUnavailableView: () -> CUV,
+                                              errorView: (Error) -> EV,
+                                              backgroundStyle: SS = .clear) -> some View {
         self.overlay {
-            if let e = store.error {
-                errorView(e)
-            } else if store.contentUnavailable {
-                contentUnavailableView()
-            } else if !store.isReady {
-                notReadyView()
+            Group {
+                if let e = store.error {
+                    errorView(e)
+                } else if store.contentUnavailable {
+                    contentUnavailableView()
+                } else if !store.isReady {
+                    notReadyView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(backgroundStyle)
         }
         .fetchResource(store, expiration: expiration, task: task)
     }
@@ -116,20 +128,26 @@ extension View {
     public func fetchCollection<T: APIModel,
                                 FV: View,
                                 CUV: View,
-                                EV: View>(_ store: APIStore<T>,
-                                          expiration: TimeInterval = 120,
-                                          task: @escaping () async throws -> [T],
-                                          notReadyView: () -> FV,
-                                          contentUnavailableView: () -> CUV,
-                                          errorView: (Error) -> EV) -> some View {
+                                EV: View,
+                                SS: ShapeStyle>(_ store: APIStore<T>,
+                                                expiration: TimeInterval = 120,
+                                                task: @escaping () async throws -> [T],
+                                                notReadyView: () -> FV,
+                                                contentUnavailableView: () -> CUV,
+                                                errorView: (Error) -> EV,
+                                                backgroundStyle: SS = .clear) -> some View {
         self.overlay {
-            if let e = store.error {
-                errorView(e)
-            } else if store.contentUnavailable {
-                contentUnavailableView()
-            } else if !store.isReady {
-                notReadyView()
+            Group {
+                if let e = store.error {
+                    errorView(e)
+                } else if store.contentUnavailable {
+                    contentUnavailableView()
+                } else if !store.isReady {
+                    notReadyView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(backgroundStyle)
         }
         .fetchCollection(store, expiration: expiration, task: task)
     }
@@ -155,20 +173,26 @@ extension View {
     public func fetchPagedCollection<T: APIModel,
                                      NRV: View,
                                      CUV: View,
-                                     EV: View>(_ store: APIStore<T>,
-                                               expiration: TimeInterval = 120,
-                                               task: @escaping () async throws -> ([T], Int),
-                                               notReadyView: () -> NRV,
-                                               contentUnavailableView: () -> CUV,
-                                               errorView: (Error) -> EV) -> some View {
+                                     EV: View,
+                                     SS: ShapeStyle>(_ store: APIStore<T>,
+                                                     expiration: TimeInterval = 120,
+                                                     task: @escaping () async throws -> ([T], Int),
+                                                     notReadyView: () -> NRV,
+                                                     contentUnavailableView: () -> CUV,
+                                                     errorView: (Error) -> EV,
+                                                     backgroundStyle: SS = .clear) -> some View {
         self.overlay {
-            if let e = store.error {
-                errorView(e)
-            } else if store.contentUnavailable {
-                contentUnavailableView()
-            } else if !store.isReady {
-                notReadyView()
+            Group {
+                if let e = store.error {
+                    errorView(e)
+                } else if store.contentUnavailable {
+                    contentUnavailableView()
+                } else if !store.isReady {
+                    notReadyView()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(backgroundStyle)
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
     }
