@@ -53,17 +53,19 @@ extension View {
                                 contentUnavailableView: () -> CUV,
                                 errorView: (Error) -> EV) -> some View {
         self.overlay {
-            Group {
-                if let e = store.error {
-                    errorView(e)
-                } else if store.contentUnavailable {
-                    contentUnavailableView()
-                } else if !store.isReady {
-                    notReadyView()
-                }
+            if let e = store.error {
+                errorView(e)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if store.contentUnavailable {
+                contentUnavailableView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if !store.isReady {
+                notReadyView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundStyle)
         }
         .fetch(store, expiration: expiration, perform: perform)
     }
@@ -95,17 +97,19 @@ extension View {
                                         contentUnavailableView: () -> CUV,
                                         errorView: (Error) -> EV) -> some View {
         self.overlay {
-            Group {
-                if let e = store.error {
-                    errorView(e)
-                } else if store.contentUnavailable {
-                    contentUnavailableView()
-                } else if !store.isReady {
-                    notReadyView()
-                }
+            if let e = store.error {
+                errorView(e)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if store.contentUnavailable {
+                contentUnavailableView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if !store.isReady {
+                notReadyView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundStyle)
         }
         .fetchResource(store, expiration: expiration, task: task)
     }
@@ -137,17 +141,19 @@ extension View {
                                           contentUnavailableView: () -> CUV,
                                           errorView: (Error) -> EV) -> some View {
         self.overlay {
-            Group {
-                if let e = store.error {
-                    errorView(e)
-                } else if store.contentUnavailable {
-                    contentUnavailableView()
-                } else if !store.isReady {
-                    notReadyView()
-                }
+            if let e = store.error {
+                errorView(e)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if store.contentUnavailable {
+                contentUnavailableView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if !store.isReady {
+                notReadyView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundStyle)
         }
         .fetchCollection(store, expiration: expiration, task: task)
     }
@@ -182,17 +188,19 @@ extension View {
                                                contentUnavailableView: () -> CUV,
                                                errorView: (Error) -> EV) -> some View {
         self.overlay {
-            Group {
-                if let e = store.error {
-                    errorView(e)
-                } else if store.contentUnavailable {
-                    contentUnavailableView()
-                } else if !store.isReady {
-                    notReadyView()
-                }
+            if let e = store.error {
+                errorView(e)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if store.contentUnavailable {
+                contentUnavailableView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
+            } else if !store.isReady {
+                notReadyView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(backgroundStyle)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundStyle)
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
     }
