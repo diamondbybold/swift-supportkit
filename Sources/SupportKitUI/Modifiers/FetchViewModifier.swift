@@ -35,6 +35,7 @@ extension View {
             do {
                 store.error = nil
                 try await perform()
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -78,6 +79,7 @@ extension View {
             do {
                 store.error = nil
                 store.resource = try await task()
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -122,6 +124,7 @@ extension View {
             do {
                 store.error = nil
                 store.collection = try await task()
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -169,6 +172,7 @@ extension View {
                 store.collection = c
                 store.total = t
                 store.currentPage = 1
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -214,6 +218,7 @@ extension View {
                 let c = try await task()
                 store.collection.append(contentsOf: c)
                 store.currentPage += 1
+                store.lastUpdate = .now
             } catch {
                 store.moreContentError = error
             }

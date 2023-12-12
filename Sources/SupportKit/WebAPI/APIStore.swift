@@ -12,10 +12,7 @@ open class APIStore<T: APIModel>: Store {
         }
     }
     
-    public var collection: [T] = [] {
-        willSet { objectWillChange.send() }
-        didSet { lastUpdate = .now }
-    }
+    @Published public var collection: [T] = []
     
     public override var contentUnavailable: Bool { lastUpdate != .distantPast && collection.isEmpty }
     
