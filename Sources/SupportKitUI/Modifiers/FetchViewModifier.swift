@@ -169,9 +169,7 @@ extension View {
             do {
                 store.error = nil
                 let (c, t) = try await task()
-                store.collection = c
-                store.total = t
-                store.currentPage = 1
+                store.setPagedCollection((c, t))
                 store.lastUpdate = .now
             } catch {
                 store.error = error
@@ -216,8 +214,7 @@ extension View {
             do {
                 store.moreContentError = nil
                 let c = try await task()
-                store.collection.append(contentsOf: c)
-                store.currentPage += 1
+                store.appendMoreContentToPagedCollection(c)
                 store.lastUpdate = .now
             } catch {
                 store.moreContentError = error

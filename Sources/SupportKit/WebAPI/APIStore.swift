@@ -42,3 +42,16 @@ open class APIStore<T: APIModel>: Store {
         self.collection = collection
     }
 }
+
+extension APIStore {
+    public func setPagedCollection(_ data: (items: [T], count: Int)) {
+        collection = data.items
+        total = data.count
+        currentPage = 1
+    }
+    
+    public func appendMoreContentToPagedCollection(_ items: [T]) {
+        collection.append(contentsOf: items)
+        currentPage += 1
+    }
+}
