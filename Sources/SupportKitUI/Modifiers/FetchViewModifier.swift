@@ -35,12 +35,7 @@ extension View {
             do {
                 store.error = nil
                 try await perform()
-                
-                if store.lastUpdate == .distantPast {
-                    store.lastUpdate = .now
-                } else {
-                    withoutAnimation { store.lastUpdate = .now }
-                }
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -84,12 +79,7 @@ extension View {
             do {
                 store.error = nil
                 store.resource = try await task()
-                
-                if store.lastUpdate == .distantPast {
-                    store.lastUpdate = .now
-                } else {
-                    withoutAnimation { store.lastUpdate = .now }
-                }
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -134,12 +124,7 @@ extension View {
             do {
                 store.error = nil
                 store.collection = try await task()
-                
-                if store.lastUpdate == .distantPast {
-                    store.lastUpdate = .now
-                } else {
-                    withoutAnimation { store.lastUpdate = .now }
-                }
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -185,12 +170,7 @@ extension View {
                 store.error = nil
                 let (c, t) = try await task()
                 store.setPagedCollection((c, t))
-                
-                if store.lastUpdate == .distantPast {
-                    store.lastUpdate = .now
-                } else {
-                    withoutAnimation { store.lastUpdate = .now }
-                }
+                store.lastUpdate = .now
             } catch {
                 store.error = error
             }
@@ -235,12 +215,7 @@ extension View {
                 store.moreContentError = nil
                 let c = try await task()
                 store.appendMoreContentToPagedCollection(c)
-
-                if store.lastUpdate == .distantPast {
-                    store.lastUpdate = .now
-                } else {
-                    withoutAnimation { store.lastUpdate = .now }
-                }
+                store.lastUpdate = .now
             } catch {
                 store.moreContentError = error
             }
