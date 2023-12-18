@@ -32,7 +32,7 @@ open class Store: ObservableObject, Invalidatable {
         else { updatedAt = .now }
     }
     
-    public func tryAgain() {
+    public func resetTimestamps() {
         error = nil
         fetchedAt = .distantPast
         updatedAt = .distantPast
