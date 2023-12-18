@@ -35,10 +35,8 @@ extension View {
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.error = nil
                 try await perform()
-                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
-                else { store.updatedAt = .now }
+                store.updateTimestamps()
             } catch {
                 store.error = error
             }
@@ -82,10 +80,8 @@ extension View {
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.error = nil
                 store.resource = try await task()
-                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
-                else { store.updatedAt = .now }
+                store.updateTimestamps()
             } catch {
                 store.error = error
             }
@@ -130,10 +126,8 @@ extension View {
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.error = nil
                 store.collection = try await task()
-                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
-                else { store.updatedAt = .now }
+                store.updateTimestamps()
             } catch {
                 store.error = error
             }
@@ -178,11 +172,9 @@ extension View {
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
-                store.error = nil
                 let (c, t) = try await task()
                 store.setPagedCollection((c, t))
-                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
-                else { store.updatedAt = .now }
+                store.updateTimestamps()
             } catch {
                 store.error = error
             }

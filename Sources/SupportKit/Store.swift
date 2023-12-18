@@ -25,4 +25,22 @@ open class Store: ObservableObject, Invalidatable {
         else if updatedAt > fetchedAt { return updatedAt.hasExpired(in: expiration) }
         else { return fetchedAt.hasExpired(in: expiration) }
     }
+    
+    public func updateTimestamps() {
+        error = nil
+        if fetchedAt == .distantPast { fetchedAt = .now }
+        else { updatedAt = .now }
+    }
+    
+    public func tryAgain() {
+        error = nil
+        fetchedAt = .distantPast
+        updatedAt = .distantPast
+        invalidatedAt = .distantPast
+    }
+    
+    public func invalidate() {
+        error = nil
+        invalidatedAt = .now
+    }
 }
