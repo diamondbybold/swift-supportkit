@@ -14,7 +14,7 @@ open class APIStore<T: APIModel>: Store {
     
     @Published public var collection: [T] = []
     
-    public override var contentUnavailable: Bool { lastUpdate != .distantPast && collection.isEmpty }
+    public override var contentUnavailable: Bool { fetchedAt > .distantPast && collection.isEmpty }
     
     @Published public var total: Int = 0
     @Published public var currentPage: Int = 1

@@ -2,12 +2,12 @@ import Foundation
 
 @MainActor
 open class Store: ObservableObject, Invalidatable {
-    @Published public var lastUpdate: Date = .distantPast
-    @Published public var lastInvalidate: Date = .distantPast
+    @Published public var fetchedAt: Date = .distantPast
+    @Published public var updatedAt: Date = .distantPast
+    @Published public var invalidatedAt: Date = .distantPast
     
     @Published public var error: Error? = nil
     
-    public var isReady: Bool { !(lastUpdate == .distantPast && lastInvalidate == .distantPast) }
     open var contentUnavailable: Bool { false }
     
     deinit { untracking() }
@@ -15,11 +15,14 @@ open class Store: ObservableObject, Invalidatable {
     public init() {
         tracking { [weak self] in
             for await _ in Self.invalidates.map({ $0.object }) {
-                self?.invalidate()
+                self?.invalidatedAt = .now
             }
         }
     }
     
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool { lastUpdate.hasExpired(in: expiration) }
-    public func invalidate() { lastUpdate = .distantPast; lastInvalidate = .now }
+    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
+        if invalidatedAt > updatedAt { return true }
+        else if updatedAt > fetchedAt { return updatedAt.hasExpired(in: expiration) }
+        else { return fetchedAt.hasExpired(in: expiration) }
+    }
 }

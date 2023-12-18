@@ -17,7 +17,7 @@ struct FetchViewModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .task(id: FetchTaskId(phase: phase, lastInvalidate: store.lastInvalidate)) {
+            .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
                 if (phase == .active || isPreview),
                    store.needsUpdate(expiration) {
                     await perform()
@@ -35,7 +35,8 @@ extension View {
             do {
                 store.error = nil
                 try await perform()
-                store.lastUpdate = .now
+                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
+                else { store.updatedAt = .now }
             } catch {
                 store.error = error
             }
@@ -62,7 +63,7 @@ extension View {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if !store.isReady {
+            } else if store.fetchedAt == .distantPast {
                 notReadyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -79,7 +80,8 @@ extension View {
             do {
                 store.error = nil
                 store.resource = try await task()
-                store.lastUpdate = .now
+                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
+                else { store.updatedAt = .now }
             } catch {
                 store.error = error
             }
@@ -107,7 +109,7 @@ extension View {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if !store.isReady {
+            } else if store.fetchedAt == .distantPast {
                 notReadyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -124,7 +126,8 @@ extension View {
             do {
                 store.error = nil
                 store.collection = try await task()
-                store.lastUpdate = .now
+                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
+                else { store.updatedAt = .now }
             } catch {
                 store.error = error
             }
@@ -152,7 +155,7 @@ extension View {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if !store.isReady {
+            } else if store.fetchedAt == .distantPast {
                 notReadyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -170,7 +173,8 @@ extension View {
                 store.error = nil
                 let (c, t) = try await task()
                 store.setPagedCollection((c, t))
-                store.lastUpdate = .now
+                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
+                else { store.updatedAt = .now }
             } catch {
                 store.error = error
             }
@@ -198,7 +202,7 @@ extension View {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if !store.isReady {
+            } else if store.fetchedAt == .distantPast {
                 notReadyView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -215,7 +219,8 @@ extension View {
                 store.moreContentError = nil
                 let c = try await task()
                 store.appendMoreContentToPagedCollection(c)
-                store.lastUpdate = .now
+                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
+                else { store.updatedAt = .now }
             } catch {
                 store.moreContentError = error
             }
