@@ -31,7 +31,9 @@ extension View {
     public func fetch(_ store: Store,
                       expiration: TimeInterval = 120,
                       perform: @escaping () async throws -> Void) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        self
+            .animation(.default, value: store.updatedAt)
+            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
                 store.error = nil
                 try await perform()
@@ -76,7 +78,9 @@ extension View {
     public func fetchResource<T: APIModel>(_ store: APIStore<T>,
                                            expiration: TimeInterval = 120,
                                            task: @escaping () async throws -> T?) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        self
+            .animation(.default, value: store.updatedAt)
+            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
                 store.error = nil
                 store.resource = try await task()
@@ -122,7 +126,9 @@ extension View {
     public func fetchCollection<T: APIModel>(_ store: APIStore<T>,
                                              expiration: TimeInterval = 120,
                                              task: @escaping () async throws -> [T]) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        self
+            .animation(.default, value: store.updatedAt)
+            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
                 store.error = nil
                 store.collection = try await task()
@@ -168,7 +174,9 @@ extension View {
     public func fetchPagedCollection<T: APIModel>(_ store: APIStore<T>,
                                                   expiration: TimeInterval = 120,
                                                   task: @escaping () async throws -> ([T], Int)) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        self
+            .animation(.default, value: store.updatedAt)
+            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
                 store.error = nil
                 let (c, t) = try await task()
@@ -219,8 +227,7 @@ extension View {
                 store.moreContentError = nil
                 let c = try await task()
                 store.appendMoreContentToPagedCollection(c)
-                if store.fetchedAt == .distantPast { store.fetchedAt = .now }
-                else { store.updatedAt = .now }
+                store.updatedAt = .now
             } catch {
                 store.moreContentError = error
             }
