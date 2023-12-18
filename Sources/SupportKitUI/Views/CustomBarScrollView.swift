@@ -8,6 +8,7 @@ public struct CustomBarScrollView<Content: View>: View {
     @Namespace private var container
     
     @State private var containerSize: CGFloat = .zero
+    @State private var contentSize: CGFloat = .zero
     
     public init(topBarOpacity: Binding<Double>,
                 bottomBarOpacity: Binding<Double>,
@@ -33,7 +34,8 @@ public struct CustomBarScrollView<Content: View>: View {
                 }
                 .frame(height: 0)
                 .onPreferenceChange(ScrollContentBottomOffsetKey.self) { value in
-                    bottomBarOpacity = calcOpacity(containerSize - value)
+                    contentSize = value
+                    bottomBarOpacity = calcOpacity(containerSize - contentSize)
                 }
             }
         }
@@ -44,7 +46,7 @@ public struct CustomBarScrollView<Content: View>: View {
             }
             .onPreferenceChange(ScrollContainerSizeKey.self) { value in
                 containerSize = value
-                bottomBarOpacity = calcOpacity(containerSize - value)
+                bottomBarOpacity = calcOpacity(containerSize - contentSize)
             }
         }
         .toolbarBackground(.hidden, for: .tabBar)
@@ -52,7 +54,7 @@ public struct CustomBarScrollView<Content: View>: View {
         .toolbarBackground(.hidden, for: .bottomBar)
     }
     
-    func calcOpacity(_ value: CGFloat) -> Double { max(0, min(1, value / -10)) }
+    func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
 }
 
 public struct CustomTopBarScrollView<Content: View>: View {
@@ -85,7 +87,7 @@ public struct CustomTopBarScrollView<Content: View>: View {
         .toolbarBackground(.hidden, for: .bottomBar)
     }
     
-    func calcOpacity(_ value: CGFloat) -> Double { max(0, min(1, value / -10)) }
+    func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
 }
 
 public struct CustomBottomBarScrollView<Content: View>: View {
@@ -95,6 +97,7 @@ public struct CustomBottomBarScrollView<Content: View>: View {
     @Namespace private var container
     
     @State private var containerSize: CGFloat = .zero
+    @State private var contentSize: CGFloat = .zero
     
     public init(bottomBarOpacity: Binding<Double>,
                 @ViewBuilder content: @escaping () -> Content) {
@@ -112,7 +115,8 @@ public struct CustomBottomBarScrollView<Content: View>: View {
                 }
                 .frame(height: 0)
                 .onPreferenceChange(ScrollContentBottomOffsetKey.self) { value in
-                    bottomBarOpacity = calcOpacity(containerSize - value)
+                    contentSize = value
+                    bottomBarOpacity = calcOpacity(containerSize - contentSize)
                 }
             }
         }
@@ -123,14 +127,14 @@ public struct CustomBottomBarScrollView<Content: View>: View {
             }
             .onPreferenceChange(ScrollContainerSizeKey.self) { value in
                 containerSize = value
-                bottomBarOpacity = calcOpacity(containerSize - value)
+                bottomBarOpacity = calcOpacity(containerSize - contentSize)
             }
         }
         .toolbarBackground(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .bottomBar)
     }
     
-    func calcOpacity(_ value: CGFloat) -> Double { max(0, min(1, value / -10)) }
+    func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
 }
 
 struct ScrollContainerSizeKey: PreferenceKey {
