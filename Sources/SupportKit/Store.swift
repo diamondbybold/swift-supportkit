@@ -19,7 +19,10 @@ open class Store: ObservableObject, Invalidatable {
         }
     }
     
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool { fetchedAt.hasExpired(in: expiration) }
+    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
+        if invalidatedAt > fetchedAt { return true }
+        else { return fetchedAt.hasExpired(in: expiration) }
+    }
     
     public func invalidate(tryAgain: Bool = false) {
         if tryAgain {
