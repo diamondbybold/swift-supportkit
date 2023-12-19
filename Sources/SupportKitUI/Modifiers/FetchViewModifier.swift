@@ -31,15 +31,13 @@ extension View {
     public func fetch(_ store: Store,
                       expiration: TimeInterval = 120,
                       perform: @escaping () async throws -> Void) -> some View {
-        self
-            .animation(.default, value: store.updatedAt)
-            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-                do {
-                    try await perform()
-                } catch {
-                    store.error = error
-                }
-                store.updateTimestamps()
+        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+            do {
+                try await perform()
+                store.fetchedAt = .now
+            } catch {
+                store.error = error
+            }
         }))
     }
     
@@ -59,7 +57,7 @@ extension View {
                 errorView(e)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if store.contentUnavailable {
+            } else if store.fetchedAt > .distantPast, store.contentUnavailable {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -76,15 +74,13 @@ extension View {
     public func fetchResource<T: APIModel>(_ store: APIStore<T>,
                                            expiration: TimeInterval = 120,
                                            task: @escaping () async throws -> T?) -> some View {
-        self
-            .animation(.default, value: store.updatedAt)
-            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-                do {
-                    store.resource = try await task()
-                } catch {
-                    store.error = error
-                }
-                store.updateTimestamps()
+        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+            do {
+                store.resource = try await task()
+                store.fetchedAt = .now
+            } catch {
+                store.error = error
+            }
         }))
     }
     
@@ -105,7 +101,7 @@ extension View {
                 errorView(e)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if store.contentUnavailable {
+            } else if store.fetchedAt > .distantPast, store.contentUnavailable {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -122,15 +118,13 @@ extension View {
     public func fetchCollection<T: APIModel>(_ store: APIStore<T>,
                                              expiration: TimeInterval = 120,
                                              task: @escaping () async throws -> [T]) -> some View {
-        self
-            .animation(.default, value: store.updatedAt)
-            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-                do {
-                    store.collection = try await task()
-                } catch {
-                    store.error = error
-                }
-                store.updateTimestamps()
+        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+            do {
+                store.collection = try await task()
+                store.fetchedAt = .now
+            } catch {
+                store.error = error
+            }
         }))
     }
     
@@ -151,7 +145,7 @@ extension View {
                 errorView(e)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if store.contentUnavailable {
+            } else if store.fetchedAt > .distantPast, store.contentUnavailable {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -168,16 +162,14 @@ extension View {
     public func fetchPagedCollection<T: APIModel>(_ store: APIStore<T>,
                                                   expiration: TimeInterval = 120,
                                                   task: @escaping () async throws -> ([T], Int)) -> some View {
-        self
-            .animation(.default, value: store.updatedAt)
-            .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-                do {
-                    let (c, t) = try await task()
-                    store.setPagedCollection((c, t))
-                } catch {
-                    store.error = error
-                }
-                store.updateTimestamps()
+        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+            do {
+                let (c, t) = try await task()
+                store.setPagedCollection((c, t))
+                store.fetchedAt = .now
+            } catch {
+                store.error = error
+            }
         }))
     }
     
@@ -198,7 +190,7 @@ extension View {
                 errorView(e)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
-            } else if store.contentUnavailable {
+            } else if store.fetchedAt > .distantPast, store.contentUnavailable {
                 contentUnavailableView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(backgroundStyle)
@@ -219,10 +211,10 @@ extension View {
                 store.moreContentError = nil
                 let c = try await task()
                 store.appendMoreContentToPagedCollection(c)
+                store.fetchedAt = .now
             } catch {
                 store.moreContentError = error
             }
-            store.updatedAt = .now
         }
     }
 }
