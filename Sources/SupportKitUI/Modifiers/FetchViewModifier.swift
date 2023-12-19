@@ -34,12 +34,12 @@ extension View {
         self
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-            do {
-                try await perform()
+                do {
+                    try await perform()
+                } catch {
+                    store.error = error
+                }
                 store.updateTimestamps()
-            } catch {
-                store.error = error
-            }
         }))
     }
     
@@ -79,12 +79,12 @@ extension View {
         self
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-            do {
-                store.resource = try await task()
+                do {
+                    store.resource = try await task()
+                } catch {
+                    store.error = error
+                }
                 store.updateTimestamps()
-            } catch {
-                store.error = error
-            }
         }))
     }
     
@@ -125,12 +125,12 @@ extension View {
         self
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-            do {
-                store.collection = try await task()
+                do {
+                    store.collection = try await task()
+                } catch {
+                    store.error = error
+                }
                 store.updateTimestamps()
-            } catch {
-                store.error = error
-            }
         }))
     }
     
@@ -171,13 +171,13 @@ extension View {
         self
             .animation(.default, value: store.updatedAt)
             .modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
-            do {
-                let (c, t) = try await task()
-                store.setPagedCollection((c, t))
+                do {
+                    let (c, t) = try await task()
+                    store.setPagedCollection((c, t))
+                } catch {
+                    store.error = error
+                }
                 store.updateTimestamps()
-            } catch {
-                store.error = error
-            }
         }))
     }
     
@@ -219,10 +219,10 @@ extension View {
                 store.moreContentError = nil
                 let c = try await task()
                 store.appendMoreContentToPagedCollection(c)
-                store.updatedAt = .now
             } catch {
                 store.moreContentError = error
             }
+            store.updatedAt = .now
         }
     }
 }
