@@ -76,6 +76,7 @@ extension View {
                                            task: @escaping () async throws -> T?) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.error = nil
                 store.resource = try await task()
                 store.fetchedAt = .now
             } catch {
@@ -120,6 +121,7 @@ extension View {
                                              task: @escaping () async throws -> [T]) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.error = nil
                 store.collection = try await task()
                 store.fetchedAt = .now
             } catch {
@@ -164,6 +166,7 @@ extension View {
                                                   task: @escaping () async throws -> ([T], Int)) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
+                store.error = nil
                 let (c, t) = try await task()
                 store.setPagedCollection((c, t))
                 store.fetchedAt = .now

@@ -25,10 +25,7 @@ open class Store: ObservableObject, Invalidatable {
     }
     
     public func invalidate(tryAgain: Bool = false) {
-        if tryAgain {
-            error = nil
-            fetchedAt = .distantPast
-        }
+        if tryAgain { fetchedAt = .distantPast }
         invalidatedAt = .now
     }
 }
