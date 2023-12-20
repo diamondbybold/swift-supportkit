@@ -48,14 +48,14 @@ open class APIStore<T: APIModel>: Store {
 }
 
 extension APIStore {
-    public func setPagedCollection(_ data: APIResults<T>) {
-        collection = data.items
-        total = data.count
+    public func setPagedCollection(_ results: APIResults<T>) {
+        collection = results.items
+        total = results.count
         currentPage = 1
     }
     
-    public func appendMoreContentToPagedCollection(_ data: APIResults<T>) {
-        collection.append(contentsOf: data.items)
+    public func appendMoreContentToPagedCollection(_ results: APIResults<T>) {
+        collection.append(contentsOf: results.items)
         currentPage += 1
     }
     

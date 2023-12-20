@@ -28,17 +28,28 @@ struct FetchViewModifier: ViewModifier {
 
 extension View {
     @MainActor
+    @ViewBuilder
     public func fetch(_ store: Store,
                       expiration: TimeInterval = 120,
+                      refreshable: Bool = false,
                       perform: @escaping () async throws -> Void) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        let fetch = {
             do {
                 try await perform()
                 store.fetchedAt = .now
             } catch {
                 store.error = error
             }
-        }))
+        }
+        
+        if refreshable {
+            self
+                .refreshable { await fetch() }
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        } else {
+            self
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        }
     }
     
     @MainActor
@@ -48,6 +59,7 @@ extension View {
                       EV: View>(_ store: Store,
                                 backgroundStyle: SS = .clear,
                                 expiration: TimeInterval = 120,
+                                refreshable: Bool = false,
                                 perform: @escaping () async throws -> Void,
                                 notReadyView: () -> NRV,
                                 contentUnavailableView: () -> CUV,
@@ -67,14 +79,16 @@ extension View {
                     .background(backgroundStyle)
             }
         }
-        .fetch(store, expiration: expiration, perform: perform)
+        .fetch(store, expiration: expiration, refreshable: refreshable, perform: perform)
     }
     
     @MainActor
+    @ViewBuilder
     public func fetchResource<T: APIModel>(_ store: APIStore<T>,
                                            expiration: TimeInterval = 120,
+                                           refreshable: Bool = false,
                                            task: @escaping () async throws -> T?) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        let fetch = {
             do {
                 store.error = nil
                 store.resource = try await task()
@@ -82,7 +96,16 @@ extension View {
             } catch {
                 store.error = error
             }
-        }))
+        }
+        
+        if refreshable {
+            self
+                .refreshable { await fetch() }
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        } else {
+            self
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        }
     }
     
     @MainActor
@@ -92,6 +115,7 @@ extension View {
                               CUV: View,
                               EV: View>(_ store: APIStore<T>,
                                         expiration: TimeInterval = 120,
+                                        refreshable: Bool = false,
                                         backgroundStyle: SS = .clear,
                                         task: @escaping () async throws -> T?,
                                         notReadyView: () -> NRV,
@@ -112,14 +136,16 @@ extension View {
                     .background(backgroundStyle)
             }
         }
-        .fetchResource(store, expiration: expiration, task: task)
+        .fetchResource(store, expiration: expiration, refreshable: refreshable, task: task)
     }
     
     @MainActor
+    @ViewBuilder
     public func fetchCollection<T: APIModel>(_ store: APIStore<T>,
                                              expiration: TimeInterval = 120,
+                                             refreshable: Bool = false,
                                              task: @escaping () async throws -> [T]) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        let fetch = {
             do {
                 store.error = nil
                 store.collection = try await task()
@@ -127,7 +153,16 @@ extension View {
             } catch {
                 store.error = error
             }
-        }))
+        }
+        
+        if refreshable {
+            self
+                .refreshable { await fetch() }
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        } else {
+            self
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        }
     }
     
     @MainActor
@@ -137,6 +172,7 @@ extension View {
                                 CUV: View,
                                 EV: View>(_ store: APIStore<T>,
                                           expiration: TimeInterval = 120,
+                                          refreshable: Bool = false,
                                           backgroundStyle: SS = .clear,
                                           task: @escaping () async throws -> [T],
                                           notReadyView: () -> FV,
@@ -157,14 +193,16 @@ extension View {
                     .background(backgroundStyle)
             }
         }
-        .fetchCollection(store, expiration: expiration, task: task)
+        .fetchCollection(store, expiration: expiration, refreshable: refreshable, task: task)
     }
     
     @MainActor
+    @ViewBuilder
     public func fetchPagedCollection<T: APIModel>(_ store: APIStore<T>,
                                                   expiration: TimeInterval = 120,
+                                                  refreshable: Bool = false,
                                                   task: @escaping () async throws -> APIResults<T>) -> some View {
-        self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
+        let fetch = {
             do {
                 store.error = nil
                 let c = try await task()
@@ -173,7 +211,16 @@ extension View {
             } catch {
                 store.error = error
             }
-        }))
+        }
+        
+        if refreshable {
+            self
+                .refreshable { await fetch() }
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        } else {
+            self
+                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
+        }
     }
     
     @MainActor
@@ -183,6 +230,7 @@ extension View {
                                      CUV: View,
                                      EV: View>(_ store: APIStore<T>,
                                                expiration: TimeInterval = 120,
+                                               refreshable: Bool = false,
                                                backgroundStyle: SS = .clear,
                                                task: @escaping () async throws -> APIResults<T>,
                                                notReadyView: () -> NRV,
@@ -203,7 +251,7 @@ extension View {
                     .background(backgroundStyle)
             }
         }
-        .fetchPagedCollection(store, expiration: expiration, task: task)
+        .fetchPagedCollection(store, expiration: expiration, refreshable: refreshable, task: task)
     }
     
     @MainActor
