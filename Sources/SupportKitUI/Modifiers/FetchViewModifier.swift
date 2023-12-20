@@ -163,12 +163,12 @@ extension View {
     @MainActor
     public func fetchPagedCollection<T: APIModel>(_ store: APIStore<T>,
                                                   expiration: TimeInterval = 120,
-                                                  task: @escaping () async throws -> ([T], Int)) -> some View {
+                                                  task: @escaping () async throws -> APIResults<T>) -> some View {
         self.modifier(FetchViewModifier(store: store, expiration: expiration, perform: {
             do {
                 store.error = nil
-                let (c, t) = try await task()
-                store.setPagedCollection((c, t))
+                let c = try await task()
+                store.setPagedCollection(c)
                 store.fetchedAt = .now
             } catch {
                 store.error = error
@@ -184,7 +184,7 @@ extension View {
                                      EV: View>(_ store: APIStore<T>,
                                                expiration: TimeInterval = 120,
                                                backgroundStyle: SS = .clear,
-                                               task: @escaping () async throws -> ([T], Int),
+                                               task: @escaping () async throws -> APIResults<T>,
                                                notReadyView: () -> NRV,
                                                contentUnavailableView: () -> CUV,
                                                errorView: (Error) -> EV) -> some View {
@@ -204,6 +204,21 @@ extension View {
             }
         }
         .fetchPagedCollection(store, expiration: expiration, task: task)
+    }
+    
+    @MainActor
+    public func fetchMoreContent<T: APIModel>(_ store: APIStore<T>,
+                                              task: @escaping () async throws -> APIResults<T>) -> some View {
+        self.task {
+            do {
+                store.moreContentError = nil
+                let c = try await task()
+                store.appendMoreContentToPagedCollection(c)
+                store.fetchedAt = .now
+            } catch {
+                store.moreContentError = error
+            }
+        }
     }
     
     @MainActor
