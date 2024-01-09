@@ -4,6 +4,7 @@ import SupportKit
 struct FetchViewModifier: ViewModifier {
     @ObservedObject var store: Store
     let expiration: TimeInterval
+    let refreshable: Bool
     let perform: () async -> Void
     
     @Environment(\.scenePhase) private var phase
@@ -16,40 +17,46 @@ struct FetchViewModifier: ViewModifier {
     var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
     func body(content: Content) -> some View {
-        content
-            .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
-                if (phase == .active || isPreview),
-                   store.needsUpdate(expiration) {
+        if refreshable {
+            content
+                .refreshable {
                     await perform()
                 }
-            }
+                .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
+                    if (phase == .active || isPreview),
+                       store.needsUpdate(expiration) {
+                        await perform()
+                    }
+                }
+        } else {
+            content
+                .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
+                    if (phase == .active || isPreview),
+                       store.needsUpdate(expiration) {
+                        await perform()
+                    }
+                }
+        }
     }
 }
 
 extension View {
     @MainActor
-    @ViewBuilder
     public func fetch(_ store: Store,
                       expiration: TimeInterval = 120,
                       refreshable: Bool = false,
                       perform: @escaping () async throws -> Void) -> some View {
-        let fetch = {
+        self.modifier(FetchViewModifier(store: store,
+                                        expiration: expiration,
+                                        refreshable: refreshable,
+                                        perform: {
             do {
                 try await perform()
                 store.fetchedAt = .now
             } catch {
                 store.error = error
             }
-        }
-        
-        if refreshable {
-            self
-                .refreshable { await fetch() }
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        } else {
-            self
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        }
+        }))
     }
     
     @MainActor
@@ -83,12 +90,14 @@ extension View {
     }
     
     @MainActor
-    @ViewBuilder
     public func fetchResource<T: APIModel>(_ store: APIStore<T>,
                                            expiration: TimeInterval = 120,
                                            refreshable: Bool = false,
                                            task: @escaping () async throws -> T?) -> some View {
-        let fetch = {
+        self.modifier(FetchViewModifier(store: store,
+                                        expiration: expiration,
+                                        refreshable: refreshable,
+                                        perform: {
             do {
                 store.error = nil
                 store.resource = try await task()
@@ -96,16 +105,7 @@ extension View {
             } catch {
                 store.error = error
             }
-        }
-        
-        if refreshable {
-            self
-                .refreshable { await fetch() }
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        } else {
-            self
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        }
+        }))
     }
     
     @MainActor
@@ -140,12 +140,14 @@ extension View {
     }
     
     @MainActor
-    @ViewBuilder
     public func fetchCollection<T: APIModel>(_ store: APIStore<T>,
                                              expiration: TimeInterval = 120,
                                              refreshable: Bool = false,
                                              task: @escaping () async throws -> [T]) -> some View {
-        let fetch = {
+        self.modifier(FetchViewModifier(store: store,
+                                        expiration: expiration,
+                                        refreshable: refreshable,
+                                        perform: {
             do {
                 store.error = nil
                 store.collection = try await task()
@@ -153,16 +155,7 @@ extension View {
             } catch {
                 store.error = error
             }
-        }
-        
-        if refreshable {
-            self
-                .refreshable { await fetch() }
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        } else {
-            self
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        }
+        }))
     }
     
     @MainActor
@@ -197,12 +190,14 @@ extension View {
     }
     
     @MainActor
-    @ViewBuilder
     public func fetchPagedCollection<T: APIModel>(_ store: APIStore<T>,
                                                   expiration: TimeInterval = 120,
                                                   refreshable: Bool = false,
                                                   task: @escaping () async throws -> APIResults<T>) -> some View {
-        let fetch = {
+        self.modifier(FetchViewModifier(store: store,
+                                        expiration: expiration,
+                                        refreshable: refreshable,
+                                        perform: {
             do {
                 store.error = nil
                 let c = try await task()
@@ -211,16 +206,7 @@ extension View {
             } catch {
                 store.error = error
             }
-        }
-        
-        if refreshable {
-            self
-                .refreshable { await fetch() }
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        } else {
-            self
-                .modifier(FetchViewModifier(store: store, expiration: expiration, perform: fetch))
-        }
+        }))
     }
     
     @MainActor
