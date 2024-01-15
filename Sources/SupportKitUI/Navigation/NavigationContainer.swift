@@ -46,8 +46,8 @@ struct NavigationContainer<Root: View>: View {
                 Text(message)
             }
         }
-        .onAppear {
-            navigationContext.onDismiss = {
+        .onChange(of: navigationContext.shouldDismiss) { newValue in
+            if newValue {
                 dismiss()
             }
         }
@@ -99,8 +99,8 @@ struct CustomPathNavigationContainer<Root: View, T: Hashable>: View {
                 Text(message)
             }
         }
-        .onAppear {
-            navigationContext.onDismiss = {
+        .onChange(of: navigationContext.shouldDismiss) { newValue in
+            if newValue {
                 dismiss()
             }
         }
