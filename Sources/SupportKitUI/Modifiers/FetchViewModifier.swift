@@ -103,6 +103,7 @@ extension View {
                 store.resource = try await task()
                 store.fetchedAt = .now
             } catch {
+                store.collection.removeAll()
                 store.error = error
             }
         }))
@@ -153,6 +154,7 @@ extension View {
                 store.collection = try await task()
                 store.fetchedAt = .now
             } catch {
+                store.collection.removeAll()
                 store.error = error
             }
         }))
@@ -204,6 +206,7 @@ extension View {
                 store.setPagedCollection(c)
                 store.fetchedAt = .now
             } catch {
+                store.collection.removeAll()
                 store.error = error
             }
         }))

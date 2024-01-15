@@ -45,6 +45,11 @@ open class APIStore<T: APIModel>: Store {
         self.init()
         self.collection = collection
     }
+    
+    open override func invalidate(tryAgain: Bool = false) {
+        if tryAgain { collection.removeAll() }
+        super.invalidate(tryAgain: tryAgain)
+    }
 }
 
 extension APIStore {
