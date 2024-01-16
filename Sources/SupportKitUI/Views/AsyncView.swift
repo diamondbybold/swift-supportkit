@@ -60,6 +60,7 @@ public struct AsyncView<Content: View>: View {
                     content(phase)
                 }
                 .refreshable {
+                    currentPage = 1
                     await performTask(nil)
                 }
             } else {
