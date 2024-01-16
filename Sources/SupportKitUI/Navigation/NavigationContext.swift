@@ -10,7 +10,7 @@ public class NavigationContext: ObservableObject {
     @Published var confirmation: Alert? = nil
     @Published var alert: Alert? = nil
     
-    var onDismiss: () -> Void = { }
+    @Published var shouldDismiss: Bool = false
     
     public func destination(_ destination: Destination,
                             disableTransition: Bool = false,
@@ -52,7 +52,7 @@ public class NavigationContext: ObservableObject {
         }
     }
     
-    public func dismiss() { onDismiss() }
+    public func dismiss() { shouldDismiss = true }
 }
 
 // MARK: - Stack Management
