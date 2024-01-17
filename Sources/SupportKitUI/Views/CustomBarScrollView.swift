@@ -52,10 +52,6 @@ public struct CustomBarScrollView<Content: View>: View {
         .toolbarBackground(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .bottomBar)
-        .onDisappear {
-            topBarOpacity = 0.0
-            bottomBarOpacity = 0.0
-        }
     }
     
     func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
@@ -89,9 +85,6 @@ public struct CustomTopBarScrollView<Content: View>: View {
         .coordinateSpace(name: container)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarBackground(.hidden, for: .bottomBar)
-        .onDisappear {
-            topBarOpacity = 0.0
-        }
     }
     
     func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
@@ -139,9 +132,6 @@ public struct CustomBottomBarScrollView<Content: View>: View {
         }
         .toolbarBackground(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .bottomBar)
-        .onDisappear {
-            bottomBarOpacity = 0.0
-        }
     }
     
     func calcOpacity(_ value: CGFloat) -> Double { max(0.0, min(1.0, value / -10.0)) }
