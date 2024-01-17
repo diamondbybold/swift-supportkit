@@ -26,12 +26,12 @@ open class APIResource<T: APIModel>: ObservableObject, Invalidatable {
         }
     }
     
-    open func performFetch() async throws { }
+    open func performFetch() async throws -> T? { nil }
     
     public func fetch() async {
         do {
             if error != nil { error = nil }
-            try await performFetch()
+            data = try await performFetch()
             fetchedAt = .now
         } catch is CancellationError {
         } catch {
