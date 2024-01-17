@@ -44,6 +44,7 @@ struct APIResourceFetchViewModifier<T: APIModel>: ViewModifier {
     let resource: APIResource<T>
     let expiration: TimeInterval
     let refreshable: Bool
+    let prepareForFetch: () -> Void
     
     @Environment(\.scenePhase) private var phase
     
@@ -63,6 +64,7 @@ struct APIResourceFetchViewModifier<T: APIModel>: ViewModifier {
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: resource.invalidatedAt)) {
                     if (phase == .active || isPreview),
                        resource.needsUpdate(expiration) {
+                        prepareForFetch()
                         await resource.fetch()
                     }
                 }
@@ -71,6 +73,7 @@ struct APIResourceFetchViewModifier<T: APIModel>: ViewModifier {
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: resource.invalidatedAt)) {
                     if (phase == .active || isPreview),
                        resource.needsUpdate(expiration) {
+                        prepareForFetch()
                         await resource.fetch()
                     }
                 }
@@ -82,6 +85,7 @@ struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
     let collection: APICollection<T>
     let expiration: TimeInterval
     let refreshable: Bool
+    let prepareForFetch: () -> Void
     
     @Environment(\.scenePhase) private var phase
     
@@ -101,6 +105,7 @@ struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: collection.invalidatedAt)) {
                     if (phase == .active || isPreview),
                        collection.needsUpdate(expiration) {
+                        prepareForFetch()
                         await collection.fetch()
                     }
                 }
@@ -109,6 +114,7 @@ struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: collection.invalidatedAt)) {
                     if (phase == .active || isPreview),
                        collection.needsUpdate(expiration) {
+                        prepareForFetch()
                         await collection.fetch()
                     }
                 }
@@ -119,18 +125,22 @@ struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
 extension View {
     public func fetch<T: APIModel>(_ resource: APIResource<T>,
                                    expiration: TimeInterval = 120,
-                                   refreshable: Bool = false) -> some View {
+                                   refreshable: Bool = false,
+                                   prepareForFetch: @escaping () -> Void) -> some View {
         self.modifier(APIResourceFetchViewModifier(resource: resource,
                                                    expiration: expiration,
-                                                   refreshable: refreshable))
+                                                   refreshable: refreshable,
+                                                   prepareForFetch: prepareForFetch))
     }
     
     public func fetch<T: APIModel>(_ collection: APICollection<T>,
                                    expiration: TimeInterval = 120,
-                                   refreshable: Bool = false) -> some View {
+                                   refreshable: Bool = false,
+                                   prepareForFetch: @escaping () -> Void) -> some View {
         self.modifier(APICollectionFetchViewModifier(collection: collection,
                                                      expiration: expiration,
-                                                     refreshable: refreshable))
+                                                     refreshable: refreshable,
+                                                     prepareForFetch: prepareForFetch))
     }
 }
 
