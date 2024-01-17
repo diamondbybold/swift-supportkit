@@ -3,10 +3,10 @@ import SupportKit
 
 public struct AsyncCollectionView<T: APIModel, Content: View>: View {
     private let collection: APICollection<T>
-    private let content: (AsyncCollectionViewPhase) -> Content
+    private let content: (AsyncViewPhase) -> Content
     
     public init(_ collection: APICollection<T>,
-                @ViewBuilder content: @escaping (AsyncCollectionViewPhase) -> Content) {
+                @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
         self.collection = collection
         self.content = content
     }
@@ -20,15 +20,8 @@ public struct AsyncCollectionView<T: APIModel, Content: View>: View {
             } else if collection.fetchedAt == .distantPast {
                 content(.loading)
             } else {
-                content(.loaded(collection.data))
+                content(.loaded)
             }
         }
     }
-}
-
-public enum AsyncCollectionViewPhase {
-    case loading
-    case loaded([any APIModel])
-    case empty
-    case error(Error)
 }

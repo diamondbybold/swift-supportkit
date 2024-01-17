@@ -3,10 +3,10 @@ import SupportKit
 
 public struct AsyncResourceView<T: APIModel, Content: View>: View {
     private let resource: APIResource<T>
-    private let content: (AsyncResourceViewPhase) -> Content
+    private let content: (AsyncViewPhase) -> Content
     
     public init(_ resource: APIResource<T>,
-                @ViewBuilder content: @escaping (AsyncResourceViewPhase) -> Content) {
+                @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
         self.resource = resource
         self.content = content
     }
@@ -19,16 +19,9 @@ public struct AsyncResourceView<T: APIModel, Content: View>: View {
                 content(.empty)
             } else if resource.fetchedAt == .distantPast {
                 content(.loading)
-            } else if let data = resource.data {
-                content(.loaded(data))
+            } else {
+                content(.loaded)
             }
         }
     }
-}
-
-public enum AsyncResourceViewPhase {
-    case loading
-    case loaded(any APIModel)
-    case empty
-    case error(Error)
 }
