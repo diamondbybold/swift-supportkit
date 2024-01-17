@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 extension View {
     public var shortScreen: Bool {

@@ -14,21 +14,10 @@ extension Updatable {
     }
 }
 
-public protocol Deletable {
-    var isDeleted: Bool { get set }
-}
-
 extension Array where Element: Identifiable {
     public mutating func update(_ element: Element) {
         if let index = firstIndex(where: { $0.id == element.id }) {
-            if let deletableElement = element as? Deletable,
-               deletableElement.isDeleted {
-                self.remove(at: index)
-            } else {
-                self[index] = element
-            }
-        } else {
-            self.append(element)
+            self[index] = element
         }
     }
 }
