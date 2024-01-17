@@ -126,7 +126,7 @@ extension View {
     public func fetch<T: APIModel>(_ resource: APIResource<T>,
                                    expiration: TimeInterval = 120,
                                    refreshable: Bool = false,
-                                   prepareForFetch: @escaping () -> Void) -> some View {
+                                   prepareForFetch: @escaping () -> Void = { }) -> some View {
         self.modifier(APIResourceFetchViewModifier(resource: resource,
                                                    expiration: expiration,
                                                    refreshable: refreshable,
@@ -136,7 +136,7 @@ extension View {
     public func fetch<T: APIModel>(_ collection: APICollection<T>,
                                    expiration: TimeInterval = 120,
                                    refreshable: Bool = false,
-                                   prepareForFetch: @escaping () -> Void) -> some View {
+                                   prepareForFetch: @escaping () -> Void = { }) -> some View {
         self.modifier(APICollectionFetchViewModifier(collection: collection,
                                                      expiration: expiration,
                                                      refreshable: refreshable,
