@@ -5,9 +5,9 @@ open class APICollection<T: APIModel>: ObservableObject, Invalidatable {
     @Published public var data: [T] = []
     @Published public private(set) var error: Error? = nil
     
-    @Published public var currentPage: Int = 1
-    @Published public private(set) var total: Int = 0
-
+    @Published public var total: Int = 0
+    @Published public private(set) var currentPage: Int = 1
+    
     public var hasMoreContent: Bool { data.count < total }
     
     @Published public private(set) var fetchedAt: Date = .distantPast
