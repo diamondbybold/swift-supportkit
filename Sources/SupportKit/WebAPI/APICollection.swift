@@ -29,12 +29,16 @@ open class APICollection<T: APIModel>: ObservableObject, Invalidatable {
         }
     }
     
-    open func performFetch(pageNumber: Int) async throws { }
+    open func performFetch(pageNumber: Int) async throws -> APIResults<T> { (items: [], count: 0) }
     
     public func fetch() async {
         do {
             if error != nil { error = nil }
-            try await performFetch(pageNumber: 1)
+            
+            let res = try await performFetch(pageNumber: 1)
+            data = res.items
+            total = res.count
+            
             fetchedAt = .now
             currentPage = 1
         } catch is CancellationError {
@@ -53,7 +57,10 @@ open class APICollection<T: APIModel>: ObservableObject, Invalidatable {
     public func fetchMoreContents() async {
         do {
             let nextPage = currentPage + 1
-            try await performFetch(pageNumber: nextPage)
+            
+            let res = try await performFetch(pageNumber: nextPage)
+            data += res.items
+            
             fetchedAt = .now
             currentPage = nextPage
         } catch is CancellationError {
