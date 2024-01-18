@@ -40,8 +40,9 @@ struct FetchViewModifier: ViewModifier {
     }
 }
 
-struct APIResourceFetchViewModifier<T: APIModel>: ViewModifier {
-    let resource: APIResource<T>
+struct FetchableViewModifier<T: Fetchable>: ViewModifier {
+    let fetchable: T
+    let includes: [T]
     let expiration: TimeInterval
     let refreshable: Bool
     let prepareForFetch: () -> Void
@@ -55,67 +56,31 @@ struct APIResourceFetchViewModifier<T: APIModel>: ViewModifier {
         let lastInvalidate: Date
     }
     
-    func body(content: Content) -> some View {
-        if refreshable {
-            content
-                .refreshable {
-                    await resource.fetch()
-                }
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: resource.invalidatedAt)) {
-                    if (phase == .active || isPreview),
-                       resource.needsUpdate(expiration) {
-                        prepareForFetch()
-                        await resource.fetch()
-                    }
-                }
-        } else {
-            content
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: resource.invalidatedAt)) {
-                    if (phase == .active || isPreview),
-                       resource.needsUpdate(expiration) {
-                        prepareForFetch()
-                        await resource.fetch()
-                    }
-                }
-        }
-    }
-}
-
-struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
-    let collection: APICollection<T>
-    let expiration: TimeInterval
-    let refreshable: Bool
-    let prepareForFetch: () -> Void
-    
-    @Environment(\.scenePhase) private var phase
-    
-    var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
-    
-    struct FetchTaskId: Equatable {
-        let phase: ScenePhase
-        let lastInvalidate: Date
+    private func performFetch() async {
+        await fetchable.fetch()
+        for f in includes { await f.fetch() }
     }
     
     func body(content: Content) -> some View {
         if refreshable {
             content
                 .refreshable {
-                    await collection.fetch()
+                    await performFetch()
                 }
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: collection.invalidatedAt)) {
+                .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
                     if (phase == .active || isPreview),
-                       collection.needsUpdate(expiration) {
+                       fetchable.needsUpdate(expiration) {
                         prepareForFetch()
-                        await collection.fetch()
+                        await performFetch()
                     }
                 }
         } else {
             content
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: collection.invalidatedAt)) {
+                .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
                     if (phase == .active || isPreview),
-                       collection.needsUpdate(expiration) {
+                       fetchable.needsUpdate(expiration) {
                         prepareForFetch()
-                        await collection.fetch()
+                        await performFetch()
                     }
                 }
         }
@@ -123,24 +88,16 @@ struct APICollectionFetchViewModifier<T: APIModel>: ViewModifier {
 }
 
 extension View {
-    public func fetch<T: APIModel>(_ resource: APIResource<T>,
-                                   expiration: TimeInterval = 120,
-                                   refreshable: Bool = false,
-                                   prepareForFetch: @escaping () -> Void = { }) -> some View {
-        self.modifier(APIResourceFetchViewModifier(resource: resource,
-                                                   expiration: expiration,
-                                                   refreshable: refreshable,
-                                                   prepareForFetch: prepareForFetch))
-    }
-    
-    public func fetch<T: APIModel>(_ collection: APICollection<T>,
-                                   expiration: TimeInterval = 120,
-                                   refreshable: Bool = false,
-                                   prepareForFetch: @escaping () -> Void = { }) -> some View {
-        self.modifier(APICollectionFetchViewModifier(collection: collection,
-                                                     expiration: expiration,
-                                                     refreshable: refreshable,
-                                                     prepareForFetch: prepareForFetch))
+    public func fetch<T: Fetchable>(_ fetchable: T,
+                                    includes: [T],
+                                    expiration: TimeInterval = 120,
+                                    refreshable: Bool = false,
+                                    prepareForFetch: @escaping () -> Void = { }) -> some View {
+        self.modifier(FetchableViewModifier(fetchable: fetchable,
+                                            includes: includes,
+                                            expiration: expiration,
+                                            refreshable: refreshable,
+                                            prepareForFetch: prepareForFetch))
     }
 }
 

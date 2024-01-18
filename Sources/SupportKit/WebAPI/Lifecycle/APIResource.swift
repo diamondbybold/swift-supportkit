@@ -1,12 +1,13 @@
 import Foundation
 
-@MainActor
-open class APIResource<T: APIModel>: ObservableObject, Invalidatable {
+open class APIResource<T: APIModel>: Fetchable, Invalidatable {
     @Published public var data: T? = nil
-    @Published public private(set) var error: Error? = nil
+    @Published public var error: Error? = nil
     
-    @Published public private(set) var fetchedAt: Date = .distantPast
-    @Published public private(set) var invalidatedAt: Date = .distantPast
+    public var contentUnavailable: Bool { data == nil }
+    
+    @Published public var fetchedAt: Date = .distantPast
+    @Published public var invalidatedAt: Date = .distantPast
     
     deinit { untracking() }
     
@@ -44,14 +45,5 @@ open class APIResource<T: APIModel>: ObservableObject, Invalidatable {
         fetchedAt = .distantPast
         
         await fetch()
-    }
-    
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
-        if invalidatedAt > fetchedAt { return true }
-        else { return fetchedAt.hasExpired(in: expiration) }
-    }
-    
-    public func invalidate() {
-        invalidatedAt = .now
     }
 }

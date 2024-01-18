@@ -1,17 +1,17 @@
 import Foundation
 
-@MainActor
-open class APICollection<T: APIModel>: ObservableObject, Invalidatable {
+open class APICollection<T: APIModel>: Fetchable, Invalidatable {
     @Published public var data: [T] = []
-    @Published public private(set) var error: Error? = nil
-    
+    @Published public var error: Error? = nil
+        
     @Published public var total: Int = 0
     @Published public private(set) var currentPage: Int = 1
     
+    public var contentUnavailable: Bool { data.isEmpty }
     public var hasMoreContent: Bool { data.count < total }
     
-    @Published public private(set) var fetchedAt: Date = .distantPast
-    @Published public private(set) var invalidatedAt: Date = .distantPast
+    @Published public var fetchedAt: Date = .distantPast
+    @Published public var invalidatedAt: Date = .distantPast
     
     deinit { untracking() }
     
@@ -67,14 +67,5 @@ open class APICollection<T: APIModel>: ObservableObject, Invalidatable {
         } catch {
             self.error = error
         }
-    }
-    
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
-        if invalidatedAt > fetchedAt { return true }
-        else { return fetchedAt.hasExpired(in: expiration) }
-    }
-    
-    public func invalidate() {
-        invalidatedAt = .now
     }
 }

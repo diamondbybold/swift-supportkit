@@ -1,66 +1,27 @@
 import SwiftUI
+import SupportKit
 
-public struct AsyncView<Content: View>: View {
-    private let expiration: TimeInterval
-    private let refreshable: Bool
-    private let task: () async throws -> Bool
+public struct AsyncView<T: Fetchable, Content: View>: View {
+    private let fetchable: T
     private let content: (AsyncViewPhase) -> Content
     
-    @State private var phase: AsyncViewPhase = .loading
-    @State private var lastUpdated: Date = .distantPast
-    
-    private var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
-    
-    @Environment(\.scenePhase) private var schenePhase
-    
-    public init(expiration: TimeInterval = 120,
-                refreshable: Bool = false,
-                task: @escaping () async throws -> Bool,
+    public init(_ fetchable: T,
                 @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
-        self.expiration = expiration
-        self.refreshable = refreshable
-        self.task = task
+        self.fetchable = fetchable
         self.content = content
     }
     
-    private func performTask(_ expiration: TimeInterval?) async {
-        if !(schenePhase == .active || isPreview) { return }
-        if let expiration, !lastUpdated.hasExpired(in: expiration) { return }
-        
-        do {
-            if case .loaded = phase { phase = .loaded }
-            else { phase = .loading }
-            
-            if try await task() {
-                phase = .loaded
-            } else {
-                phase = .empty
-            }
-            
-            lastUpdated = .now
-        } catch is CancellationError {
-        } catch {
-            phase = .error(error)
-        }
-    }
-    
     public var body: some View {
-        Group {
-            if refreshable {
-                ZStack {
-                    content(phase)
-                }
-                .refreshable {
-                    await performTask(nil)
-                }
+        ZStack {
+            if let error = fetchable.error {
+                content(.error(error))
+            } else if fetchable.fetchedAt > .distantPast, fetchable.contentUnavailable {
+                content(.empty)
+            } else if fetchable.fetchedAt == .distantPast {
+                content(.loading)
             } else {
-                ZStack {
-                    content(phase)
-                }
+                content(.loaded)
             }
-        }
-        .task(id: schenePhase) {
-            await performTask(expiration)
         }
     }
 }
