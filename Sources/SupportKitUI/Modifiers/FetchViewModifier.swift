@@ -45,8 +45,8 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     let expiration: TimeInterval
     let refreshable: Bool
     
-    let willFetch: () -> Void
-    let didFetch: () -> Void
+    let willFetch: () async -> Void
+    let didFetch: () async -> Void
     
     @Environment(\.scenePhase) private var phase
     
@@ -58,9 +58,9 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     }
     
     private func performFetch() async {
-        willFetch()
+        await willFetch()
         await fetchable.fetch()
-        didFetch()
+        await didFetch()
     }
     
     func body(content: Content) -> some View {
@@ -87,8 +87,8 @@ extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
                                     expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
-                                    willFetch: @escaping () -> Void = { },
-                                    didFetch: @escaping () -> Void = { }) -> some View {
+                                    willFetch: @escaping () async -> Void = { },
+                                    didFetch: @escaping () async -> Void = { }) -> some View {
         self.modifier(FetchableViewModifier(fetchable: fetchable,
                                             expiration: expiration,
                                             refreshable: refreshable,
