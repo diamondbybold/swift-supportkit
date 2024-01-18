@@ -9,8 +9,9 @@ public protocol Fetchable: ObservableObject {
     var invalidatedAt: Date { get set }
     
     func fetch() async
+    func refetch() async
     
-    func needsUpdate(_ expiration: TimeInterval ) -> Bool
+    func needsUpdate(_ expiration: TimeInterval) -> Bool
     func invalidate(refetch: Bool)
 }
 
