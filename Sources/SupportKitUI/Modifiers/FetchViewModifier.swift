@@ -20,7 +20,11 @@ struct FetchViewModifier: ViewModifier {
         if refreshable {
             content
                 .refreshable {
-                    await perform()
+                    if #available(iOS 17, *) {
+                        await perform()
+                    } else {
+                        Task { await perform() }
+                    }
                 }
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
                     if (phase == .active || isPreview),
