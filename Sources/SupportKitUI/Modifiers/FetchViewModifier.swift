@@ -89,7 +89,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
 
 extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
-                                    includes: [T],
+                                    includes: [T] = [],
                                     expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
                                     prepareForFetch: @escaping () -> Void = { }) -> some View {
