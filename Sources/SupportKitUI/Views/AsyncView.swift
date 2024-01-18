@@ -14,9 +14,9 @@ public struct AsyncView<T: Fetchable, Content: View>: View {
     public var body: some View {
         ZStack {
             if let error = fetchable.error {
-                content(.error(error, { fetchable.invalidate(refetch: true) }))
+                content(.error(error))
             } else if fetchable.fetchedAt > .distantPast, fetchable.contentUnavailable {
-                content(.empty({ fetchable.invalidate(refetch: true) }))
+                content(.empty)
             } else if fetchable.fetchedAt == .distantPast {
                 content(.loading)
             } else {
@@ -29,6 +29,6 @@ public struct AsyncView<T: Fetchable, Content: View>: View {
 public enum AsyncViewPhase {
     case loading
     case loaded
-    case empty(() -> Void)
-    case error(Error, () -> Void)
+    case empty
+    case error(Error)
 }
