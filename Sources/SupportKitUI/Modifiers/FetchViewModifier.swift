@@ -45,6 +45,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     let includes: [T]
     let expiration: TimeInterval
     let refreshable: Bool
+    @Binding var refetch: Bool
     let prepareForFetch: () -> Void
     
     @Environment(\.scenePhase) private var phase
@@ -57,32 +58,47 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     }
     
     private func performFetch() async {
+        prepareForFetch()
         await fetchable.fetch()
-        for f in includes { await f.fetch() }
+        
+        if !includes.isEmpty {
+            prepareForFetch()
+            for f in includes { await f.fetch() }
+        }
+    }
+    
+    private func performRefetch() async {
+        prepareForFetch()
+        await fetchable.refetch()
+        
+        if !includes.isEmpty {
+            prepareForFetch()
+            for f in includes { await f.refetch() }
+        }
     }
     
     func body(content: Content) -> some View {
-        if refreshable {
-            content
-                .refreshable {
-                    await performFetch()
-                }
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
-                    if (phase == .active || isPreview),
-                       fetchable.needsUpdate(expiration) {
-                        prepareForFetch()
+        Group {
+            if refreshable {
+                content
+                    .refreshable {
                         await performFetch()
                     }
-                }
-        } else {
-            content
-                .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
-                    if (phase == .active || isPreview),
-                       fetchable.needsUpdate(expiration) {
-                        prepareForFetch()
-                        await performFetch()
-                    }
-                }
+            } else {
+                content
+            }
+        }
+        .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
+            if (phase == .active || isPreview),
+               fetchable.needsUpdate(expiration) {
+                await performFetch()
+            }
+        }
+        .onChange(of: refetch) { value in
+            if value {
+                refetch = false
+                Task { performRefetch }
+            }
         }
     }
 }
@@ -92,11 +108,13 @@ extension View {
                                     includes: [T] = [],
                                     expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
+                                    refetch: Binding<Bool> = .constant(false),
                                     prepareForFetch: @escaping () -> Void = { }) -> some View {
         self.modifier(FetchableViewModifier(fetchable: fetchable,
                                             includes: includes,
                                             expiration: expiration,
                                             refreshable: refreshable,
+                                            refetch: refetch,
                                             prepareForFetch: prepareForFetch))
     }
 }
