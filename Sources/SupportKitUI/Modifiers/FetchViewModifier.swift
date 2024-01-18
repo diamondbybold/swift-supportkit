@@ -23,7 +23,8 @@ struct FetchViewModifier: ViewModifier {
                     if #available(iOS 17, *) {
                         await perform()
                     } else {
-                        Task.detached { await perform() }
+                        try? await Task.sleep(for: .seconds(0.5))
+                        Task { await perform() }
                     }
                 }
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
@@ -72,7 +73,12 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
             if refreshable {
                 content
                     .refreshable {
-                        await performFetch()
+                        if #available(iOS 17, *) {
+                            await performFetch()
+                        } else {
+                            try? await Task.sleep(for: .seconds(0.5))
+                            Task { await performFetch() }
+                        }
                     }
             } else {
                 content
