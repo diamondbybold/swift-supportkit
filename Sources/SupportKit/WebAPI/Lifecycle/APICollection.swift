@@ -47,13 +47,6 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
         }
     }
     
-    public func refetch() async {
-        data.removeAll()
-        fetchedAt = .distantPast
-        
-        await fetch()
-    }
-    
     public func fetchMoreContents() async {
         do {
             let nextPage = currentPage + 1

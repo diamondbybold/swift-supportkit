@@ -42,11 +42,11 @@ struct FetchViewModifier: ViewModifier {
 
 struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     let fetchable: T
-    let includes: [T]
     let expiration: TimeInterval
     let refreshable: Bool
-    @Binding var refetch: Bool
-    let prepareForFetch: () -> Void
+    
+    let willFetch: () -> Void
+    let didFetch: () -> Void
     
     @Environment(\.scenePhase) private var phase
     
@@ -58,23 +58,9 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     }
     
     private func performFetch() async {
-        prepareForFetch()
+        willFetch()
         await fetchable.fetch()
-        
-        if !includes.isEmpty {
-            prepareForFetch()
-            for f in includes { await f.fetch() }
-        }
-    }
-    
-    private func performRefetch() async {
-        prepareForFetch()
-        await fetchable.refetch()
-        
-        if !includes.isEmpty {
-            prepareForFetch()
-            for f in includes { await f.refetch() }
-        }
+        didFetch()
     }
     
     func body(content: Content) -> some View {
@@ -94,28 +80,20 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
                 await performFetch()
             }
         }
-        .onChange(of: refetch) { value in
-            if value {
-                refetch = false
-                Task { performRefetch }
-            }
-        }
     }
 }
 
 extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
-                                    includes: [T] = [],
                                     expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
-                                    refetch: Binding<Bool> = .constant(false),
-                                    prepareForFetch: @escaping () -> Void = { }) -> some View {
+                                    willFetch: @escaping () -> Void = { },
+                                    didFetch: @escaping () -> Void = { }) -> some View {
         self.modifier(FetchableViewModifier(fetchable: fetchable,
-                                            includes: includes,
                                             expiration: expiration,
                                             refreshable: refreshable,
-                                            refetch: refetch,
-                                            prepareForFetch: prepareForFetch))
+                                            willFetch: willFetch,
+                                            didFetch: didFetch))
     }
 }
 

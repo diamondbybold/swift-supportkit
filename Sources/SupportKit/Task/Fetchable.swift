@@ -9,10 +9,9 @@ public protocol Fetchable: ObservableObject {
     var invalidatedAt: Date { get set }
     
     func fetch() async
-    func refetch() async
     
     func needsUpdate(_ expiration: TimeInterval ) -> Bool
-    func invalidate()
+    func invalidate(refetch: Bool)
 }
 
 extension Fetchable {
@@ -21,7 +20,8 @@ extension Fetchable {
         else { return fetchedAt.hasExpired(in: expiration) }
     }
     
-    public func invalidate() {
+    public func invalidate(refetch: Bool = false) {
+        if refetch { fetchedAt = .distantPast }
         invalidatedAt = .now
     }
 }
