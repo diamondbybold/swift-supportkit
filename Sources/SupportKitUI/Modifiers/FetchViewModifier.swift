@@ -23,7 +23,7 @@ struct FetchViewModifier: ViewModifier {
                     if #available(iOS 17, *) {
                         await perform()
                     } else {
-                        Task { await perform() }
+                        Task.detached { await perform() }
                     }
                 }
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
