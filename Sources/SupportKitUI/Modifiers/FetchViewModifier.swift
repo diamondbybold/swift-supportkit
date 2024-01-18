@@ -41,7 +41,7 @@ struct FetchViewModifier: ViewModifier {
 }
 
 struct FetchableViewModifier<T: Fetchable>: ViewModifier {
-    let fetchable: T
+    @ObservedObject var fetchable: T
     let expiration: TimeInterval
     let refreshable: Bool
     
