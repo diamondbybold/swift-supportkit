@@ -1,5 +1,7 @@
 import Foundation
 
+public typealias APIResults<T> = (elements: [T], total: Int)
+
 public struct APIResponse {
     public let request: APIRequest
     
@@ -138,7 +140,7 @@ extension APIResponse {
         return data
     }
     
-    public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (items: D, count: Int) {
+    public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (elements: D, total: Int) {
         let res: Container<D, PaginationMeta>
         do {
             res = try decoder.decode(Container<D, PaginationMeta>.self, from: data)
@@ -151,7 +153,7 @@ extension APIResponse {
         }
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
-        return (items: data, count: res.meta?.count ?? res.meta?.total ?? 0)
+        return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {

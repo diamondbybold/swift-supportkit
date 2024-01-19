@@ -1,7 +1,5 @@
 import Foundation
 
-public typealias APIResults<T> = (items: [T], count: Int)
-
 open class APIStore<T: APIModel>: Store {
     public var resource: T? {
         get { collection.first }
@@ -54,18 +52,18 @@ open class APIStore<T: APIModel>: Store {
 
 extension APIStore {
     public func setPagedCollection(_ results: APIResults<T>) {
-        collection = results.items
-        total = results.count
+        collection = results.elements
+        total = results.total
         currentPage = 1
     }
     
     public func appendMoreContentToPagedCollection(_ results: APIResults<T>) {
-        collection.append(contentsOf: results.items)
+        collection.append(contentsOf: results.elements)
         currentPage += 1
     }
     
-    public func appendMoreContentToPagedCollection(_ items: [T]) {
-        collection.append(contentsOf: items)
+    public func appendMoreContentToPagedCollection(_ elements: [T]) {
+        collection.append(contentsOf: elements)
         currentPage += 1
     }
 }

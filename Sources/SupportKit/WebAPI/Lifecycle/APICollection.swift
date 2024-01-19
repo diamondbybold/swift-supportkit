@@ -29,15 +29,15 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
         }
     }
     
-    open func performFetch(pageNumber: Int) async throws -> APIResults<T> { (items: [], count: 0) }
+    open func performFetch(pageNumber: Int) async throws -> APIResults<T> { (elements: [], total: 0) }
     
     public func fetch() async {
         do {
             if error != nil { error = nil }
             
             let res = try await performFetch(pageNumber: 1)
-            data = res.items
-            total = res.count
+            data = res.elements
+            total = res.total
             
             fetchedAt = .now
             currentPage = 1
@@ -59,7 +59,7 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
             let nextPage = currentPage + 1
             
             let res = try await performFetch(pageNumber: nextPage)
-            data += res.items
+            data += res.elements
             
             fetchedAt = .now
             currentPage = nextPage
