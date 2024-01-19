@@ -2,9 +2,11 @@ import Foundation
 
 open class APIResource<T: APIModel>: Fetchable, Invalidatable {
     @Published public var data: T? = nil
-    @Published public var error: Error? = nil
     
     public var contentUnavailable: Bool { data == nil }
+    
+    @Published public var isFetching: Bool = false
+    @Published public var error: Error? = nil
     
     @Published public var fetchedAt: Date = .distantPast
     @Published public var invalidatedAt: Date = .distantPast
@@ -31,11 +33,17 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
     
     public func fetch() async {
         do {
-            if error != nil { error = nil }
+            isFetching = true
+            
             data = try await performFetch()
             fetchedAt = .now
+            
+            isFetching = false
+            error = nil
         } catch is CancellationError {
+            isFetching = false
         } catch {
+            isFetching = false
             self.error = error
         }
     }

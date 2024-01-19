@@ -2,6 +2,7 @@ import Foundation
 
 @MainActor
 public protocol Fetchable: ObservableObject {
+    var isFetching: Bool { get set }
     var error: Error? { get set }
     var contentUnavailable: Bool { get }
     

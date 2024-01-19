@@ -13,12 +13,12 @@ public struct AsyncView<T: Fetchable, Content: View>: View {
     
     public var body: some View {
         ZStack {
-            if let error = fetchable.error {
+            if fetchable.isFetching, fetchable.fetchedAt == .distantPast {
+                content(.loaded)
+            } else if let error = fetchable.error {
                 content(.error(error))
-            } else if fetchable.fetchedAt > .distantPast, fetchable.contentUnavailable {
+            } else if fetchable.contentUnavailable {
                 content(.empty)
-            } else if fetchable.fetchedAt == .distantPast {
-                content(.loading)
             } else {
                 content(.loaded)
             }

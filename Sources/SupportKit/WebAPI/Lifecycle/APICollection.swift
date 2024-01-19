@@ -2,13 +2,15 @@ import Foundation
 
 open class APICollection<T: APIModel>: Fetchable, Invalidatable {
     @Published public var data: [T] = []
-    @Published public var error: Error? = nil
-        
+    
     @Published public var total: Int = 0
     @Published public private(set) var currentPage: Int = 1
     
     public var contentUnavailable: Bool { data.isEmpty }
     public var hasMoreContent: Bool { data.count < total }
+    
+    @Published public var isFetching: Bool = false
+    @Published public var error: Error? = nil
     
     @Published public var fetchedAt: Date = .distantPast
     @Published public var invalidatedAt: Date = .distantPast
@@ -33,7 +35,7 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
     
     public func fetch() async {
         do {
-            if error != nil { error = nil }
+            isFetching = true
             
             let res = try await performFetch(pageNumber: 1)
             data = res.elements
@@ -41,8 +43,13 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
             
             fetchedAt = .now
             currentPage = 1
+            
+            isFetching = false
+            error = nil
         } catch is CancellationError {
+            isFetching = false
         } catch {
+            isFetching = false
             self.error = error
         }
     }
