@@ -49,9 +49,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     @ObservedObject var fetchable: T
     let expiration: TimeInterval
     let refreshable: Bool
-    
-    let willFetch: () async -> Void
-    let didFetch: () async -> Void
+    let task: () async -> Void
     
     @Environment(\.scenePhase) private var phase
     
@@ -61,23 +59,17 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
         let phase: ScenePhase
         let lastInvalidate: Date
     }
-    
-    private func performFetch() async {
-        await willFetch()
-        await fetchable.fetch()
-        await didFetch()
-    }
-    
+
     func body(content: Content) -> some View {
         Group {
             if refreshable {
                 content
                     .refreshable {
                         if #available(iOS 17, *) {
-                            await performFetch()
+                            await task()
                         } else {
                             try? await Task.sleep(for: .seconds(0.5))
-                            Task { await performFetch() }
+                            Task { await task() }
                         }
                     }
             } else {
@@ -87,7 +79,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
         .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
             if (phase == .active || isPreview),
                fetchable.needsUpdate(expiration) {
-                await performFetch()
+                await task()
             }
         }
     }
@@ -96,14 +88,28 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
 extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
                                     expiration: TimeInterval = 120,
+                                    refreshable: Bool = false) -> some View {
+        self.fetch(fetchable,
+                   expiration: expiration,
+                   refreshable: refreshable) {
+            await fetchable.fetch()
+        }
+    }
+    
+    public func fetch<T: Fetchable>(_ fetchable: T,
+                                    expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
-                                    willFetch: @escaping () async -> Void = { },
-                                    didFetch: @escaping () async -> Void = { }) -> some View {
+                                    task: @escaping () async -> Void) -> some View {
         self.modifier(FetchableViewModifier(fetchable: fetchable,
                                             expiration: expiration,
                                             refreshable: refreshable,
-                                            willFetch: willFetch,
-                                            didFetch: didFetch))
+                                            task: task))
+    }
+    
+    public func fetchMoreContent<T: APIModel>(_ collection: APICollection<T>) -> some View {
+        self.task {
+            await collection.fetchMoreContents()
+        }
     }
 }
 
