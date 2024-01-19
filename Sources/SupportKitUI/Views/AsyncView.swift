@@ -14,7 +14,7 @@ public struct AsyncView<T: Fetchable, Content: View>: View {
     public var body: some View {
         ZStack {
             if fetchable.isFetching, fetchable.fetchedAt == .distantPast {
-                content(.loaded)
+                content(.loading)
             } else if let error = fetchable.error {
                 content(.error(error))
             } else if fetchable.contentUnavailable {
