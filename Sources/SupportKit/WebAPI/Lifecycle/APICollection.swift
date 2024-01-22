@@ -28,8 +28,12 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
             for await object in T.updates.compactMap({ $0.object as? T }) {
                 guard let self else { return }
                 
-                objectWillChange.send()
-                data.update(object)
+                var aux = data
+                aux.update(object)
+                
+                data.removeAll()
+                data = aux
+                
             }
         }
     }

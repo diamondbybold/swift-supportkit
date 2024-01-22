@@ -25,7 +25,6 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
                 guard let self else { return }
                 
                 if object.id == data?.id {
-                    objectWillChange.send()
                     data = object
                 }
             }
