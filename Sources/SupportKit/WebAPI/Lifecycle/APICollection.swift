@@ -26,14 +26,7 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
         
         tracking { [weak self] in
             for await object in T.updates.compactMap({ $0.object as? T }) {
-                guard let self else { return }
-                
-                var aux = data
-                aux.update(object)
-                
-                data.removeAll()
-                data = aux
-                
+                self?.data.update(object)
             }
         }
     }
