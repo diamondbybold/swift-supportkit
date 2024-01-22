@@ -61,6 +61,6 @@ extension View {
     
     @MainActor
     public func scrollToTopOnInvalidation<T: Fetchable>(_ fetchable: T) -> some View {
-        scrollToViewOnChange(fetchable.invalidatedAt)
+        self.scrollToViewOnChange(fetchable.invalidatedAt)
     }
 }
