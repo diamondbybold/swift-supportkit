@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 struct ScrollToViewModifier: ViewModifier {
     @Namespace private var scrollToID
@@ -47,5 +48,19 @@ extension View {
     
     public func scrollToViewOnChange<Value: Equatable>(_ value: Value) -> some View {
         Color.clear.frame(height: 0).modifier(ScrollToOnChangeViewModifier(value: value))
+    }
+}
+
+extension View {
+    public func scrollToTopOnChange<Value: Equatable>(_ value: Value) -> some View {
+        VStack(spacing: 0) {
+            scrollToViewOnChange(value)
+            self
+        }
+    }
+    
+    @MainActor
+    public func scrollToTopOnInvalidation<T: Fetchable>(_ fetchable: T) -> some View {
+        scrollToViewOnChange(fetchable.invalidatedAt)
     }
 }
