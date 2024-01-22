@@ -17,7 +17,7 @@ public protocol Fetchable: ObservableObject {
 }
 
 extension Fetchable {
-    public func needsUpdate(_ expiration: TimeInterval = 120) -> Bool {
+    public func needsUpdate(_ expiration: TimeInterval = 900) -> Bool {
         if invalidatedAt > fetchedAt { return true }
         else { return fetchedAt.hasExpired(in: expiration) }
     }
