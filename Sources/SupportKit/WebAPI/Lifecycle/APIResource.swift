@@ -22,8 +22,11 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
         
         tracking { [weak self] in
             for await object in T.updates.compactMap({ $0.object as? T }) {
-                if object.id == self?.data?.id {
-                    self?.data = object
+                guard let self else { return }
+                
+                if object.id == data?.id {
+                    objectWillChange.send()
+                    data = object
                 }
             }
         }
