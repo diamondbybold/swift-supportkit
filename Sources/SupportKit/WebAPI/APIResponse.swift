@@ -162,6 +162,7 @@ extension APIResponse {
     }
 }
 
+// MARK: - Utils
 extension Array: Error, LocalizedError where Element == APIResponse.ContainerError {
     public var failureReason: String? { first?.failureReason }
     public var recoverySuggestion: String? { first?.recoverySuggestion }

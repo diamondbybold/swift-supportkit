@@ -67,6 +67,13 @@ extension APIRequest {
     public func response(on gateway: APIGateway) async throws -> APIResponse { try await gateway.request(self) }
 }
 
+// MARK: - Notifications
+extension Notification.Name {
+    public static let APIGatewayUnconnected = Notification.Name("APIGatewayUnconnected")
+    public static let APIGatewayUnauthorized = Notification.Name("APIGatewayUnauthorized")
+    public static let APIGatewayForbidden = Notification.Name("APIGatewayForbidden")
+}
+
 // MARK: - Utilities
 extension APIGateway {
     public func clearCache() {
