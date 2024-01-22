@@ -49,6 +49,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
     @ObservedObject var fetchable: T
     let expiration: TimeInterval
     let refreshable: Bool
+    let isActive: Bool
     let task: () async -> Void
     
     @Environment(\.scenePhase) private var phase
@@ -59,7 +60,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
         let phase: ScenePhase
         let lastInvalidate: Date
     }
-
+    
     func body(content: Content) -> some View {
         Group {
             if refreshable {
@@ -77,8 +78,7 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
             }
         }
         .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
-            if (phase == .active || isPreview),
-               fetchable.needsUpdate(expiration) {
+            if isActive, (phase == .active || isPreview), fetchable.needsUpdate(expiration) {
                 await task()
             }
         }
@@ -88,7 +88,8 @@ struct FetchableViewModifier<T: Fetchable>: ViewModifier {
 extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
                                     expiration: TimeInterval = 120,
-                                    refreshable: Bool = false) -> some View {
+                                    refreshable: Bool = false,
+                                    isActive: Bool = true) -> some View {
         self.fetch(fetchable,
                    expiration: expiration,
                    refreshable: refreshable) {
@@ -99,10 +100,12 @@ extension View {
     public func fetch<T: Fetchable>(_ fetchable: T,
                                     expiration: TimeInterval = 120,
                                     refreshable: Bool = false,
+                                    isActive: Bool = true,
                                     task: @escaping () async -> Void) -> some View {
         self.modifier(FetchableViewModifier(fetchable: fetchable,
                                             expiration: expiration,
                                             refreshable: refreshable,
+                                            isActive: isActive,
                                             task: task))
     }
     
