@@ -41,9 +41,11 @@ public struct APIResponse {
         }
     }
     
-    public func resource<T: Decodable>(_ decoder: JSONDecoder) throws -> T {
+    public func resource<T: Decodable>(_ decoder: JSONDecoder) throws -> T? {
         switch statusCode {
         case 200...299:
+            if statusCode == 204 { return nil }
+            
             do {
                 return try decoder.decode(T.self, from: data)
             } catch {
@@ -80,11 +82,6 @@ public struct APIResponse {
             throw APIError.unavailable
         }
     }
-    
-    public func nullableResource<T: Decodable>(_ decoder: JSONDecoder) throws -> T? {
-        guard statusCode != 204 else { return nil }
-        return try resource(decoder) as T
-    }
 }
 
 // MARK: - Container
@@ -108,7 +105,7 @@ extension APIResponse {
         public var recoverySuggestion: String? { detail }
     }
     
-    public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D, meta: M) {
+    public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D?, meta: M?) {
         let res: Container<D, M>
         do {
             res = try decoder.decode(Container<D, M>.self, from: data)
@@ -120,11 +117,10 @@ extension APIResponse {
             throw APIError.unavailable
         }
         if let errors = res.errors { throw errors }
-        guard let data = res.data, let meta = res.meta else { throw APIError.unavailable }
-        return (data: data, meta: meta)
+        return (data: res.data, meta: res.meta)
     }
     
-    public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D {
+    public func resourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
         let res: Container<D, EmptyMeta>
         do {
             res = try decoder.decode(Container<D, EmptyMeta>.self, from: data)
@@ -136,8 +132,7 @@ extension APIResponse {
             throw APIError.unavailable
         }
         if let errors = res.errors { throw errors }
-        guard let data = res.data else { throw APIError.unavailable }
-        return data
+        return res.data
     }
     
     public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (elements: D, total: Int) {
@@ -154,11 +149,6 @@ extension APIResponse {
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
-    }
-    
-    public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
-        guard statusCode != 204 else { return nil }
-        return try resourceInContainer(decoder)
     }
 }
 
