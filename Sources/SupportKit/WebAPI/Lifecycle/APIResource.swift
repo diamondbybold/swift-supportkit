@@ -34,6 +34,12 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
     open func performFetch() async throws -> T? { nil }
     
     public func fetch() async {
+        if isPreview {
+            data = T.previews.randomElement()
+            fetchedAt = .now
+            return
+        }
+        
         do {
             isFetching = true
             

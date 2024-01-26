@@ -34,6 +34,14 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
     open func performFetch(page: Int) async throws -> APIResults<T> { (elements: [], total: 0) }
     
     public func fetch() async {
+        if isPreview {
+            let previews = T.previews
+            data = previews
+            total = previews.count
+            fetchedAt = .now
+            return
+        }
+        
         do {
             isFetching = true
             
