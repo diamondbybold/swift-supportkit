@@ -29,3 +29,51 @@ extension Fetchable {
         invalidatedAt = .now
     }
 }
+
+public class AnyFetchable<T>: Fetchable, Invalidatable {
+    @Published public var data: [T] = []
+    
+    public var contentUnavailable: Bool { data.isEmpty }
+    
+    @Published public var isFetching: Bool = false
+    @Published public var error: Error? = nil
+    
+    @Published public var fetchedAt: Date = .distantPast
+    @Published public var invalidatedAt: Date = .distantPast
+    
+    deinit { untracking() }
+    
+    public init() {
+        tracking { [weak self] in
+            for await _ in Self.invalidates.map({ $0.object }) {
+                self?.invalidate()
+            }
+        }
+    }
+    
+    open func performFetch() async throws -> [T] { [] }
+    
+    public func fetch() async {
+        do {
+            isFetching = true
+            
+            data = try await performFetch()
+            fetchedAt = .now
+            
+            isFetching = false
+            error = nil
+        } catch is CancellationError {
+            isFetching = false
+        } catch {
+            isFetching = false
+            self.error = error
+        }
+    }
+    
+    public func refetch() async {
+        data.removeAll()
+        fetchedAt = .distantPast
+        
+        await fetch()
+    }
+}
