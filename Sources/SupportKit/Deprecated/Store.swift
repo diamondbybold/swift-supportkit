@@ -1,7 +1,7 @@
 import Foundation
 
 @MainActor
-open class Store: ObservableObject, Invalidatable {
+open class Store: ObservableObject, ObserverObject, Invalidatable {
     @Published public var fetchedAt: Date = .distantPast
     @Published public var invalidatedAt: Date = .distantPast
     

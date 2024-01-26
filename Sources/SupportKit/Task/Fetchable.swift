@@ -1,7 +1,7 @@
 import Foundation
 
 @MainActor
-public protocol Fetchable: ObservableObject {
+public protocol Fetchable: ObservableObject, ObserverObject {
     var isFetching: Bool { get set }
     var error: Error? { get set }
     var contentUnavailable: Bool { get }
