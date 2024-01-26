@@ -10,7 +10,7 @@ public protocol Fetchable: ObservableObject, ObserverObject {
     var invalidatedAt: Date { get set }
     
     func fetch() async
-    func refetch() async
+    func refetch()
     
     func needsUpdate(_ expiration: TimeInterval) -> Bool
     func invalidate(refetch: Bool)
@@ -71,10 +71,12 @@ open class AnyFetchable<T>: Fetchable, Invalidatable {
         }
     }
     
-    public func refetch() async {
+    public func refetch() {
         data.removeAll()
         fetchedAt = .distantPast
         
-        await fetch()
+        Task {
+            await fetch()
+        }
     }
 }

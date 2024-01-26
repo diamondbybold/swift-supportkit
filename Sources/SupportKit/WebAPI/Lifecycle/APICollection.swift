@@ -39,6 +39,7 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
             data = previews
             total = previews.count
             fetchedAt = .now
+            currentPage = 1
             return
         }
         
@@ -62,11 +63,14 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
         }
     }
     
-    public func refetch() async {
+    public func refetch() {
         data.removeAll()
+        total = 0
         fetchedAt = .distantPast
         
-        await fetch()
+        Task {
+            await fetch()
+        }
     }
     
     public func fetchMoreContents() async {

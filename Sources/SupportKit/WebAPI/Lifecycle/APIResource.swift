@@ -56,10 +56,12 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
         }
     }
     
-    public func refetch() async {
+    public func refetch() {
         data = nil
         fetchedAt = .distantPast
         
-        await fetch()
+        Task {
+            await fetch()
+        }
     }
 }
