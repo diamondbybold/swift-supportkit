@@ -30,7 +30,8 @@ extension Fetchable {
     }
 }
 
-public class AnyFetchable<T>: Fetchable, Invalidatable {
+@MainActor
+open class AnyFetchable<T>: Fetchable, Invalidatable {
     @Published public var data: [T] = []
     
     public var contentUnavailable: Bool { data.isEmpty }
