@@ -26,6 +26,40 @@ public struct AsyncView<T: Fetchable, Content: View>: View {
     }
 }
 
+public struct AsyncGroupView<Content: View>: View {
+    private let fetchables: [any Fetchable]
+    private let content: (AsyncViewPhase) -> Content
+    
+    public init(_ fetchables: [any Fetchable],
+                @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
+        self.fetchables = fetchables
+        self.content = content
+    }
+    
+    @MainActor
+    private var showFetchIndicator: Bool { fetchables.contains { $0.isFetching } && fetchables.contains { $0.fetchedAt == .distantPast } }
+    
+    @MainActor
+    private var anyError: Error? { fetchables.first { $0.error != nil }?.error }
+    
+    @MainActor
+    private var anyContentUnavailable: Bool { fetchables.contains { $0.contentUnavailable } }
+    
+    public var body: some View {
+        ZStack {
+            if showFetchIndicator {
+                content(.loading)
+            } else if let error = anyError {
+                content(.error(error))
+            } else if anyContentUnavailable {
+                content(.empty)
+            } else {
+                content(.loaded)
+            }
+        }
+    }
+}
+
 public enum AsyncViewPhase {
     case loading
     case loaded
