@@ -113,11 +113,11 @@ extension View {
     }
     
     @MainActor
-    public func fetch<T: Fetchable>(invalidatedAt: Binding<Date> = .constant(.distantPast),
-                                    expiration: TimeInterval = 900,
-                                    refreshable: Bool = false,
-                                    isActive: Bool = true,
-                                    task: @escaping () async -> Void) -> some View {
+    public func fetch(invalidatedAt: Binding<Date> = .constant(.distantPast),
+                      expiration: TimeInterval = 900,
+                      refreshable: Bool = false,
+                      isActive: Bool = true,
+                      task: @escaping () async -> Void) -> some View {
         self.modifier(AnyFetchViewModifier(invalidatedAt: invalidatedAt,
                                            expiration: expiration,
                                            refreshable: refreshable,
