@@ -14,8 +14,6 @@ struct FetchViewModifierDep: ViewModifier {
         let lastInvalidate: Date
     }
     
-    var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
-    
     func body(content: Content) -> some View {
         if refreshable {
             content
@@ -28,7 +26,7 @@ struct FetchViewModifierDep: ViewModifier {
                     }
                 }
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
-                    if (phase == .active || isPreview),
+                    if (phase == .active || store.isPreview),
                        store.needsUpdate(expiration) {
                         await perform()
                     }
@@ -36,7 +34,7 @@ struct FetchViewModifierDep: ViewModifier {
         } else {
             content
                 .task(id: FetchTaskId(phase: phase, lastInvalidate: store.invalidatedAt)) {
-                    if (phase == .active || isPreview),
+                    if (phase == .active || store.isPreview),
                        store.needsUpdate(expiration) {
                         await perform()
                     }

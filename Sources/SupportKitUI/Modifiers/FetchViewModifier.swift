@@ -10,8 +10,6 @@ struct FetchViewModifier<T: Fetchable>: ViewModifier {
     
     @Environment(\.scenePhase) private var phase
     
-    var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
-    
     struct FetchTaskId: Equatable {
         let phase: ScenePhase
         let lastInvalidate: Date
@@ -34,7 +32,7 @@ struct FetchViewModifier<T: Fetchable>: ViewModifier {
             }
         }
         .task(id: FetchTaskId(phase: phase, lastInvalidate: fetchable.invalidatedAt)) {
-            if isActive, (phase == .active || isPreview), fetchable.needsUpdate(expiration) {
+            if isActive, (phase == .active || fetchable.isPreview), fetchable.needsUpdate(expiration) {
                 await task()
             }
         }

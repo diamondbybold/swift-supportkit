@@ -9,6 +9,8 @@ open class Store: ObservableObject, ObserverObject, Invalidatable {
     
     open var contentUnavailable: Bool { false }
     
+    public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
+    
     deinit { untracking() }
     
     public init() {

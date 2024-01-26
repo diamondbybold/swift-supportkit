@@ -17,6 +17,8 @@ public protocol Fetchable: ObservableObject, ObserverObject {
 }
 
 extension Fetchable {
+    public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
+    
     public func needsUpdate(_ expiration: TimeInterval = 900) -> Bool {
         if invalidatedAt > fetchedAt { return true }
         else { return fetchedAt.hasExpired(in: expiration) }

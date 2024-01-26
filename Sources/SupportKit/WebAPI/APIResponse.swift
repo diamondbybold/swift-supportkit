@@ -82,7 +82,7 @@ public struct APIResponse {
     }
     
     public func nullableResource<T: Decodable>(_ decoder: JSONDecoder) throws -> T? {
-        guard statusCode != 204 else { return nil }
+        guard statusCode != 204, statusCode != 404 else { return nil }
         return try resource(decoder) as T
     }
 }
@@ -125,7 +125,7 @@ extension APIResponse {
     }
     
     public func nullableContainer<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D?, meta: M?) {
-        guard statusCode != 204 else { return (data: nil, meta: nil) }
+        guard statusCode != 204, statusCode != 404 else { return (data: nil, meta: nil) }
         
         let res: Container<D, M>
         do {
@@ -158,7 +158,7 @@ extension APIResponse {
     }
     
     public func nullableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> D? {
-        guard statusCode != 204 else { return nil }
+        guard statusCode != 204, statusCode != 404 else { return nil }
         return try resourceInContainer(decoder)
     }
     
