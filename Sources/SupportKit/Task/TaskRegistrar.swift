@@ -51,9 +51,7 @@ public class TaskRegistrar {
     }
 }
 
-public protocol ObserverObject: AnyObject { }
-
-extension ObserverObject {
+extension ObservableObject {
     public func tracking(_ task: @escaping () async -> Void) {
         TaskRegistrar.shared(object: self, task: task)
     }

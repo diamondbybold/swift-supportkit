@@ -1,57 +1,29 @@
 import SwiftUI
 import SupportKit
 
-public struct AsyncView<T: Fetchable, Content: View>: View {
-    private let fetchable: T
+public struct AsyncView<Content: View>: View {
+    private let fetchables: [any FetchableObject]
     private let content: (AsyncViewPhase) -> Content
     
-    public init(_ fetchable: T,
+    public init(_ fetchable: any FetchableObject,
                 @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
-        self.fetchable = fetchable
+        self.fetchables = [fetchable]
         self.content = content
     }
     
-    public var body: some View {
-        ZStack {
-            if fetchable.isFetching, fetchable.fetchedAt == .distantPast {
-                content(.loading)
-            } else if let error = fetchable.error {
-                content(.error(error))
-            } else if fetchable.contentUnavailable {
-                content(.empty)
-            } else {
-                content(.loaded)
-            }
-        }
-    }
-}
-
-public struct AsyncGroupView<Content: View>: View {
-    private let fetchables: [any Fetchable]
-    private let content: (AsyncViewPhase) -> Content
-    
-    public init(_ fetchables: [any Fetchable],
+    public init(_ fetchables: [any FetchableObject],
                 @ViewBuilder content: @escaping (AsyncViewPhase) -> Content) {
         self.fetchables = fetchables
         self.content = content
     }
     
-    @MainActor
-    private var showFetchIndicator: Bool { fetchables.contains { $0.isFetching } && fetchables.contains { $0.fetchedAt == .distantPast } }
-    
-    @MainActor
-    private var anyError: Error? { fetchables.first { $0.error != nil }?.error }
-    
-    @MainActor
-    private var anyContentUnavailable: Bool { fetchables.contains { $0.contentUnavailable } }
-    
     public var body: some View {
         ZStack {
-            if showFetchIndicator {
+            if fetchables.contains(where: { $0.isLoading }) {
                 content(.loading)
-            } else if let error = anyError {
+            } else if let error = fetchables.first(where: { $0.loadingError != nil })?.loadingError {
                 content(.error(error))
-            } else if anyContentUnavailable {
+            } else if fetchables.contains(where: { $0.contentUnavailable }) {
                 content(.empty)
             } else {
                 content(.loaded)

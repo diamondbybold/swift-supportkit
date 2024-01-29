@@ -1,29 +1,29 @@
 import Foundation
 
-open class APIResource<T: APIModel>: Fetchable, Invalidatable {
+open class APIResource<T: APIModel>: FetchableObject, Invalidatable {
     @Published public var data: T? = nil
     
     public var contentUnavailable: Bool { data == nil }
     
-    @Published public var isFetching: Bool = false
-    @Published public var error: Error? = nil
-    
-    @Published public var fetchedAt: Date = .distantPast
-    @Published public var invalidatedAt: Date = .distantPast
+    @Published public private(set) var lastUpdated: Date = .distantPast
+    @Published public var isLoading: Bool = false
+    @Published public var loadingError: Error? = nil
     
     deinit { untracking() }
     
     public init() {
         tracking { [weak self] in
+            guard let self else { return }
+            
             for await _ in Self.invalidates.map({ $0.object }) {
-                self?.invalidate()
+                await fetch()
             }
         }
         
         tracking { [weak self] in
+            guard let self else { return }
+            
             for await object in T.updates.compactMap({ $0.object as? T }) {
-                guard let self else { return }
-                
                 if object.id == data?.id {
                     data = object
                 }
@@ -31,37 +31,20 @@ open class APIResource<T: APIModel>: Fetchable, Invalidatable {
         }
     }
     
-    open func performFetch() async throws -> T? { nil }
-    
     public func fetch() async {
-        if isPreview {
-            data = T.previews.randomElement()
-            fetchedAt = .now
-            return
-        }
-        
         do {
-            isFetching = true
-            
+            isLoading = loadingError != nil || contentUnavailable
             data = try await performFetch()
-            fetchedAt = .now
-            
-            isFetching = false
-            error = nil
+            lastUpdated = .now
+            isLoading = false
+            loadingError = nil
         } catch is CancellationError {
-            isFetching = false
+            isLoading = false
         } catch {
-            isFetching = false
-            self.error = error
+            isLoading = false
+            loadingError = error
         }
     }
     
-    public func refetch() {
-        data = nil
-        fetchedAt = .distantPast
-        
-        Task {
-            await fetch()
-        }
-    }
+    open func performFetch() async throws -> T? { nil }
 }

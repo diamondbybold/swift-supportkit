@@ -1,6 +1,6 @@
 import Foundation
 
-open class APICollection<T: APIModel>: Fetchable, Invalidatable {
+open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     @Published public var data: [T] = []
     
     @Published public var total: Int = 0
@@ -9,67 +9,48 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
     public var contentUnavailable: Bool { data.isEmpty }
     public var hasMoreContent: Bool { data.count < total }
     
-    @Published public var isFetching: Bool = false
-    @Published public var error: Error? = nil
-    
-    @Published public var fetchedAt: Date = .distantPast
-    @Published public var invalidatedAt: Date = .distantPast
+    @Published public private(set) var lastUpdated: Date = .distantPast
+    @Published public var isLoading: Bool = false
+    @Published public var loadingError: Error? = nil
     
     deinit { untracking() }
     
     public init() {
         tracking { [weak self] in
+            guard let self else { return }
+            
             for await _ in Self.invalidates.map({ $0.object }) {
-                self?.invalidate()
+                await fetch()
             }
         }
         
         tracking { [weak self] in
+            guard let self else { return }
+            
             for await object in T.updates.compactMap({ $0.object as? T }) {
-                self?.data.update(object)
+                data.update(object)
             }
         }
     }
     
-    open func performFetch(page: Int) async throws -> APIResults<T> { (elements: [], total: 0) }
-    
     public func fetch() async {
-        if isPreview {
-            let previews = T.previews
-            data = previews
-            total = previews.count
-            fetchedAt = .now
-            currentPage = 1
-            return
-        }
-        
         do {
-            isFetching = true
+            isLoading = loadingError != nil || contentUnavailable || currentPage > 1
             
             let res = try await performFetch(page: 1)
             data = res.elements
             total = res.total
             
-            fetchedAt = .now
+            lastUpdated = .now
             currentPage = 1
             
-            isFetching = false
-            error = nil
+            isLoading = false
+            loadingError = nil
         } catch is CancellationError {
-            isFetching = false
+            isLoading = false
         } catch {
-            isFetching = false
-            self.error = error
-        }
-    }
-    
-    public func refetch() {
-        data.removeAll()
-        total = 0
-        fetchedAt = .distantPast
-        
-        Task {
-            await fetch()
+            isLoading = false
+            loadingError = error
         }
     }
     
@@ -80,11 +61,13 @@ open class APICollection<T: APIModel>: Fetchable, Invalidatable {
             let res = try await performFetch(page: nextPage)
             data += res.elements
             
-            fetchedAt = .now
+            lastUpdated = .now
             currentPage = nextPage
         } catch is CancellationError {
         } catch {
-            self.error = error
+            self.loadingError = error
         }
     }
+    
+    open func performFetch(page: Int) async throws -> APIResults<T> { (elements: [], total: 0) }
 }

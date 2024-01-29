@@ -1,3 +1,3 @@
 import Foundation
 
-public typealias APIModel = Codable & Identifiable & Updatable & Previewable
+public typealias APIModel = Codable & Identifiable & Updatable
