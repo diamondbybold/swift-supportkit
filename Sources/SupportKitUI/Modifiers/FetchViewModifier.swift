@@ -46,6 +46,11 @@ extension View {
             await collection.fetchMoreContents()
         }
     }
+    
+    @MainActor
+    public func fetchWithDependency(_ object: any FetchableObject, task: @escaping () async -> Void) -> some View {
+        self.onChange(of: object.lastUpdated) { _ in Task { await task() } }
+    }
 }
 
 // MARK: - Refreshing
