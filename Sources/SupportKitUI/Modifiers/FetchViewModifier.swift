@@ -70,13 +70,19 @@ extension View {
         self.refreshable {
             if #available(iOS 17, *) {
                 for object in objects {
+                    var refreshable = object as? Refreshable
+                    refreshable?.isRefreshing = true
                     await object.fetch()
+                    refreshable?.isRefreshing = false
                 }
             } else {
                 try? await Task.sleep(for: .seconds(0.5))
                 Task {
                     for object in objects {
+                        var refreshable = object as? Refreshable
+                        refreshable?.isRefreshing = true
                         await object.fetch()
+                        refreshable?.isRefreshing = false
                     }
                 }
             }

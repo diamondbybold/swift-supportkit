@@ -1,6 +1,6 @@
 import Foundation
 
-open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
+open class APICollection<T: APIModel>: FetchableObject, Invalidatable, Refreshable {
     @Published public var data: [T] = []
     
     @Published public var total: Int = 0
@@ -12,6 +12,8 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     @Published public private(set) var lastUpdated: Date = .distantPast
     @Published public var isLoading: Bool = false
     @Published public var loadingError: Error? = nil
+    
+    package var isRefreshing: Bool = false
     
     deinit { untracking() }
     
@@ -35,7 +37,7 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     
     public func fetch() async {
         do {
-            isLoading = loadingError != nil || contentUnavailable// || currentPage > 1
+            isLoading = loadingError != nil || contentUnavailable || (currentPage > 1 && !isRefreshing)
             
             let res = try await performFetch(page: 1)
             data = res.elements
