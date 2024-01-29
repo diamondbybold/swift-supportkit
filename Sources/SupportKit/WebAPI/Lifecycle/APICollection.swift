@@ -35,7 +35,7 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     
     public func fetch() async {
         do {
-            isLoading = loadingError != nil || contentUnavailable || currentPage > 1
+            isLoading = loadingError != nil || contentUnavailable// || currentPage > 1
             
             let res = try await performFetch(page: 1)
             data = res.elements
