@@ -48,8 +48,13 @@ extension View {
     }
     
     @MainActor
-    public func fetchWithDependency(_ object: any FetchableObject, task: @escaping () async -> Void) -> some View {
-        self.onChange(of: object.lastUpdated) { _ in Task { await task() } }
+    public func fetchWithDependency(of object: any FetchableObject, task: @escaping () async -> Void) -> some View {
+        self.fetchWithDependency(of: object.lastUpdated, task: task)
+    }
+    
+    @MainActor
+    public func fetchWithDependency<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
+        self.onChange(of: value) { _ in Task { await task() } }
     }
 }
 
