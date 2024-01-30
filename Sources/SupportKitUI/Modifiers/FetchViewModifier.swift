@@ -41,7 +41,7 @@ extension View {
     }
     
     @MainActor
-    public func fetchMoreContent<T: APIModel>(_ collection: APICollection<T>) -> some View {
+    public func fetchMoreContent<T: APIModel>(_ collection: APIPagedCollection<T>) -> some View {
         self.task {
             await collection.fetchMoreContents()
         }

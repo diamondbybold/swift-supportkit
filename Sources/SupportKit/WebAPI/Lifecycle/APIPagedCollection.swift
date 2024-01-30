@@ -1,13 +1,19 @@
 import Foundation
 
-open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
+open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable, Refreshable {
     @Published public var data: [T] = []
     
+    @Published public var total: Int = 0
+    @Published public private(set) var currentPage: Int = 1
+    
     public var contentUnavailable: Bool { data.isEmpty }
+    public var hasMoreContent: Bool { data.count < total }
     
     @Published public private(set) var lastUpdated: Date = .distantPast
     @Published public var isLoading: Bool = false
     @Published public var loadingError: Error? = nil
+    
+    package var isRefreshing: Bool = false
     
     deinit { untracking() }
     
@@ -31,9 +37,15 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     
     public func fetch() async {
         do {
-            isLoading = loadingError != nil || contentUnavailable
-            data = try await performFetch()
+            isLoading = loadingError != nil || contentUnavailable || (currentPage > 1 && !isRefreshing)
+            
+            let res = try await performFetch(page: 1)
+            data = res.elements
+            total = res.total
+            
             lastUpdated = .now
+            currentPage = 1
+            
             isLoading = false
             loadingError = nil
         } catch is CancellationError {
@@ -44,5 +56,20 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
         }
     }
     
-    open func performFetch() async throws -> [T] { [] }
+    public func fetchMoreContents() async {
+        do {
+            let nextPage = currentPage + 1
+            
+            let res = try await performFetch(page: nextPage)
+            data += res.elements
+            
+            lastUpdated = .now
+            currentPage = nextPage
+        } catch is CancellationError {
+        } catch {
+            self.loadingError = error
+        }
+    }
+    
+    open func performFetch(page: Int) async throws -> APIResults<T> { (elements: [], total: 0) }
 }
