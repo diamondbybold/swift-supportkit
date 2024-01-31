@@ -36,24 +36,22 @@ open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable, Refr
     }
     
     public func fetch() async {
+        isLoading = loadingError != nil || contentUnavailable || (currentPage > 1 && !isRefreshing)
+        loadingError = nil
+        
         do {
-            isLoading = loadingError != nil || contentUnavailable || (currentPage > 1 && !isRefreshing)
-            
             let res = try await performFetch(page: 1)
             data = res.elements
             total = res.total
             
             lastUpdated = .now
             currentPage = 1
-            
-            isLoading = false
-            loadingError = nil
         } catch is CancellationError {
-            isLoading = false
         } catch {
-            isLoading = false
             loadingError = error
         }
+        
+        isLoading = false
     }
     
     public func fetchMoreContents() async {

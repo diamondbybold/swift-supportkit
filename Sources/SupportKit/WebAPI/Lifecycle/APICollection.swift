@@ -30,18 +30,18 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     }
     
     public func fetch() async {
+        isLoading = loadingError != nil || contentUnavailable
+        loadingError = nil
+        
         do {
-            isLoading = loadingError != nil || contentUnavailable
             data = try await performFetch()
             lastUpdated = .now
-            isLoading = false
-            loadingError = nil
         } catch is CancellationError {
-            isLoading = false
         } catch {
-            isLoading = false
             loadingError = error
         }
+        
+        isLoading = false
     }
     
     open func performFetch() async throws -> [T] { [] }

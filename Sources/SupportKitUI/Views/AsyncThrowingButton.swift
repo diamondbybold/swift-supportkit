@@ -81,5 +81,6 @@ public struct AsyncThrowingButton<Label>: View where Label: View {
                 label
             }
         }
+        .allowsHitTesting(!waiting)
     }
 }
