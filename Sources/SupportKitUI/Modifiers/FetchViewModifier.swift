@@ -26,16 +26,16 @@ extension View {
     
     @MainActor
     public func fetch(_ object: any FetchableObject,
-                      expirationInterval: TimeInterval = 900) -> some View {
-        self.fetch([object], expirationInterval: expirationInterval)
+                      option: FetchOption = .expiresIn15min) -> some View {
+        self.fetch([object], option: option)
     }
     
     @MainActor
     public func fetch(_ objects: [any FetchableObject],
-                      expirationInterval: TimeInterval = 900) -> some View {
+                      option: FetchOption = .expiresIn15min) -> some View {
         self.fetch {
             for object in objects {
-                await object.fetch(option: .ifExpired(interval: expirationInterval))
+                await object.fetch(option: option)
             }
         }
     }

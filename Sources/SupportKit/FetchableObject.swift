@@ -12,8 +12,18 @@ public protocol FetchableObject: ObservableObject {
 }
 
 public enum FetchOption {
-    case ifExpired(interval: TimeInterval = 900)
+    case expires(in: TimeInterval)
     case refresh
+}
+
+extension FetchOption {
+    public static var expiresIn1min: Self { .expires(in: 60) }
+    public static var expiresIn2min: Self { .expires(in: 120) }
+    public static var expiresIn5min: Self { .expires(in: 300) }
+    public static var expiresIn10min: Self { .expires(in: 600) }
+    public static var expiresIn15min: Self { .expires(in: 900) }
+    public static var expiresIn30min: Self { .expires(in: 1800) }
+    public static var expiresIn60min: Self { .expires(in: 3600) }
 }
 
 extension FetchableObject {
@@ -44,7 +54,7 @@ open class FetchableResource<T>: FetchableObject, Invalidatable {
     }
     
     public func fetch(option: FetchOption? = nil) async {
-        if case let .ifExpired(interval) = option,
+        if case let .expires(in: interval) = option,
            loadingError == nil,
            !lastUpdated.hasExpired(in: interval) { return }
         
@@ -87,7 +97,7 @@ open class FetchableCollection<T>: FetchableObject, Invalidatable {
     }
     
     public func fetch(option: FetchOption? = nil) async {
-        if case let .ifExpired(interval) = option,
+        if case let .expires(in: interval) = option,
            loadingError == nil,
            !lastUpdated.hasExpired(in: interval) { return }
         

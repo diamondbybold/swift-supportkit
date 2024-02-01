@@ -36,7 +36,7 @@ open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable, Refr
     }
     
     public func fetch(option: FetchOption? = nil) async {
-        if case let .ifExpired(interval) = option,
+        if case let .expires(in: interval) = option,
            loadingError == nil,
            !lastUpdated.hasExpired(in: interval) { return }
         

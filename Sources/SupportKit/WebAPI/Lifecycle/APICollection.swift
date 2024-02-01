@@ -30,7 +30,7 @@ open class APICollection<T: APIModel>: FetchableObject, Invalidatable {
     }
     
     public func fetch(option: FetchOption? = nil) async {
-        if case let .ifExpired(interval) = option,
+        if case let .expires(in: interval) = option,
            loadingError == nil,
            !lastUpdated.hasExpired(in: interval) { return }
         
