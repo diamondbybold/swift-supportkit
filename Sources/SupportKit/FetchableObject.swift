@@ -8,18 +8,18 @@ public protocol FetchableObject: ObservableObject {
     var isLoading: Bool { get set }
     var loadingError: Error? { get set }
     
-    func fetch() async
+    func fetch(option: FetchOption?) async
+}
+
+public enum FetchOption {
+    case ifExpired(interval: TimeInterval = 900)
+    case refresh
 }
 
 extension FetchableObject {
     public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
-    public func fetchIfNeeded(expiration: TimeInterval = 900) async {
-        guard loadingError != nil || lastUpdated.hasExpired(in: expiration) else { return }
-        await fetch()
-    }
-    
-    public func tryAgain() { Task { await fetch() } }
+    public func tryAgain() { Task { await fetch(option: nil) } }
 }
 
 
@@ -43,8 +43,14 @@ open class FetchableResource<T>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch() async {
-        isLoading = loadingError != nil || contentUnavailable
+    public func fetch(option: FetchOption? = nil) async {
+        if case let .ifExpired(interval) = option,
+           loadingError == nil,
+           !lastUpdated.hasExpired(in: interval) { return }
+        
+        if case .refresh = option { isLoading = false }
+        else { isLoading = loadingError != nil || contentUnavailable }
+        
         loadingError = nil
         
         do {
@@ -80,8 +86,14 @@ open class FetchableCollection<T>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch() async {
-        isLoading = loadingError != nil || contentUnavailable
+    public func fetch(option: FetchOption? = nil) async {
+        if case let .ifExpired(interval) = option,
+           loadingError == nil,
+           !lastUpdated.hasExpired(in: interval) { return }
+        
+        if case .refresh = option { isLoading = false }
+        else { isLoading = loadingError != nil || contentUnavailable }
+        
         loadingError = nil
         
         do {

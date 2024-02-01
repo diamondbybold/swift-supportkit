@@ -19,8 +19,8 @@ extension UIImage {
         return UIImage(data: imageData)
     }
     
-    public func base64String() -> String {
-        return jpegData(compressionQuality: 0.9)?.base64EncodedString() ?? ""
+    public func base64String(compressionQuality: CGFloat = 0.9) -> String {
+        return jpegData(compressionQuality: compressionQuality)?.base64EncodedString() ?? ""
     }
     
     public func resized(targetSize: CGSize) -> UIImage {
@@ -28,20 +28,19 @@ extension UIImage {
         let heightRatio = targetSize.height / size.height
         
         let scaleFactor = min(widthRatio, heightRatio)
+        let scaledImageSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
         
-        let scaledImageSize = CGSize(
-            width: size.width * scaleFactor,
-            height: size.height * scaleFactor
-        )
-        
-        let renderer = UIGraphicsImageRenderer(
-            size: scaledImageSize
-        )
+        let renderer = UIGraphicsImageRenderer(size: scaledImageSize)
         
         let scaledImage = renderer.image { _ in
             self.draw(in: CGRect(origin: .zero, size: scaledImageSize))
         }
         
         return scaledImage
+    }
+    
+    public func resizedIfNeeded(maxSize: CGFloat) -> UIImage {
+        guard size.width > maxSize || size.height > maxSize else { return self }
+        return resized(targetSize: CGSize(width: maxSize, height: maxSize))
     }
 }

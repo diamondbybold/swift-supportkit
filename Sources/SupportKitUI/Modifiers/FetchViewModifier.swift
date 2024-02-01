@@ -26,16 +26,16 @@ extension View {
     
     @MainActor
     public func fetch(_ object: any FetchableObject,
-                      expiration: TimeInterval = 900) -> some View {
-        self.fetch([object], expiration: expiration)
+                      expirationInterval: TimeInterval = 900) -> some View {
+        self.fetch([object], expirationInterval: expirationInterval)
     }
     
     @MainActor
     public func fetch(_ objects: [any FetchableObject],
-                      expiration: TimeInterval = 900) -> some View {
+                      expirationInterval: TimeInterval = 900) -> some View {
         self.fetch {
             for object in objects {
-                await object.fetchIfNeeded(expiration: expiration)
+                await object.fetch(option: .ifExpired(interval: expirationInterval))
             }
         }
     }
@@ -72,7 +72,7 @@ extension View {
                 for object in objects {
                     var refreshable = object as? Refreshable
                     refreshable?.isRefreshing = true
-                    await object.fetch()
+                    await object.fetch(option: .refresh)
                     refreshable?.isRefreshing = false
                 }
             } else {
@@ -81,7 +81,7 @@ extension View {
                     for object in objects {
                         var refreshable = object as? Refreshable
                         refreshable?.isRefreshing = true
-                        await object.fetch()
+                        await object.fetch(option: .refresh)
                         refreshable?.isRefreshing = false
                     }
                 }

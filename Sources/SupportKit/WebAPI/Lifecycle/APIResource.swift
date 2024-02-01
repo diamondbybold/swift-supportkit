@@ -31,8 +31,14 @@ open class APIResource<T: APIModel>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch() async {
-        isLoading = loadingError != nil || contentUnavailable
+    public func fetch(option: FetchOption? = nil) async {
+        if case let .ifExpired(interval) = option,
+           loadingError == nil,
+           !lastUpdated.hasExpired(in: interval) { return }
+        
+        if case .refresh = option { isLoading = false }
+        else { isLoading = loadingError != nil || contentUnavailable }
+        
         loadingError = nil
         
         do {
