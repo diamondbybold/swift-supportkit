@@ -22,9 +22,6 @@ struct NavigationContainer<Root: View>: View {
         .fullScreenCover(item: $navigationContext.fullScreenCover) { item in
             AnyView(item.content())
         }
-        .popover(item: $navigationContext.popover) { item in
-            AnyView(item.content())
-        }
         .confirmationDialog(navigationContext.confirmation?.title ?? "",
                             isPresented: .present(value: $navigationContext.confirmation),
                             titleVisibility: .visible) {
@@ -73,9 +70,6 @@ struct CustomPathNavigationContainer<Root: View, T: Hashable>: View {
             AnyView(item.content())
         }
         .fullScreenCover(item: $navigationContext.fullScreenCover) { item in
-            AnyView(item.content())
-        }
-        .popover(item: $navigationContext.popover) { item in
             AnyView(item.content())
         }
         .confirmationDialog(navigationContext.confirmation?.title ?? "",
