@@ -1,6 +1,6 @@
 import Foundation
 
-open class APIStore<T: APIModel>: FetchableObject, Invalidatable {
+open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable {
     @Published public var data: [T] = []
     
     @Published public var total: Int = 0
