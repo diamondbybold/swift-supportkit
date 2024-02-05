@@ -41,9 +41,9 @@ extension View {
     }
     
     @MainActor
-    public func fetchMoreContent<T: APIModel>(_ collection: APIPagedCollection<T>) -> some View {
+    public func fetchMoreContent<T: APIModel>(_ store: APIStore<T>) -> some View {
         self.task {
-            await collection.fetchMoreContents()
+            await store.fetchMoreContents()
         }
     }
     
@@ -70,19 +70,13 @@ extension View {
         self.refreshable {
             if #available(iOS 17, *) {
                 for object in objects {
-                    var refreshable = object as? Refreshable
-                    refreshable?.isRefreshing = true
                     await object.fetch(option: .refresh)
-                    refreshable?.isRefreshing = false
                 }
             } else {
                 try? await Task.sleep(for: .seconds(0.5))
                 Task {
                     for object in objects {
-                        var refreshable = object as? Refreshable
-                        refreshable?.isRefreshing = true
                         await object.fetch(option: .refresh)
-                        refreshable?.isRefreshing = false
                     }
                 }
             }
