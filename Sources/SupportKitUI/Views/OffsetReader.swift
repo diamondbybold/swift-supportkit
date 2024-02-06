@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct OffsetReader: View {
-    @Binding public var point: CGPoint
+    @Binding public var offset: CGPoint
     @Namespace public var coordinateSpace
     
     public var body: some View {
@@ -10,7 +10,7 @@ public struct OffsetReader: View {
                 .preference(key: OffsetKey.self, value: proxy.frame(in: .named(coordinateSpace)).origin)
         }
         .frame(height: 0)
-        .onPreferenceChange(OffsetKey.self) { point = $0 }
+        .onPreferenceChange(OffsetKey.self) { offset = $0 }
     }
 }
 
