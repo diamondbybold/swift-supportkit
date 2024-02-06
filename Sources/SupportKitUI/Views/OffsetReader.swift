@@ -1,8 +1,13 @@
 import SwiftUI
 
 public struct OffsetReader: View {
-    @Binding public var offset: CGPoint
-    @Namespace public var coordinateSpace
+    @Binding var offset: CGPoint
+    let coordinateSpace: AnyHashable
+    
+    public init(_ offset: Binding<CGPoint>, coordinateSpace: AnyHashable) {
+        self._offset = offset
+        self.coordinateSpace = coordinateSpace
+    }
     
     public var body: some View {
         GeometryReader { proxy in
