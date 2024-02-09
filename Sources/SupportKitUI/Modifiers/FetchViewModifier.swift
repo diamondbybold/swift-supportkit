@@ -56,6 +56,11 @@ extension View {
     public func fetchWithDependency<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { _ in Task { await task() } }
     }
+    
+    @MainActor
+    public func fetchWithDependency<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
+        self.onChange(of: value) { v in if v == equals { Task { await task() } } }
+    }
 }
 
 // MARK: - Refreshing
