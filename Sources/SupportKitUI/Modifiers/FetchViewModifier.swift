@@ -46,19 +46,22 @@ extension View {
             await store.fetchMoreContents()
         }
     }
+}
     
+// MARK: - Side effects
+extension View {
     @MainActor
-    public func fetchWithDependency(of object: any FetchableObject, task: @escaping () async -> Void) -> some View {
-        self.fetchWithDependency(of: object.lastUpdated, task: task)
+    public func sideEffect(of object: any FetchableObject, task: @escaping () async -> Void) -> some View {
+        self.sideEffect(of: object.lastUpdated, task: task)
     }
     
     @MainActor
-    public func fetchWithDependency<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
+    public func sideEffect<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { _ in Task { await task() } }
     }
     
     @MainActor
-    public func fetchWithDependency<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
+    public func sideEffect<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { v in if v == equals { Task { await task() } } }
     }
 }
