@@ -29,7 +29,7 @@ extension FetchOption {
 extension FetchableObject {
     public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
-    public func tryAgain() { Task { await fetch(option: nil) } }
+    public func refetch() { Task { await fetch(option: nil) } }
 }
 
 

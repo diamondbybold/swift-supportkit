@@ -100,7 +100,7 @@ extension APIResponse {
     
     public struct ContainerError: LocalizedError, Decodable {
         public let status: String
-        //        public let code: String?
+        public let code: String?
         public let title: String?
         public let detail: String?
         
