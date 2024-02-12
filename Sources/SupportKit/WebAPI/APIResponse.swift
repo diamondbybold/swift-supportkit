@@ -95,6 +95,7 @@ extension APIResponse {
         public let errors: [ContainerError]?
     }
     
+    struct EmptyData: Decodable { }
     struct EmptyMeta: Decodable { }
     struct PaginationMeta: Decodable { let count: Int?; let total: Int? }
     
@@ -176,6 +177,11 @@ extension APIResponse {
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
+    }
+    
+    public func errorInContainer(_ decoder: JSONDecoder) throws -> [ContainerError] {
+        guard let res = try? decoder.decode(Container<EmptyData, EmptyMeta>.self, from: data) else { return [] }
+        return res.errors ?? []
     }
 }
 
