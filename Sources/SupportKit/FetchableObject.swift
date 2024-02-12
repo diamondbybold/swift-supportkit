@@ -13,6 +13,7 @@ public protocol FetchableObject: ObservableObject {
 
 public enum FetchOption {
     case expires(in: TimeInterval)
+    case reload
     case refresh
 }
 
@@ -29,7 +30,7 @@ extension FetchOption {
 extension FetchableObject {
     public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
-    public func refetch() { Task { await fetch(option: nil) } }
+    public func refetch() { Task { await fetch(option: .reload) } }
 }
 
 
@@ -59,6 +60,7 @@ open class FetchableResource<T>: FetchableObject, Invalidatable {
            !lastUpdated.hasExpired(in: interval) { return }
         
         if case .refresh = option { isLoading = false }
+        else if case .reload = option { isLoading = true }
         else { isLoading = loadingError != nil || contentUnavailable }
         
         loadingError = nil
@@ -102,6 +104,7 @@ open class FetchableCollection<T>: FetchableObject, Invalidatable {
            !lastUpdated.hasExpired(in: interval) { return }
         
         if case .refresh = option { isLoading = false }
+        else if case .reload = option { isLoading = true }
         else { isLoading = loadingError != nil || contentUnavailable }
         
         loadingError = nil

@@ -37,6 +37,7 @@ open class APIResource<T: APIModel>: FetchableObject, Invalidatable {
            !lastUpdated.hasExpired(in: interval) { return }
         
         if case .refresh = option { isLoading = false }
+        else if case .reload = option { isLoading = true }
         else { isLoading = loadingError != nil || contentUnavailable }
         
         loadingError = nil
