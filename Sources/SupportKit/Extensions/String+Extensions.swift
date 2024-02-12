@@ -29,6 +29,8 @@ extension String {
     
     public var removingSpaces: String { replacingOccurrences(of: " ", with: "") }
     
+    public var contentOrNil: String? { self.isEmpty ? nil : self }
+    
     public func XORCipher(_ key: String) -> String {
         let utf8String = Array<UInt8>(self.utf8)
         let utf8key = Array<UInt8>(key.utf8)
