@@ -179,7 +179,7 @@ extension APIResponse {
         return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
     }
     
-    public func errorInContainer(_ decoder: JSONDecoder) throws -> [ContainerError] {
+    public func errorInContainer(_ decoder: JSONDecoder) -> [ContainerError] {
         guard let res = try? decoder.decode(Container<EmptyData, EmptyMeta>.self, from: data) else { return [] }
         return res.errors ?? []
     }
