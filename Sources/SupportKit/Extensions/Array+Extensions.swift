@@ -17,6 +17,12 @@ extension Array where Element: Identifiable {
     
     public func index(of element: Element) -> Int? { firstIndex { $0.id == element.id } }
     
+    public mutating func update(_ element: Element) {
+        if let index = firstIndex(where: { $0.id == element.id }) {
+            self[index] = element
+        }
+    }
+    
     @discardableResult
     public mutating func replace(_ element: Element, with newElement: Element) -> Bool {
         if let index = firstIndex(where: { $0.id == element.id }) {

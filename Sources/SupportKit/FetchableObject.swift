@@ -33,7 +33,6 @@ extension FetchableObject {
     public func refetch() { Task { await fetch(option: .reload) } }
 }
 
-
 // MARK: - Default concrete implementations
 open class FetchableResource<T>: FetchableObject, Invalidatable {
     @Published public var data: T? = nil
