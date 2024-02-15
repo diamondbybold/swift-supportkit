@@ -67,16 +67,6 @@ extension View {
     public func sideEffect(of object: any FetchableObject, task: @escaping () async -> Void) -> some View {
         self.sideEffect(of: object.lastUpdated, task: task)
     }
-    
-    @MainActor
-    public func sideEffect<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
-        self.onChange(of: value) { _ in Task { await task() } }
-    }
-    
-    @MainActor
-    public func sideEffect<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
-        self.onChange(of: value) { v in if v == equals { Task { await task() } } }
-    }
 }
 
 // MARK: - Refreshing
