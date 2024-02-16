@@ -33,22 +33,24 @@ extension View {
     }
     
     @MainActor
-    public func fetch(expiresIn: TimeInterval, _ task: @escaping () async -> Void) -> some View {
-        self.modifier(FetchViewModifier(expiresIn: expiresIn, task: task))
+    public func fetch(expiresIn interval: TimeInterval = 900, _ task: @escaping () async -> Void) -> some View {
+        self.modifier(FetchViewModifier(expiresIn: interval, task: task))
     }
     
     @MainActor
     public func fetch(_ object: any FetchableObject,
-                      option: FetchOption? = .expiresIn15min) -> some View {
-        self.fetch([object], option: option)
+                      expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch([object], expiresIn: interval)
     }
     
     @MainActor
     public func fetch(_ objects: [any FetchableObject],
-                      option: FetchOption? = .expiresIn15min) -> some View {
+                      expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             for object in objects {
-                await object.fetch(option: option)
+                if object.needsUpdate(in: interval) {
+                    await object.fetch(option: nil)
+                }
             }
         }
     }

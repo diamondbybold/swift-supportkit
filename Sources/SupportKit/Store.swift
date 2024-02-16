@@ -51,11 +51,8 @@ public class Store<T: Identifiable>: FetchableObject {
     public func fetch(option: FetchOption? = nil) async {
         guard let fetchRequest else { return }
         
-        if case let .expires(in: interval) = option,
-           loadingError == nil,
-           !lastUpdated.hasExpired(in: interval) { return }
-        
-        if case .refresh = option { isLoading = false }
+        if case .reload = option { isLoading = true }
+        else if case .refresh = option { isLoading = false }
         else { isLoading = loadingError != nil || contentUnavailable || currentPage > 1 }
         
         loadingError = nil

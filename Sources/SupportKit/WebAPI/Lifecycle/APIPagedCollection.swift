@@ -34,12 +34,8 @@ open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable {
     }
     
     public func fetch(option: FetchOption? = nil) async {
-        if case let .expires(in: interval) = option,
-           loadingError == nil,
-           !lastUpdated.hasExpired(in: interval) { return }
-        
-        if case .refresh = option { isLoading = false }
-        else if case .reload = option { isLoading = true }
+        if case .reload = option { isLoading = true }
+        else if case .refresh = option { isLoading = false }
         else { isLoading = loadingError != nil || contentUnavailable || currentPage > 1 }
         
         loadingError = nil
