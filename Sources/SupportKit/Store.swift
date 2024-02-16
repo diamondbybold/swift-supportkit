@@ -58,8 +58,8 @@ public class Store<T: Identifiable>: FetchableObject {
         loadingError = nil
         
         do {
-            let res: (elements: [T], total: Int) = try await fetchRequest.performFetch(page: 1)
-            elements = res.elements
+            let res = try await fetchRequest.performFetch(page: 1)
+            elements = res.elements as? [T] ?? []
             total = res.total
             
             lastUpdated = .now
@@ -78,8 +78,8 @@ public class Store<T: Identifiable>: FetchableObject {
         do {
             let nextPage = currentPage + 1
             
-            let res: (elements: [T], total: Int) = try await fetchRequest.performFetch(page: nextPage)
-            elements += res.elements
+            let res = try await fetchRequest.performFetch(page: nextPage)
+            elements += res.elements as? [T] ?? []
             
             lastUpdated = .now
             currentPage = nextPage
@@ -101,7 +101,7 @@ extension Notification.Name {
 
 // MARK: - FetchRequest
 public protocol StoreFetchRequest {
-    func performFetch<T: Identifiable>(page: Int) async throws -> (elements: [T], total: Int)
+    func performFetch(page: Int) async throws -> (elements: [Any], total: Int)
 }
 
 extension StoreFetchRequest {
