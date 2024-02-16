@@ -1,7 +1,7 @@
 import Foundation
 
 public class Store<T: Identifiable>: FetchableObject {
-    @Published public var fetchRequest: StoreFetchRequest? = nil
+    @Published public var fetchRequest: AnyFetchRequest? = nil
     
     @Published public var elements: [T] = []
     @Published public var total: Int = 0
@@ -43,7 +43,7 @@ public class Store<T: Identifiable>: FetchableObject {
         }
     }
     
-    public func fetch(_ fetchRequest: StoreFetchRequest, option: FetchOption? = nil) async {
+    public func fetch(_ fetchRequest: AnyFetchRequest, option: FetchOption? = nil) async {
         self.fetchRequest = fetchRequest
         await fetch(option: option)
     }
@@ -100,10 +100,10 @@ extension Notification.Name {
 }
 
 // MARK: - FetchRequest
-public protocol StoreFetchRequest {
+public protocol AnyFetchRequest {
     func performFetch(page: Int) async throws -> (elements: [Any], total: Int)
 }
 
-extension StoreFetchRequest {
+extension AnyFetchRequest {
     public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
 }
