@@ -57,11 +57,11 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         fetchRequest: AnyFetchRequest,
+                         _ fetchRequest: AnyFetchRequest,
                          expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
-                await store.fetch(option: nil)
+                await store.fetch(fetchRequest, option: nil)
             }
         }
     }
