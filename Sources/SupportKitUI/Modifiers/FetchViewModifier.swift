@@ -56,9 +56,27 @@ extension View {
     }
     
     @MainActor
-    public func fetchMoreContent<T: APIModel>(_ store: APIPagedCollection<T>) -> some View {
+    public func fetch<T>(_ store: Store<T>,
+                         fetchRequest: AnyFetchRequest,
+                         expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(option: nil)
+            }
+        }
+    }
+    
+    @MainActor
+    public func fetchMoreContent<T>(_ store: Store<T>) -> some View {
         self.task {
             await store.fetchMoreContents()
+        }
+    }
+    
+    @MainActor
+    public func fetchMoreContent<T>(_ collection: APIPagedCollection<T>) -> some View {
+        self.task {
+            await collection.fetchMoreContents()
         }
     }
 }
