@@ -4,18 +4,7 @@ import Combine
 public class Store<T: Identifiable>: FetchableObject {
     @Published public var fetchRequest: FetchRequest? = nil
     
-    @Published public var elements: [T] = [] /*{
-        didSet {
-            // Observe all elements
-            cancellables = elements.compactMap { element in
-                if let observableElement = element as? (any ObservableObject) {
-                    observableElement.onChange { [weak self] in self?.objectWillChange.send() }
-                } else {
-                    nil
-                }
-            }
-        }
-    }*/
+    @Published public var elements: [T] = []
     
     @Published public var total: Int = 0
     
@@ -35,8 +24,6 @@ public class Store<T: Identifiable>: FetchableObject {
     private var elementsInStoreDidChangeTask: Task<Void, Never>? = nil
     private var elementAddedToStoreTask: Task<Void, Never>? = nil
     private var elementRemovedFromStoreTask: Task<Void, Never>? = nil
-    
-    // private var cancellables: [AnyCancellable] = []
     
     deinit {
         storeDidChangeTask?.cancel()
@@ -60,6 +47,9 @@ public class Store<T: Identifiable>: FetchableObject {
             let notifications = NotificationCenter.default.notifications(named: .elementInStoreDidChange)
             for await notification in notifications {
                 if let element = notification.object as? T {
+                    if let observableElement = element as? (any ObservableObject) {
+                        observableElement.sendObjectWillChange()
+                    }
                     self?.elements.update(element)
                 }
             }
@@ -71,7 +61,7 @@ public class Store<T: Identifiable>: FetchableObject {
                 if let handler = notification.object as? (T) -> Void {
                     for element in self?.elements ?? [] {
                         if let observableElement = element as? (any ObservableObject) {
-                            observableElement.notifyChanges()
+                            observableElement.sendObjectWillChange()
                         }
                         handler(element)
                     }
@@ -118,13 +108,7 @@ public class Store<T: Identifiable>: FetchableObject {
         
         do {
             let res = try await fetchRequest.performFetch(page: 1, preview: isPreview)
-            
-            for element in elements {
-                if let observableElement = element as? (any ObservableObject) {
-                    observableElement.notifyChanges()
-                }
-            }
-            
+            elements.removeAll()
             elements = res.elements
             total = res.total ?? elements.count
             
