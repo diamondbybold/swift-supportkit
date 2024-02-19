@@ -5,6 +5,12 @@ public class TaskLimiter {
     public static let debounce = TaskLimiter(.debounce)
     public static let throttle = TaskLimiter(.throttle)
     public static let autoDismiss = TaskLimiter(.debounce, duration: 5)
+    public static let ping1sec = TaskLimiter(.ping, duration: 1)
+    public static let ping5sec = TaskLimiter(.ping, duration: 5)
+    public static let ping15sec = TaskLimiter(.ping, duration: 15)
+    public static let ping30sec = TaskLimiter(.ping, duration: 30)
+    public static let ping60sec = TaskLimiter(.ping, duration: 60)
+    public static let ping120sec = TaskLimiter(.ping, duration: 120)
     
     private let policy: Policy
     private let duration: TimeInterval
@@ -18,6 +24,8 @@ public class TaskLimiter {
         self.duration = duration
     }
     
+    deinit { cancel() }
+    
     public func callAsFunction(perform: @escaping () async -> Void) {
         switch policy {
         case .delay:
@@ -26,18 +34,18 @@ public class TaskLimiter {
             debounce(perform: perform)
         case .throttle:
             throttle(perform: perform)
+        case .ping:
+            ping(perform: perform)
         }
     }
     
-    private func throttle(perform: @escaping () async -> Void) {
-        guard !isActive else { return }
-        
-        task = Task {
-            try await Task.sleep(for: .seconds(duration))
-            task = nil
+    private func delay(perform: @escaping () async -> Void) {
+        Task {
+            do {
+                try await Task.sleep(for: .seconds(duration))
+                await perform()
+            } catch { }
         }
-        
-        Task { await perform() }
     }
     
     private func debounce(perform: @escaping () async -> Void) {
@@ -52,11 +60,23 @@ public class TaskLimiter {
         }
     }
     
-    private func delay(perform: @escaping () async -> Void) {
-        Task {
+    private func throttle(perform: @escaping () async -> Void) {
+        guard !isActive else { return }
+        
+        task = Task {
+            try await Task.sleep(for: .seconds(duration))
+            task = nil
+        }
+        
+        Task { await perform() }
+    }
+    
+    private func ping(perform: @escaping () async -> Void) {
+        task = Task {
             do {
-                try await Task.sleep(for: .seconds(duration))
                 await perform()
+                try await Task.sleep(for: .seconds(duration))
+                ping(perform: perform)
             } catch { }
         }
     }
@@ -72,5 +92,6 @@ extension TaskLimiter {
         case delay
         case debounce
         case throttle
+        case ping
     }
 }

@@ -2,11 +2,9 @@ import SwiftUI
 import SupportKit
 
 struct FetchViewModifier: ViewModifier {
-    var expiresIn: TimeInterval? = nil
     let task: () async -> Void
     
     @Environment(\.scenePhase) private var phase
-    @State private var lastUpdated: Date = .distantPast
     
     private var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
@@ -14,13 +12,7 @@ struct FetchViewModifier: ViewModifier {
         content
             .task(id: phase) {
                 if phase == .active || isPreview {
-                    if let expiresIn {
-                        if lastUpdated.hasExpired(in: expiresIn) {
-                            await task()
-                        }
-                    } else {
-                        await task()
-                    }
+                    await task()
                 }
             }
     }
@@ -30,11 +22,6 @@ extension View {
     @MainActor
     public func fetch(_ task: @escaping () async -> Void) -> some View {
         self.modifier(FetchViewModifier(task: task))
-    }
-    
-    @MainActor
-    public func fetch(expiresIn interval: TimeInterval = 900, _ task: @escaping () async -> Void) -> some View {
-        self.modifier(FetchViewModifier(expiresIn: interval, task: task))
     }
     
     @MainActor
@@ -57,7 +44,7 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ fetchRequest: AnyFetchRequest,
+                         _ fetchRequest: Store<T>.FetchRequest,
                          expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
