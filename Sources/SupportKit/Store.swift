@@ -19,12 +19,14 @@ public class Store<T: Identifiable>: FetchableObject {
     
     private var storeDidChangeTask: Task<Void, Never>? = nil
     private var elementInStoreDidChangeTask: Task<Void, Never>? = nil
+    private var elementsInStoreDidChangeTask: Task<Void, Never>? = nil
     private var elementAddedToStoreTask: Task<Void, Never>? = nil
     private var elementRemovedFromStoreTask: Task<Void, Never>? = nil
     
     deinit {
         storeDidChangeTask?.cancel()
         elementInStoreDidChangeTask?.cancel()
+        elementsInStoreDidChangeTask?.cancel()
         elementAddedToStoreTask?.cancel()
         elementRemovedFromStoreTask?.cancel()
     }
@@ -44,6 +46,17 @@ public class Store<T: Identifiable>: FetchableObject {
             for await notification in notifications {
                 if let element = notification.object as? T {
                     self?.elements.update(element)
+                }
+            }
+        }
+        
+        elementsInStoreDidChangeTask = Task { [weak self] in
+            let notifications = NotificationCenter.default.notifications(named: .elementsInStoreDidChange)
+            for await notification in notifications {
+                if let handler = notification.object as? (inout [T]) -> Void {
+                    if let self {
+                        handler(&self.elements)
+                    }
                 }
             }
         }
@@ -130,6 +143,7 @@ extension Store {
 extension Notification.Name {
     public static let storeDidChange = Notification.Name("StoreDidChangeNotification")
     public static let elementInStoreDidChange = Notification.Name("ElementInStoreDidChangeNotification")
+    public static let elementsInStoreDidChange = Notification.Name("ElementsInStoreDidChangeNotification")
     public static let elementAddedToStore = Notification.Name("ElementAddedToStoreNotification")
     public static let elementRemovedFromStore = Notification.Name("ElementRemovedFromStoreNotification")
 }
@@ -143,6 +157,11 @@ extension Store {
     public static func update(_ element: T) {
         NotificationCenter.default.post(name: .elementInStoreDidChange,
                                         object: element)
+    }
+    
+    public static func update(_ handler: @escaping (inout [T]) -> Void) {
+        NotificationCenter.default.post(name: .elementsInStoreDidChange,
+                                        object: handler)
     }
     
     public static func add(_ element: T, to name: String = "") {
