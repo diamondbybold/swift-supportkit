@@ -21,7 +21,7 @@ extension FetchableObject {
     
     public func refetch() { Task { await fetch(option: .reload) } }
     
-    public func needsUpdate(in interval: TimeInterval) -> Bool {
+    public func needsUpdate(in interval: TimeInterval = 900) -> Bool {
         lastUpdated.hasExpired(in: interval)
     }
 }
