@@ -1,17 +1,14 @@
 import Foundation
 
 public struct APIDeviceToken: Codable {
-    public let data: Data?
-    public let string: String?
+    public let data: Data
     
     public init(data: Data) {
         self.data = data
-        self.string = nil
     }
     
     public init(string: String) {
-        self.data = nil
-        self.string = string
+        self.data = string.data(using: .utf8) ?? Data()
     }
     
     public func save() {
@@ -25,4 +22,8 @@ public struct APIDeviceToken: Codable {
     public static func delete() {
         FileManager.default.removeCachedItem(name: "device-token", secure: true)
     }
+}
+
+extension APIDeviceToken {
+    public var string: String { String(data: data, encoding: .utf8) ?? "" }
 }
