@@ -2,10 +2,9 @@ import Foundation
 import Combine
 
 public class Store<T: Identifiable>: FetchableObject {
-    @Published public var fetchRequest: FetchRequest? = nil
+    public var fetchRequest: FetchRequest? = nil
     
     @Published public var elements: [T] = []
-    
     @Published public var total: Int = 0
     
     @Published public private(set) var currentPage: Int = 1
