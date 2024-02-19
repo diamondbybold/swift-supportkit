@@ -121,6 +121,7 @@ public class Store<T: Identifiable>: FetchableObject {
 // MARK: - Support Types
 extension Store {
     open class FetchRequest: ObservableObject {
+        public init() { }
         open func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) { ([], nil) }
     }
 }
