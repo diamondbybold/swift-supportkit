@@ -4,7 +4,7 @@ import Combine
 public class Store<T: Identifiable>: FetchableObject {
     @Published public var fetchRequest: FetchRequest? = nil
     
-    @Published public var elements: [T] = [] {
+    @Published public var elements: [T] = [] /*{
         didSet {
             // Observe all elements
             cancellables = elements.compactMap { element in
@@ -15,7 +15,7 @@ public class Store<T: Identifiable>: FetchableObject {
                 }
             }
         }
-    }
+    }*/
     
     @Published public var total: Int = 0
     
@@ -36,7 +36,7 @@ public class Store<T: Identifiable>: FetchableObject {
     private var elementAddedToStoreTask: Task<Void, Never>? = nil
     private var elementRemovedFromStoreTask: Task<Void, Never>? = nil
     
-    private var cancellables: [AnyCancellable] = []
+    // private var cancellables: [AnyCancellable] = []
     
     deinit {
         storeDidChangeTask?.cancel()
@@ -70,6 +70,9 @@ public class Store<T: Identifiable>: FetchableObject {
             for await notification in notifications {
                 if let handler = notification.object as? (T) -> Void {
                     for element in self?.elements ?? [] {
+                        if let observableElement = element as? (any ObservableObject) {
+                            observableElement.notifyChanges()
+                        }
                         handler(element)
                     }
                 }
@@ -115,6 +118,13 @@ public class Store<T: Identifiable>: FetchableObject {
         
         do {
             let res = try await fetchRequest.performFetch(page: 1, preview: isPreview)
+            
+            for element in elements {
+                if let observableElement = element as? (any ObservableObject) {
+                    observableElement.notifyChanges()
+                }
+            }
+            
             elements = res.elements
             total = res.total ?? elements.count
             

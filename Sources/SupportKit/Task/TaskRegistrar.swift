@@ -63,6 +63,8 @@ extension ObservableObject {
 }
 
 extension ObservableObject {
+    public func notifyChanges() { (objectWillChange as? ObservableObjectPublisher)?.send() }
+    
     public func onChange(_ perform: @escaping () -> Void) -> AnyCancellable {
         objectWillChange.sink { _ in perform() }
     }
