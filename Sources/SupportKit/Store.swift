@@ -108,7 +108,6 @@ public class Store<T: Identifiable>: FetchableObject {
         
         do {
             let res = try await fetchRequest.performFetch(page: 1, preview: isPreview)
-            elements.removeAll()
             elements = res.elements
             total = res.total ?? elements.count
             
@@ -158,30 +157,42 @@ extension Notification.Name {
 }
 
 extension Store {
+    @MainActor
     public static func invalidate() {
         NotificationCenter.default.post(name: .storeDidChange,
                                         object: Self.self)
     }
     
+    @MainActor
     public static func update(_ element: T) {
         NotificationCenter.default.post(name: .elementInStoreDidChange,
                                         object: element)
     }
     
+    @MainActor
     public static func updateAll(_ handler: @escaping (T) -> Void) {
         NotificationCenter.default.post(name: .elementsInStoreDidChange,
                                         object: handler)
     }
     
+    @MainActor
     public static func add(_ element: T, to name: String = "") {
         NotificationCenter.default.post(name: .elementAddedToStore,
                                         object: element,
                                         userInfo: ["storeName" : name])
     }
     
+    @MainActor
     public static func remove(_ element: T, from name: String = "") {
         NotificationCenter.default.post(name: .elementRemovedFromStore,
                                         object: element,
                                         userInfo: ["storeName" : name])
+    }
+}
+
+extension Identifiable {
+    @MainActor
+    public func sendObjectDidChange() {
+        Store<Self>.update(self)
     }
 }
