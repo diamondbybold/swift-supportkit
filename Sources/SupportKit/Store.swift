@@ -4,7 +4,7 @@ import Combine
 public class Store<T: Identifiable>: FetchableObject {
     @Published public var fetchRequest: FetchRequest? = nil
     
-    @Published public var elements: [T] = []/* {
+    @Published public var elements: [T] = [] {
         didSet {
             // Observe all elements
             cancellables = elements.compactMap { element in
@@ -15,7 +15,7 @@ public class Store<T: Identifiable>: FetchableObject {
                 }
             }
         }
-    }*/
+    }
     
     @Published public var total: Int = 0
     
