@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 public class TaskRegistrar {
     public static var shared = TaskRegistrar()
@@ -58,5 +59,11 @@ extension ObservableObject {
     
     public func untracking() {
         TaskRegistrar.shared.cancelWithObject(self)
+    }
+}
+
+extension ObservableObject {
+    public func onChange(_ perform: @escaping () -> Void) -> AnyCancellable {
+        objectWillChange.sink { _ in perform() }
     }
 }

@@ -1,9 +1,22 @@
 import Foundation
+import Combine
 
 public class Store<T: Identifiable>: FetchableObject {
     @Published public var fetchRequest: FetchRequest? = nil
     
-    @Published public var elements: [T] = []
+    @Published public var elements: [T] = [] {
+        didSet {
+            // Observe all elements
+            cancellables = elements.compactMap { element in
+                if let observableElement = element as? (any ObservableObject) {
+                    observableElement.onChange { [weak self] in self?.objectWillChange.send() }
+                } else {
+                    nil
+                }
+            }
+        }
+    }
+    
     @Published public var total: Int = 0
     
     @Published public private(set) var currentPage: Int = 1
@@ -22,6 +35,8 @@ public class Store<T: Identifiable>: FetchableObject {
     private var elementsInStoreDidChangeTask: Task<Void, Never>? = nil
     private var elementAddedToStoreTask: Task<Void, Never>? = nil
     private var elementRemovedFromStoreTask: Task<Void, Never>? = nil
+    
+    private var cancellables: [AnyCancellable] = []
     
     deinit {
         storeDidChangeTask?.cancel()
@@ -54,8 +69,6 @@ public class Store<T: Identifiable>: FetchableObject {
             let notifications = NotificationCenter.default.notifications(named: .elementsInStoreDidChange)
             for await notification in notifications {
                 if let handler = notification.object as? (T) -> Void {
-                    self?.objectWillChange.send()
-                    
                     for element in self?.elements ?? [] {
                         handler(element)
                     }
