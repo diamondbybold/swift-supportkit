@@ -54,6 +54,8 @@ public class Store<T: Identifiable>: FetchableObject {
             let notifications = NotificationCenter.default.notifications(named: .elementsInStoreDidChange)
             for await notification in notifications {
                 if let handler = notification.object as? (T) -> Void {
+                    self?.objectWillChange.send()
+                    
                     for element in self?.elements ?? [] {
                         handler(element)
                     }
