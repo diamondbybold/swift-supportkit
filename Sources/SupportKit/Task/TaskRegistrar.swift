@@ -61,7 +61,3 @@ extension ObservableObject {
         TaskRegistrar.shared.cancelWithObject(self)
     }
 }
-
-extension ObservableObject {
-    public func sendObjectWillChange() { (objectWillChange as? ObservableObjectPublisher)?.send() }
-}

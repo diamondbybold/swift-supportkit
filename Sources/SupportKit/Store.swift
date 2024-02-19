@@ -190,9 +190,7 @@ extension Store {
     }
 }
 
-extension Identifiable {
+extension ObservableObject {
     @MainActor
-    public func sendObjectDidChange() {
-        Store<Self>.update(self)
-    }
+    fileprivate func sendObjectWillChange() { (objectWillChange as? ObservableObjectPublisher)?.send() }
 }
