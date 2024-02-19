@@ -53,9 +53,9 @@ public class Store<T: Identifiable>: FetchableObject {
         elementsInStoreDidChangeTask = Task { [weak self] in
             let notifications = NotificationCenter.default.notifications(named: .elementsInStoreDidChange)
             for await notification in notifications {
-                if let handler = notification.object as? ([T]) -> Void {
-                    if let self {
-                        handler(self.elements)
+                if let handler = notification.object as? (T) -> Void {
+                    for element in self?.elements ?? [] {
+                        handler(element)
                     }
                 }
             }
@@ -159,7 +159,7 @@ extension Store {
                                         object: element)
     }
     
-    public static func update(_ handler: @escaping ([T]) -> Void) {
+    public static func updateAll(_ handler: @escaping (T) -> Void) {
         NotificationCenter.default.post(name: .elementsInStoreDidChange,
                                         object: handler)
     }
