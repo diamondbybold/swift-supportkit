@@ -32,7 +32,7 @@ public class Store<T: Identifiable>: FetchableObject {
         elementRemovedFromStoreTask?.cancel()
     }
     
-    public init(_ name: String = "") {
+    public init(_ tag: String = "") {
         storeDidChangeTask = Task { [weak self] in
             let notifications = NotificationCenter.default.notifications(named: .storeDidChange)
             for await notification in notifications {
@@ -72,8 +72,8 @@ public class Store<T: Identifiable>: FetchableObject {
             let notifications = NotificationCenter.default.notifications(named: .elementAddedToStore)
             for await notification in notifications {
                 if let element = notification.object as? T,
-                   let storeName = notification.userInfo?["storeName"] as? String,
-                   storeName == name {
+                   let notificationTag = notification.userInfo?["tag"] as? String,
+                   notificationTag == tag {
                     self?.elements.append(element)
                 }
             }
@@ -83,8 +83,8 @@ public class Store<T: Identifiable>: FetchableObject {
             let notifications = NotificationCenter.default.notifications(named: .elementRemovedFromStore)
             for await notification in notifications {
                 if let element = notification.object as? T,
-                   let storeName = notification.userInfo?["storeName"] as? String,
-                   storeName == name {
+                   let notificationTag = notification.userInfo?["tag"] as? String,
+                   notificationTag == tag {
                     self?.elements.remove(element)
                 }
             }
@@ -175,17 +175,17 @@ extension Store {
     }
     
     @MainActor
-    public static func add(_ element: T, to name: String = "") {
+    public static func add(_ element: T, to tag: String = "") {
         NotificationCenter.default.post(name: .elementAddedToStore,
                                         object: element,
-                                        userInfo: ["storeName" : name])
+                                        userInfo: ["tag" : tag])
     }
     
     @MainActor
-    public static func remove(_ element: T, from name: String = "") {
+    public static func remove(_ element: T, from tag: String = "") {
         NotificationCenter.default.post(name: .elementRemovedFromStore,
                                         object: element,
-                                        userInfo: ["storeName" : name])
+                                        userInfo: ["tag" : tag])
     }
 }
 
