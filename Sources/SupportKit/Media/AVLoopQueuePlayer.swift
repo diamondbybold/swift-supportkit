@@ -14,8 +14,9 @@ public class AVLoopQueuePlayer: AVQueuePlayer {
             let notifications = NotificationCenter.default.notifications(named: .AVPlayerItemDidPlayToEndTime)
             for await notification in notifications {
                 guard let self else { return }
-                if loop, items().last === notification.object as? AVPlayerItem {
+                if loop, playlist.last === notification.object as? AVPlayerItem {
                     replaceCurrentItems(with: playlist)
+                    seek(to: .zero, completionHandler: { _ in })
                     play()
                 }
             }
@@ -42,8 +43,8 @@ public class AVLoopQueuePlayer: AVQueuePlayer {
     }
     
     public func replaceCurrentItems(with items: [AVPlayerItem]) {
-        playlist = items
         removeAllItems()
+        playlist = items
         playlist.forEach { insert($0, after: nil) }
     }
     
