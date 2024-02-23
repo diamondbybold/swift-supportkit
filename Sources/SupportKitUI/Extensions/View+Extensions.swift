@@ -98,10 +98,15 @@ extension View {
     public func sideEffect<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { _ in Task { await task() } }
     }
-    
+        
     @MainActor
     public func sideEffect<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { v in if v == equals { Task { await task() } } }
+    }
+    
+    @MainActor
+    public func sideEffect<V: Equatable>(of value: V?, task: @escaping (V) async -> Void) -> some View {
+        self.onChange(of: value) { v in if let v { Task { await task(v) } } }
     }
     
     @MainActor
