@@ -11,6 +11,9 @@ public class NavigationContext: ObservableObject {
     
     @Published var shouldDismiss: Bool = false
     
+    public var isActive: Bool = false
+    public var isModalActive: Bool { sheet != nil || fullScreenCover != nil || confirmation != nil || alert != nil }
+    
     public func destination(_ destination: Destination,
                             disableTransition: Bool = false,
                             @ViewBuilder content: @escaping () -> any View) {

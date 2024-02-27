@@ -48,6 +48,12 @@ struct NavigationContainer<Root: View>: View {
                 dismiss()
             }
         }
+        .onAppear {
+            navigationContext.isActive = true
+        }
+        .onDisappear {
+            navigationContext.isActive = false
+        }
     }
 }
 
