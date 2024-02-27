@@ -2,29 +2,23 @@ import SwiftUI
 
 struct OnNotificationViewModifier: ViewModifier {
     @Binding var notification: UNNotification?
-    let destination: NavigationContext.Destination
-    let destinationContent: (UNNotification) -> (any View)?
+    let perform: (UNNotification, NavigationContext) -> Bool
     
     @EnvironmentObject private var navigationContext: NavigationContext
-    
-    private func handleNotification(_ notification: UNNotification) {
-        guard navigationContext.isActive else { return }
-        if destination != .stack, navigationContext.isModalActive { return }
-        guard let content = destinationContent(notification) else { return }
-        navigationContext.destination(destination) { content }
-    }
     
     func body(content: Content) -> some View {
         content.onAppear {
             if let n = notification {
-                handleNotification(n)
-                notification = nil
+                if perform(n, navigationContext) {
+                    notification = nil
+                }
             }
         }
         .onChange(of: notification) {
             if let n = $0 {
-                handleNotification(n)
-                notification = nil
+                if perform(n, navigationContext) {
+                    notification = nil
+                }
             }
         }
     }
@@ -32,12 +26,9 @@ struct OnNotificationViewModifier: ViewModifier {
 
 extension View {
     public func onNotification(_ notification: Binding<UNNotification?>,
-                               destination: NavigationContext.Destination,
-                               @ViewBuilder content: @escaping (UNNotification) -> (any View)?) -> some View {
+                               perform: @escaping (UNNotification, NavigationContext) -> Bool) -> some View {
         self.modifier(OnNotificationViewModifier(notification: notification,
-                                                 destination: destination,
-                                                 destinationContent: content))
-        
+                                                 perform: perform))
     }
     
     public func onNotification(_ notification: Binding<UNNotification?>,
