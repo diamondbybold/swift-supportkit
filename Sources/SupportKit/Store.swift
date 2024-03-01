@@ -144,6 +144,14 @@ extension Store {
         public init() { }
         open func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) { ([], nil) }
     }
+    
+    public class AnyFetchRequest: FetchRequest {
+        let perform: (Int, Bool) -> ([T], Int?)
+        
+        public init(_ perform: @escaping (Int, Bool) -> ([T], Int?)) {
+            self.perform = perform
+        }
+    }
 }
 
 // MARK: - Notifications
