@@ -151,6 +151,10 @@ extension Store {
         public init(_ perform: @escaping (Int, Bool) -> ([T], Int?)) {
             self.perform = perform
         }
+        
+        public override func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) {
+            perform(page, preview)
+        }
     }
 }
 
