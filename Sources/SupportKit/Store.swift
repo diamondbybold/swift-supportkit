@@ -146,14 +146,14 @@ extension Store {
     }
     
     public class AnyFetchRequest: FetchRequest {
-        let perform: (Int, Bool) -> ([T], Int?)
+        let perform: (Int, Bool) async throws -> ([T], Int?)
         
-        public init(_ perform: @escaping (Int, Bool) -> ([T], Int?)) {
+        public init(_ perform: @escaping (Int, Bool) async throws -> ([T], Int?)) {
             self.perform = perform
         }
         
         public override func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) {
-            perform(page, preview)
+            try await perform(page, preview)
         }
     }
 }
