@@ -54,6 +54,17 @@ extension View {
     }
     
     @MainActor
+    public func fetch<T>(_ store: Store<T>,
+                         _ fetchRequest: @escaping (Int, Bool) async throws -> ([T], Int?),
+                         expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(option: nil, fetchRequest)
+            }
+        }
+    }
+    
+    @MainActor
     public func fetchMoreContent<T>(_ store: Store<T>) -> some View {
         self.task {
             await store.fetchMoreContents()

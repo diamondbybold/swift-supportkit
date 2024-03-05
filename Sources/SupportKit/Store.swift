@@ -96,6 +96,11 @@ public class Store<T: Identifiable>: FetchableObject {
         await fetch(option: option)
     }
     
+    public func fetch(option: FetchOption? = nil, _ fetchRequest: @escaping (Int, Bool) async throws -> ([T], Int?)) async {
+        self.fetchRequest = AnyFetchRequest(fetchRequest)
+        await fetch(option: option)
+    }
+    
     public func fetch(option: FetchOption? = nil) async {
         guard let fetchRequest else { return }
         
@@ -146,14 +151,14 @@ extension Store {
     }
     
     public class AnyFetchRequest: FetchRequest {
-        let perform: (Int, Bool) async throws -> ([T], Int?)
+        let fetchRequest: (Int, Bool) async throws -> ([T], Int?)
         
-        public init(_ perform: @escaping (Int, Bool) async throws -> ([T], Int?)) {
-            self.perform = perform
+        public init(_ fetchRequest: @escaping (Int, Bool) async throws -> ([T], Int?)) {
+            self.fetchRequest = fetchRequest
         }
         
         public override func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) {
-            try await perform(page, preview)
+            try await fetchRequest(page, preview)
         }
     }
 }
