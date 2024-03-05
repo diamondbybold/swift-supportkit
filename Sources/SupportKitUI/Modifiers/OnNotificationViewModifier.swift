@@ -1,23 +1,23 @@
 import SwiftUI
 
 struct OnNotificationViewModifier: ViewModifier {
-    @Binding var notification: UNNotificationResponse?
+    @Binding var notificationResponse: UNNotificationResponse?
     let perform: (UNNotificationResponse, NavigationContext) -> Bool
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
     func body(content: Content) -> some View {
         content.onAppear {
-            if let n = notification {
+            if let n = notificationResponse {
                 if perform(n, navigationContext) {
-                    notification = nil
+                    notificationResponse = nil
                 }
             }
         }
-        .onChange(of: notification) {
+        .onChange(of: notificationResponse) {
             if let n = $0 {
                 if perform(n, navigationContext) {
-                    notification = nil
+                    notificationResponse = nil
                 }
             }
         }
@@ -25,25 +25,25 @@ struct OnNotificationViewModifier: ViewModifier {
 }
 
 extension View {
-    public func onNotification(_ notification: Binding<UNNotificationResponse?>,
+    public func onNotification(_ notificationResponse: Binding<UNNotificationResponse?>,
                                perform: @escaping (UNNotificationResponse, NavigationContext) -> Bool) -> some View {
-        self.modifier(OnNotificationViewModifier(notification: notification,
+        self.modifier(OnNotificationViewModifier(notificationResponse: notificationResponse,
                                                  perform: perform))
     }
     
-    public func onNotification(_ notification: Binding<UNNotificationResponse?>,
+    public func onNotification(_ notificationResponse: Binding<UNNotificationResponse?>,
                                perform: @escaping (UNNotificationResponse) -> Bool) -> some View {
         self.onAppear {
-            if let n = notification.wrappedValue {
+            if let n = notificationResponse.wrappedValue {
                 if perform(n) {
-                    notification.wrappedValue = nil
+                    notificationResponse.wrappedValue = nil
                 }
             }
         }
-        .onChange(of: notification.wrappedValue) {
+        .onChange(of: notificationResponse.wrappedValue) {
             if let n = $0 {
                 if perform(n) {
-                    notification.wrappedValue = nil
+                    notificationResponse.wrappedValue = nil
                 }
             }
         }
