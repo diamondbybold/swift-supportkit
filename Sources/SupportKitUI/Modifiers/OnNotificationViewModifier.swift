@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct OnNotificationViewModifier: ViewModifier {
-    @Binding var notification: UNNotification?
-    let perform: (UNNotification, NavigationContext) -> Bool
+    @Binding var notification: UNNotificationResponse?
+    let perform: (UNNotificationResponse, NavigationContext) -> Bool
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
@@ -25,14 +25,14 @@ struct OnNotificationViewModifier: ViewModifier {
 }
 
 extension View {
-    public func onNotification(_ notification: Binding<UNNotification?>,
-                               perform: @escaping (UNNotification, NavigationContext) -> Bool) -> some View {
+    public func onNotification(_ notification: Binding<UNNotificationResponse?>,
+                               perform: @escaping (UNNotificationResponse, NavigationContext) -> Bool) -> some View {
         self.modifier(OnNotificationViewModifier(notification: notification,
                                                  perform: perform))
     }
     
-    public func onNotification(_ notification: Binding<UNNotification?>,
-                               perform: @escaping (UNNotification) -> Bool) -> some View {
+    public func onNotification(_ notification: Binding<UNNotificationResponse?>,
+                               perform: @escaping (UNNotificationResponse) -> Bool) -> some View {
         self.onAppear {
             if let n = notification.wrappedValue {
                 if perform(n) {
