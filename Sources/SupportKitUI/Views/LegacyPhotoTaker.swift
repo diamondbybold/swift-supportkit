@@ -8,7 +8,6 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
     private var continuation: CheckedContinuation<UIImage, Error>? = nil
     
     public enum PhotoError: Error {
-        case cancelled
         case failed
     }
     
@@ -52,6 +51,6 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
     }
     
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        continuation?.resume(throwing: PhotoError.cancelled)
+        continuation?.resume(throwing: CancellationError())
     }
 }
