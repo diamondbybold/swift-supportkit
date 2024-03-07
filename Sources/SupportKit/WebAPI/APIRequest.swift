@@ -137,6 +137,12 @@ extension APIRequest {
             request.httpBody = nil
         }
         
+#if DEBUG
+        if let body = request.httpBody {
+            print("[Body Size] \(body.count)")
+        }
+#endif
+        
         return request
     }
 }
