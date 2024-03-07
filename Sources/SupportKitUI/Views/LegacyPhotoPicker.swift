@@ -2,6 +2,7 @@ import PhotosUI
 import UIKit
 import SwiftUI
 
+@MainActor
 public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
     private var continuation: CheckedContinuation<UIImage, Error>? = nil
     
@@ -40,11 +41,15 @@ public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
             return
         }
         
-        provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
-            if let image = image as? UIImage {
-                self?.continuation?.resume(returning: image)
-            } else {
-                self?.continuation?.resume(throwing: PhotoError.failed)
+        provider.loadObject(ofClass: UIImage.self) { image, _ in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                
+                if let image = image as? UIImage {
+                    continuation?.resume(returning: image)
+                } else {
+                    continuation?.resume(throwing: PhotoError.failed)
+                }
             }
         }
     }

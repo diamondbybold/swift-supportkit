@@ -62,6 +62,7 @@ public struct AsyncButton<Label>: View where Label: View {
         self.action = action
     }
     
+    @MainActor
     private func performTask() async {
         waiting = true
         

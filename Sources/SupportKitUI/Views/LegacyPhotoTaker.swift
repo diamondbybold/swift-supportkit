@@ -3,6 +3,7 @@ import AVFoundation
 import UIKit
 import SwiftUI
 
+@MainActor
 public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     private var continuation: CheckedContinuation<UIImage, Error>? = nil
     
@@ -16,6 +17,7 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
         await AVCaptureDevice.requestAccess(for: .video)
     }
     
+    @MainActor
     public func request(tint: Color? = nil) async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
