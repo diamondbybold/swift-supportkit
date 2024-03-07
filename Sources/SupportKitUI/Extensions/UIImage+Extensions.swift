@@ -23,14 +23,19 @@ extension UIImage {
         return jpegData(compressionQuality: compressionQuality)?.base64EncodedString() ?? ""
     }
     
-    public func resized(targetSize: CGSize) -> UIImage {
+    public func resized(targetSize: CGSize, opaque: Bool = false) -> UIImage {
         let widthRatio = targetSize.width / size.width
         let heightRatio = targetSize.height / size.height
         
         let scaleFactor = min(widthRatio, heightRatio)
         let scaledImageSize = CGSize(width: size.width * scaleFactor, height: size.height * scaleFactor)
         
-        let renderer = UIGraphicsImageRenderer(size: scaledImageSize)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = opaque
+        format.preferredRange = .standard
+        
+        let renderer = UIGraphicsImageRenderer(size: scaledImageSize, format: format)
         
         let scaledImage = renderer.image { _ in
             self.draw(in: CGRect(origin: .zero, size: scaledImageSize))
@@ -39,8 +44,8 @@ extension UIImage {
         return scaledImage
     }
     
-    public func resizedIfNeeded(maxSize: CGFloat) -> UIImage {
+    public func resizedIfNeeded(maxSize: CGFloat, opaque: Bool = false) -> UIImage {
         guard size.width > maxSize || size.height > maxSize else { return self }
-        return resized(targetSize: CGSize(width: maxSize, height: maxSize))
+        return resized(targetSize: CGSize(width: maxSize, height: maxSize), opaque: opaque)
     }
 }
