@@ -8,6 +8,7 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
     private var continuation: CheckedContinuation<UIImage, Error>? = nil
     
     public enum PhotoError: Error {
+        case cancelled
         case failed
     }
     
@@ -18,7 +19,7 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
     }
     
     @MainActor
-    public func request(tint: Color? = nil) async throws -> UIImage {
+    public func request(cameraDevice: UIImagePickerController.CameraDevice = .front, tint: Color? = nil) async throws -> UIImage {
         try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
             
@@ -27,8 +28,7 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
                     let controller = UIImagePickerController()
                     controller.delegate = self
                     controller.sourceType = .camera
-                    controller.cameraDevice = .front
-                    controller.cameraViewTransform = CGAffineTransform(scaleX: -1, y: 1)
+                    controller.cameraDevice = cameraDevice
                     controller.allowsEditing = false
                     if let tint {
                         controller.view.tintColor = UIColor(tint)
@@ -49,5 +49,9 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
         }
         
         continuation?.resume(returning: image)
+    }
+    
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        continuation?.resume(throwing: PhotoError.cancelled)
     }
 }
