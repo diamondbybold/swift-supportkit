@@ -14,7 +14,9 @@ public class LegacyPhotoTaker: NSObject, UIImagePickerControllerDelegate, UINavi
     public override init() { }
     
     public func requestPermission() async -> Bool {
-        await AVCaptureDevice.requestAccess(for: .video)
+        let result = await AVCaptureDevice.requestAccess(for: .video)
+        try? await Task.sleep(for: .seconds(0.5))
+        return result
     }
     
     @MainActor

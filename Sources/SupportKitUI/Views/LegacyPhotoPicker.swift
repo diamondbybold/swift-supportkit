@@ -21,6 +21,7 @@ public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
                     var config = PHPickerConfiguration()
                     config.filter = .images
                     let controller = PHPickerViewController(configuration: config)
+                    controller.modalPresentationStyle = .fullScreen
                     if let tint {
                         controller.view.tintColor = UIColor(tint)
                     }
@@ -34,6 +35,11 @@ public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
     public func picker(_ picker: PHPickerViewController,
                        didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
+        
+        guard !results.isEmpty else {
+            continuation?.resume(throwing: CancellationError())
+            return
+        }
         
         guard let provider = results.first?.itemProvider,
               provider.canLoadObject(ofClass: UIImage.self) else {
