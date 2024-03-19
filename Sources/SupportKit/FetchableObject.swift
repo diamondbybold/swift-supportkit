@@ -8,22 +8,14 @@ public protocol FetchableObject: ObservableObject {
     var isLoading: Bool { get set }
     var loadingError: Error? { get set }
     
-    func fetch(option: FetchOption?) async
-}
-
-public enum FetchOption {
-    case reload
-    case refresh
+    func fetch(refreshing: Bool?) async
 }
 
 extension FetchableObject {
-    public var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
+    public var isRunningForPreviews: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
     
-    public func refetch() { Task { await fetch(option: .reload) } }
-    
-    public func needsUpdate(in interval: TimeInterval = 900) -> Bool {
-        lastUpdated.hasExpired(in: interval)
-    }
+    public func refetch() { Task { await fetch(refreshing: false) } }
+    public func needsUpdate(in interval: TimeInterval = 900) -> Bool { lastUpdated.hasExpired(in: interval) }
 }
 
 // MARK: - Default concrete implementations
@@ -46,10 +38,12 @@ open class FetchableResource<T>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch(option: FetchOption? = nil) async {
-        if case .reload = option { isLoading = true }
-        else if case .refresh = option { isLoading = false }
-        else { isLoading = loadingError != nil || contentUnavailable }
+    public func fetch(refreshing: Bool? = nil) async {
+        if let refreshing {
+            isLoading = !refreshing
+        } else {
+            isLoading = loadingError != nil || contentUnavailable
+        }
         
         loadingError = nil
         
@@ -86,10 +80,12 @@ open class FetchableCollection<T>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch(option: FetchOption? = nil) async {
-        if case .reload = option { isLoading = true }
-        else if case .refresh = option { isLoading = false }
-        else { isLoading = loadingError != nil || contentUnavailable }
+    public func fetch(refreshing: Bool? = nil) async {
+        if let refreshing {
+            isLoading = !refreshing
+        } else {
+            isLoading = loadingError != nil || contentUnavailable
+        }
         
         loadingError = nil
         

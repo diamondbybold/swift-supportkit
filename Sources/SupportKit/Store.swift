@@ -91,27 +91,40 @@ public class Store<T: Identifiable>: FetchableObject {
         }
     }
     
-    public func fetch(_ fetchRequest: FetchRequest, option: FetchOption? = nil) async {
+    public func fetch(_ fetchRequest: FetchRequest, refreshing: Bool? = nil) async {
         self.fetchRequest = fetchRequest
-        await fetch(option: option)
+        await fetch(refreshing: refreshing)
     }
     
-    public func fetch(option: FetchOption? = nil, _ fetchRequest: @escaping (Int, Bool) async throws -> ([T], Int?)) async {
+    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) async {
         self.fetchRequest = AnyFetchRequest(fetchRequest)
-        await fetch(option: option)
+        await fetch(refreshing: refreshing)
     }
     
-    public func fetch(option: FetchOption? = nil) async {
+    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping () async throws -> T?) async {
+        self.fetchRequest = AnyFetchRequest { _ in
+            if let r = try await fetchRequest() {
+                return ([r], nil)
+            } else {
+                return ([], nil)
+            }
+        }
+        await fetch(refreshing: refreshing)
+    }
+    
+    public func fetch(refreshing: Bool? = nil) async {
         guard let fetchRequest else { return }
         
-        if case .reload = option { isLoading = true }
-        else if case .refresh = option { isLoading = false }
-        else { isLoading = loadingError != nil || contentUnavailable || currentPage > 1 }
+        if let refreshing {
+            isLoading = !refreshing
+        } else {
+            isLoading = loadingError != nil || contentUnavailable || currentPage > 1
+        }
         
         loadingError = nil
         
         do {
-            let res = try await fetchRequest.performFetch(page: 1, preview: isPreview)
+            let res = try await fetchRequest.performFetch(page: 1)
             elements = res.elements
             total = res.total ?? elements.count
             
@@ -131,7 +144,7 @@ public class Store<T: Identifiable>: FetchableObject {
         do {
             let nextPage = currentPage + 1
             
-            let res = try await fetchRequest.performFetch(page: nextPage, preview: isPreview)
+            let res = try await fetchRequest.performFetch(page: nextPage)
             elements += res.elements
             
             lastUpdated = .now
@@ -147,18 +160,18 @@ public class Store<T: Identifiable>: FetchableObject {
 extension Store {
     open class FetchRequest: ObservableObject {
         public init() { }
-        open func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) { ([], nil) }
+        open func performFetch(page: Int) async throws -> (elements: [T], total: Int?) { ([], nil) }
     }
     
     public class AnyFetchRequest: FetchRequest {
-        let fetchRequest: (Int, Bool) async throws -> ([T], Int?)
+        let fetchRequest: (Int) async throws -> ([T], Int?)
         
-        public init(_ fetchRequest: @escaping (Int, Bool) async throws -> ([T], Int?)) {
+        public init(_ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) {
             self.fetchRequest = fetchRequest
         }
         
-        public override func performFetch(page: Int, preview: Bool) async throws -> (elements: [T], total: Int?) {
-            try await fetchRequest(page, preview)
+        public override func performFetch(page: Int) async throws -> (elements: [T], total: Int?) {
+            try await fetchRequest(page)
         }
     }
 }

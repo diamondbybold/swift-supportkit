@@ -33,10 +33,12 @@ open class APIPagedCollection<T: APIModel>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch(option: FetchOption? = nil) async {
-        if case .reload = option { isLoading = true }
-        else if case .refresh = option { isLoading = false }
-        else { isLoading = loadingError != nil || contentUnavailable || currentPage > 1 }
+    public func fetch(refreshing: Bool? = nil) async {
+        if let refreshing {
+            isLoading = !refreshing
+        } else {
+            isLoading = loadingError != nil || contentUnavailable || currentPage > 1
+        }
         
         loadingError = nil
         

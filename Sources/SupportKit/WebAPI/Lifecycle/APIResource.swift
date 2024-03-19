@@ -31,10 +31,12 @@ open class APIResource<T: APIModel>: FetchableObject, Invalidatable {
         }
     }
     
-    public func fetch(option: FetchOption? = nil) async {
-        if case .reload = option { isLoading = true }
-        else if case .refresh = option { isLoading = false }
-        else { isLoading = loadingError != nil || contentUnavailable }
+    public func fetch(refreshing: Bool? = nil) async {
+        if let refreshing {
+            isLoading = !refreshing
+        } else {
+            isLoading = loadingError != nil || contentUnavailable
+        }
         
         loadingError = nil
         
