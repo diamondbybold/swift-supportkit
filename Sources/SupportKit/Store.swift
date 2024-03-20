@@ -101,6 +101,14 @@ public class Store<T: Identifiable>: FetchableObject {
         await fetch(refreshing: refreshing)
     }
     
+    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping () async throws -> [T]) async {
+        self.fetchRequest = AnyFetchRequest { _ in
+            let r = try await fetchRequest()
+            return (r, nil)
+        }
+        await fetch(refreshing: refreshing)
+    }
+    
     public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping () async throws -> T?) async {
         self.fetchRequest = AnyFetchRequest { _ in
             if let r = try await fetchRequest() {
