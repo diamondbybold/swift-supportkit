@@ -114,13 +114,9 @@ extension View {
     @MainActor
     public func refreshableFix(_ task: @escaping () async -> Void) -> some View {
         self.refreshable {
-            if #available(iOS 17, *) {
+            try? await Task.sleep(for: .seconds(0.5))
+            Task {
                 await task()
-            } else {
-                try? await Task.sleep(for: .seconds(0.5))
-                Task {
-                    await task()
-                }
             }
         }
     }
