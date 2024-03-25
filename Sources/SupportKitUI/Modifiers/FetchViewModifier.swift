@@ -114,10 +114,9 @@ extension View {
     @MainActor
     public func refreshableFix(_ task: @escaping () async -> Void) -> some View {
         self.refreshable {
-            try? await Task.sleep(for: .seconds(0.5))
-            Task {
+            await Task {
                 await task()
-            }
+            }.value
         }
     }
     
