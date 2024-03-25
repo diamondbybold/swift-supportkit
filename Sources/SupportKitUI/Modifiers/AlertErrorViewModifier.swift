@@ -9,7 +9,7 @@ struct AlertErrorViewModifier: ViewModifier {
         content.alert(localizedError?.failureReason ?? "", isPresented: .present(value: $error)) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(localizedError?.recoverySuggestion ?? localizedError?.localizedDescription ?? "")
+            Text(localizedError?.recoverySuggestion ?? error?.localizedDescription ?? "")
         }
     }
 }
