@@ -2,12 +2,12 @@ import AVKit
 import SwiftUI
 
 public struct MediaPlayer: UIViewControllerRepresentable {
-    let player: AVPlayer?
-    var showsPlaybackControls: Bool
-    var allowsPictureInPicturePlayback: Bool
-    var videoGravity: AVLayerVideoGravity
+    private let player: AVPlayer?
+    private var showsPlaybackControls: Bool
+    private var allowsPictureInPicturePlayback: Bool
+    private var videoGravity: AVLayerVideoGravity
     
-    init(player: AVPlayer?,
+    public init(player: AVPlayer?,
          showsPlaybackControls: Bool = true,
          allowsPictureInPicturePlayback: Bool = true,
          videoGravity: AVLayerVideoGravity = .resizeAspect) {
