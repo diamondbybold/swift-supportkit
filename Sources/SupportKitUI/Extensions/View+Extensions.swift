@@ -1,4 +1,5 @@
 import SwiftUI
+import AVKit
 import SupportKit
 
 extension View {
@@ -118,5 +119,30 @@ extension View {
                 await task(notification)
             }
         }
+    }
+}
+
+// MARK: - Media
+extension View {
+    public func mediaSession(_ category: AVAudioSession.Category,
+                             mode: AVAudioSession.Mode = .default,
+                             options: AVAudioSession.CategoryOptions = [],
+                             idleTimerDisabled: Bool = true) -> some View {
+        self
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = idleTimerDisabled
+                
+                do {
+                    try AVAudioSession.sharedInstance().setCategory(category, mode: mode, options: options)
+                    try AVAudioSession.sharedInstance().setActive(true)
+                } catch { }
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+                
+                do {
+                    try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+                } catch { }
+            }
     }
 }
