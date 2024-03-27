@@ -9,12 +9,12 @@ public struct APIAuthorization: Codable {
         self.refreshToken = refreshToken
     }
     
-    public func save() {
-        FileManager.default.cacheItem(self, name: "authorization", secure: true)
+    public func save(secureKey: String) {
+        FileManager.default.cacheItem(self, name: "authorization", secureKey: secureKey)
     }
     
-    public static var saved: Self? {
-        FileManager.default.cachedItem(name: "authorization", secure: true)
+    public static func saved(secureKey: String) -> Self? {
+        FileManager.default.cachedItem(name: "authorization", secureKey: secureKey)
     }
     
     public static func delete() {

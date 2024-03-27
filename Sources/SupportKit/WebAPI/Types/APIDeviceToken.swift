@@ -11,12 +11,12 @@ public struct APIDeviceToken: Codable {
         self.data = string.data(using: .utf8) ?? Data()
     }
     
-    public func save() {
-        FileManager.default.cacheItem(self, name: "device-token", secure: true)
+    public func save(secureKey: String) {
+        FileManager.default.cacheItem(self, name: "device-token", secureKey: secureKey)
     }
     
-    public static var saved: Self? {
-        FileManager.default.cachedItem(name: "device-token", secure: true)
+    public static func saved(secureKey: String) -> Self? {
+        FileManager.default.cachedItem(name: "device-token", secureKey: secureKey)
     }
     
     public static func delete() {

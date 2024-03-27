@@ -1,19 +1,17 @@
 import Foundation
 
 extension FileManager {
-    public static var secureKey = "hrd3K72s9yilI8YFLM9dG8TbO6dWcQ8p"
-    
-    public func cacheItem<T: Encodable>(_ encodable: T, name: String, secure: Bool = false) {
+    public func cacheItem<T: Encodable>(_ encodable: T, name: String, secureKey: String? = nil) {
         guard var data = try? JSONEncoder().encode(encodable) else { return }
-        if secure { data = data.XORCipher(FileManager.secureKey) }
-        let url = URL.cachedItemURL(name: name, secure: secure)
+        if let secureKey { data = data.XORCipher(secureKey) }
+        let url = URL.cachedItemURL(name: name, secure: secureKey != nil)
         try? data.write(to: url)
     }
     
-    public func cachedItem<T: Decodable>(name: String, secure: Bool = false) -> T? {
-        let url = URL.cachedItemURL(name: name, secure: secure)
+    public func cachedItem<T: Decodable>(name: String, secureKey: String? = nil) -> T? {
+        let url = URL.cachedItemURL(name: name, secure: secureKey != nil)
         guard var data = try? Data(contentsOf: url) else { return nil }
-        if secure { data = data.XORCipher(FileManager.secureKey) }
+        if let secureKey { data = data.XORCipher(secureKey) }
         return try? JSONDecoder().decode(T.self, from: data)
     }
     
