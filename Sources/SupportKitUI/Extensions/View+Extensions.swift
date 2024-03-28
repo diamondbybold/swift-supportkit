@@ -111,7 +111,7 @@ extension View {
     }
     
     @MainActor
-    public func sideEffect(of named: Notification.Name, task: @escaping (Notification) async -> Void) -> some View {
+    public func notificationSideEffect(_ named: Notification.Name, task: @escaping (Notification) async -> Void) -> some View {
         self.task {
             let notifications = NotificationCenter.default.notifications(named: named,
                                                                          object: nil)
