@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SizeViewModifier: ViewModifier {
+struct ContentSizeViewModifier: ViewModifier {
     @Binding var size: CGSize
     
     func body(content: Content) -> some View {
@@ -16,8 +16,8 @@ struct SizeViewModifier: ViewModifier {
 }
 
 extension View {
-    public func size(_ size: Binding<CGSize>) -> some View {
-        self.modifier(SizeViewModifier(size: size))
+    public func contentSize(_ size: Binding<CGSize>) -> some View {
+        self.modifier(ContentSizeViewModifier(size: size))
     }
 }
 
