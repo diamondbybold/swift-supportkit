@@ -74,6 +74,10 @@ public struct APIValidationError: LocalizedError {
 public struct APITaggedError: LocalizedError {
     let tag: String
     
+    public init(tag: String) {
+        self.tag = tag
+    }
+    
     public var failureReason: String? { String(localized: "api-tagged-error-\(tag)-reason") }
     public var recoverySuggestion: String? { String(localized: "api-tagged-error-\(tag)-suggestion") }
 }
@@ -81,6 +85,11 @@ public struct APITaggedError: LocalizedError {
 public struct APICustomError: LocalizedError {
     let title: String?
     let description: String?
+    
+    public init(title: String?, description: String?) {
+        self.title = title
+        self.description = description
+    }
     
     public var failureReason: String? { title }
     public var recoverySuggestion: String? { description }
