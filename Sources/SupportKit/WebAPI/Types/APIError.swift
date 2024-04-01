@@ -70,3 +70,18 @@ public struct APIValidationError: LocalizedError {
         }
     }
 }
+
+public struct APITaggedError: LocalizedError {
+    let tag: String
+    
+    public var failureReason: String? { String(localized: "api-tagged-error-\(tag)-reason") }
+    public var recoverySuggestion: String? { String(localized: "api-tagged-error-\(tag)-suggestion") }
+}
+
+public struct APICustomError: LocalizedError {
+    let title: String?
+    let description: String?
+    
+    public var failureReason: String? { title }
+    public var recoverySuggestion: String? { description }
+}
