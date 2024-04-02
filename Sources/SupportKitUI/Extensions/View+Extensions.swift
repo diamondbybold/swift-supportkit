@@ -96,27 +96,37 @@ extension View {
 // MARK: - Side effects
 extension View {
     @MainActor
-    public func sideEffect<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
+    public func onChange<V: Equatable>(of value: V, equals: V, perform: @escaping () -> Void) -> some View {
+        self.onChange(of: value) { v in if v == equals { perform() } }
+    }
+    
+    @MainActor
+    public func onChangeAsync<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { _ in Task { await task() } }
     }
-        
+    
     @MainActor
-    public func sideEffect<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
+    public func onChangeAsync<V: Equatable>(of value: V, equals: V, task: @escaping () async -> Void) -> some View {
         self.onChange(of: value) { v in if v == equals { Task { await task() } } }
     }
     
     @MainActor
-    public func sideEffect<V: Equatable>(of value: V?, task: @escaping (V) async -> Void) -> some View {
+    public func onNonOptional<V: Equatable>(of value: V?, perform: @escaping (V) -> Void) -> some View {
+        self.onChange(of: value) { v in if let v { perform(v) } }
+    }
+    
+    @MainActor
+    public func onNonOptionalAsync<V: Equatable>(of value: V?, task: @escaping (V) async -> Void) -> some View {
         self.onChange(of: value) { v in if let v { Task { await task(v) } } }
     }
     
     @MainActor
-    public func notificationSideEffect(_ named: Notification.Name, task: @escaping (Notification) async -> Void) -> some View {
+    public func onNotification(_ named: Notification.Name, perform: @escaping (Notification) -> Void) -> some View {
         self.task {
             let notifications = NotificationCenter.default.notifications(named: named,
                                                                          object: nil)
             for await notification in notifications {
-                await task(notification)
+                perform(notification)
             }
         }
     }

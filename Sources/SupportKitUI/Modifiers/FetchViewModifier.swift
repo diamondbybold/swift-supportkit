@@ -92,41 +92,44 @@ extension View {
             await store.fetchMoreContents()
         }
     }
-    
-    @MainActor
-    public func fetchMoreContent<T>(_ collection: APIPagedCollection<T>) -> some View {
-        self.task {
-            await collection.fetchMoreContents()
-        }
-    }
 }
     
 // MARK: - Side effects
 extension View {
     @MainActor
-    public func fetchSideEffect<V: Equatable, T>(of value: V,
-                                                 store: Store<T>,
-                                                 refreshing: Bool? = nil) -> some View {
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               store: Store<T>,
+                                               refreshing: Bool? = nil) -> some View {
         self.onChange(of: value) { _ in
             Task { await store.fetch(refreshing: refreshing) }
         }
     }
     
     @MainActor
-    public func fetchSideEffect<V: Equatable, T>(of value: V,
-                                                 store: Store<T>,
-                                                 refreshing: Bool? = nil,
-                                                 _ fetchRequest: @escaping () async throws -> T?) -> some View {
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               store: Store<T>,
+                                               refreshing: Bool? = nil,
+                                               _ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) -> some View {
         self.onChange(of: value) { _ in
             Task { await store.fetch(refreshing: refreshing, fetchRequest) }
         }
     }
     
     @MainActor
-    public func fetchSideEffect<V: Equatable, T>(of value: V,
-                                                 store: Store<T>,
-                                                 refreshing: Bool? = nil,
-                                                 _ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) -> some View {
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               store: Store<T>,
+                                               refreshing: Bool? = nil,
+                                               _ fetchRequest: @escaping () async throws -> [T]) -> some View {
+        self.onChange(of: value) { _ in
+            Task { await store.fetch(refreshing: refreshing, fetchRequest) }
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               store: Store<T>,
+                                               refreshing: Bool? = nil,
+                                               _ fetchRequest: @escaping () async throws -> T?) -> some View {
         self.onChange(of: value) { _ in
             Task { await store.fetch(refreshing: refreshing, fetchRequest) }
         }

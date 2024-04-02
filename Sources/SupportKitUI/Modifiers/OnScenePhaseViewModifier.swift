@@ -13,9 +13,9 @@ struct OnScenePhaseViewModifier: ViewModifier {
     }
 }
 
-struct ScenePhaseViewModifier: ViewModifier {
+struct OnScenePhaseOfViewModifier: ViewModifier {
     let phase: ScenePhase
-    let task: () async -> Void
+    let perform: () -> Void
     
     @Environment(\.scenePhase) private var scenePhase
     
@@ -23,7 +23,7 @@ struct ScenePhaseViewModifier: ViewModifier {
         content
             .onChange(of: scenePhase) { value in
                 if value == phase {
-                    Task { await task() }
+                    perform()
                 }
             }
     }
@@ -31,12 +31,12 @@ struct ScenePhaseViewModifier: ViewModifier {
 
 extension View {
     @MainActor
-    public func onSchenePhase(task: @escaping (ScenePhase) -> Void) -> some View {
-        self.modifier(OnScenePhaseViewModifier(perform: task))
+    public func onSchenePhase(perform: @escaping (ScenePhase) -> Void) -> some View {
+        self.modifier(OnScenePhaseViewModifier(perform: perform))
     }
     
     @MainActor
-    public func schenePhaseSideEffect(of phase: ScenePhase, task: @escaping () async -> Void) -> some View {
-        self.modifier(ScenePhaseViewModifier(phase: phase, task: task))
+    public func onScenePhase(of phase: ScenePhase, perform: @escaping () -> Void) -> some View {
+        self.modifier(OnScenePhaseOfViewModifier(phase: phase, perform: perform))
     }
 }
