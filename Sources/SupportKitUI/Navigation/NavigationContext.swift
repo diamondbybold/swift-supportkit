@@ -33,10 +33,10 @@ public class NavigationContext: ObservableObject {
         }
     }
     
-    public func alert(title: LocalizedStringKey,
-                      message: LocalizedStringKey? = nil,
-                      confirmation: Bool,
-                      @ViewBuilder actions: @escaping () -> any View) {
+    public func alert<A: View>(title: LocalizedStringKey,
+                               message: LocalizedStringKey? = nil,
+                               confirmation: Bool,
+                               @ViewBuilder actions: @escaping () -> A) {
         if confirmation {
             self.confirmation = .init(title: title,
                                       message: message,

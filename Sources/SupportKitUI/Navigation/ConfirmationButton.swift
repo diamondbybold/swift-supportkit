@@ -1,12 +1,12 @@
 import SwiftUI
 
-public struct ConfirmationButton<Label>: View where Label: View {
+public struct ConfirmationButton<Label, Action>: View where Label: View, Action: View {
     private let label: Label
     private let role: ButtonRole?
     
     private let title: LocalizedStringKey
     private let message: LocalizedStringKey?
-    private let actions: () -> any View
+    private let actions: () -> Action
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
@@ -14,7 +14,7 @@ public struct ConfirmationButton<Label>: View where Label: View {
                 role: ButtonRole? = nil,
                 title: LocalizedStringKey,
                 message: LocalizedStringKey? = nil,
-                actions: @escaping () -> any View) where Label == Text {
+                @ViewBuilder actions: @escaping () -> Action) where Label == Text {
         self.label = Text(label)
         self.role = role
         self.title = title
@@ -25,7 +25,7 @@ public struct ConfirmationButton<Label>: View where Label: View {
     public init(role: ButtonRole? = nil,
                 title: LocalizedStringKey,
                 message: LocalizedStringKey? = nil,
-                actions: @escaping () -> any View,
+                @ViewBuilder actions: @escaping () -> Action,
                 @ViewBuilder label: () -> Label) {
         self.label = label()
         self.role = role
@@ -38,7 +38,7 @@ public struct ConfirmationButton<Label>: View where Label: View {
                 role: ButtonRole? = nil,
                 title: LocalizedStringKey,
                 message: LocalizedStringKey? = nil,
-                actions: @escaping () -> any View) where Label == Image {
+                @ViewBuilder actions: @escaping () -> Action) where Label == Image {
         self.label = Image(image)
         self.role = role
         self.title = title
@@ -50,7 +50,7 @@ public struct ConfirmationButton<Label>: View where Label: View {
                 role: ButtonRole? = nil,
                 title: LocalizedStringKey,
                 message: LocalizedStringKey? = nil,
-                actions: @escaping () -> any View) where Label == Image {
+                @ViewBuilder actions: @escaping () -> Action) where Label == Image {
         self.label = Image(systemName: systemImage)
         self.role = role
         self.title = title
