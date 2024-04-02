@@ -31,7 +31,7 @@ struct OnScenePhaseOfViewModifier: ViewModifier {
 
 extension View {
     @MainActor
-    public func onSchenePhase(perform: @escaping (ScenePhase) -> Void) -> some View {
+    public func onScenePhase(perform: @escaping (ScenePhase) -> Void) -> some View {
         self.modifier(OnScenePhaseViewModifier(perform: perform))
     }
     
