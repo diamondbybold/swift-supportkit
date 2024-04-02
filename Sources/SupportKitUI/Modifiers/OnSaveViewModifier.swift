@@ -36,7 +36,7 @@ struct OnSaveViewModifier: ViewModifier {
 
 extension View {
     @MainActor
-    public func onSave(_ condition: Bool, task: @escaping () async throws -> Void) -> some View {
+    public func onSave(_ condition: Bool = true, task: @escaping () async throws -> Void) -> some View {
         self.modifier(OnSaveViewModifier(condition: condition, task: task))
     }
 }
