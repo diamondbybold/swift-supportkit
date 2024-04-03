@@ -111,16 +111,6 @@ extension View {
     }
     
     @MainActor
-    public func onNonOptional<V: Equatable>(of value: V?, perform: @escaping (V) -> Void) -> some View {
-        self.onChange(of: value) { v in if let v { perform(v) } }
-    }
-    
-    @MainActor
-    public func onNonOptionalAsync<V: Equatable>(of value: V?, task: @escaping (V) async -> Void) -> some View {
-        self.onChange(of: value) { v in if let v { Task { await task(v) } } }
-    }
-    
-    @MainActor
     public func onNotification(_ named: Notification.Name, perform: @escaping (Notification) -> Void) -> some View {
         self.task {
             let notifications = NotificationCenter.default.notifications(named: named,
