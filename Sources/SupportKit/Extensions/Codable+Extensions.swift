@@ -24,6 +24,12 @@ public struct NullCodable<T>: Codable where T: Codable {
     }
 }
 
+extension KeyedDecodingContainer {
+    public func decode<T: Decodable>(_ type: NullCodable<T>.Type, forKey key: Self.Key) throws -> NullCodable<T> {
+        try decodeIfPresent(type, forKey: key) ?? NullCodable<T>(wrappedValue: nil)
+    }
+}
+
 @propertyWrapper
 public struct ISODateCodable: Codable {
     public var wrappedValue: Date?
@@ -50,6 +56,12 @@ public struct ISODateCodable: Codable {
         case .none:
             try container.encodeNil()
         }
+    }
+}
+
+extension KeyedDecodingContainer {
+    public func decode(_ type: ISODateCodable.Type, forKey key: Self.Key) throws -> ISODateCodable {
+        try decodeIfPresent(type, forKey: key) ?? ISODateCodable(wrappedValue: nil)
     }
 }
 
@@ -82,6 +94,12 @@ public struct ISOTimeCodable: Codable {
     }
 }
 
+extension KeyedDecodingContainer {
+    public func decode(_ type: ISOTimeCodable.Type, forKey key: Self.Key) throws -> ISOTimeCodable {
+        try decodeIfPresent(type, forKey: key) ?? ISOTimeCodable(wrappedValue: nil)
+    }
+}
+
 @propertyWrapper
 public struct ISOTimeWithSecondsCodable: Codable {
     public var wrappedValue: Date?
@@ -108,5 +126,11 @@ public struct ISOTimeWithSecondsCodable: Codable {
         case .none:
             try container.encodeNil()
         }
+    }
+}
+
+extension KeyedDecodingContainer {
+    public func decode(_ type: ISOTimeWithSecondsCodable.Type, forKey key: Self.Key) throws -> ISOTimeWithSecondsCodable {
+        try decodeIfPresent(type, forKey: key) ?? ISOTimeWithSecondsCodable(wrappedValue: nil)
     }
 }
