@@ -5,16 +5,20 @@ extension Date {
         Date(timeIntervalSinceNow:-interval) > self
     }
     
+    public var isoDateTimeUTCString: String {
+        DateFormatter.isoDateTimeUTC.string(from: self)
+    }
+    
     public var isoDateTimeString: String {
         DateFormatter.isoDateTime.string(from: self)
     }
     
-    public var isoLocalDateTimeWithTimeZoneString: String {
-        DateFormatter.isoLocalDateTimeWithTimeZone.string(from: self)
-    }    
-    
     public var isoDateString: String {
         DateFormatter.isoDate.string(from: self)
+    }
+    
+    public var isoYearString: String {
+        DateFormatter.isoYear.string(from: self)
     }
     
     public var isoTimeString: String {

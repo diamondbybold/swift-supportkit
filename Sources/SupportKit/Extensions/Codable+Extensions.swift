@@ -31,6 +31,41 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
+public struct ISODateTimeUTCCodable: Codable {
+    public var wrappedValue: Date?
+    
+    public init(wrappedValue: Date?) {
+        self.wrappedValue = wrappedValue
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try? container.decode(String.self) {
+        case .some(let value):
+            self.wrappedValue = DateFormatter.isoDateTimeUTC.date(from: value)
+        case .none:
+            self.wrappedValue = nil
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch wrappedValue {
+        case .some(let value):
+            try container.encode(DateFormatter.isoDateTimeUTC.string(from: value))
+        case .none:
+            try container.encodeNil()
+        }
+    }
+}
+
+extension KeyedDecodingContainer {
+    public func decode(_ type: ISODateTimeUTCCodable.Type, forKey key: Self.Key) throws -> ISODateTimeUTCCodable {
+        try decodeIfPresent(type, forKey: key) ?? ISODateTimeUTCCodable(wrappedValue: nil)
+    }
+}
+
+@propertyWrapper
 public struct ISODateTimeCodable: Codable {
     public var wrappedValue: Date?
     
@@ -66,41 +101,6 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISOLocalDateTimeWithTimeZoneCodable: Codable {
-    public var wrappedValue: Date?
-    
-    public init(wrappedValue: Date?) {
-        self.wrappedValue = wrappedValue
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        switch try? container.decode(String.self) {
-        case .some(let value):
-            self.wrappedValue = DateFormatter.isoLocalDateTimeWithTimeZone.date(from: value)
-        case .none:
-            self.wrappedValue = nil
-        }
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch wrappedValue {
-        case .some(let value):
-            try container.encode(DateFormatter.isoLocalDateTimeWithTimeZone.string(from: value))
-        case .none:
-            try container.encodeNil()
-        }
-    }
-}
-
-extension KeyedDecodingContainer {
-    public func decode(_ type: ISOLocalDateTimeWithTimeZoneCodable.Type, forKey key: Self.Key) throws -> ISOLocalDateTimeWithTimeZoneCodable {
-        try decodeIfPresent(type, forKey: key) ?? ISOLocalDateTimeWithTimeZoneCodable(wrappedValue: nil)
-    }
-}
-
-@propertyWrapper
 public struct ISODateCodable: Codable {
     public var wrappedValue: Date?
     
@@ -132,6 +132,41 @@ public struct ISODateCodable: Codable {
 extension KeyedDecodingContainer {
     public func decode(_ type: ISODateCodable.Type, forKey key: Self.Key) throws -> ISODateCodable {
         try decodeIfPresent(type, forKey: key) ?? ISODateCodable(wrappedValue: nil)
+    }
+}
+
+@propertyWrapper
+public struct ISOYearCodable: Codable {
+    public var wrappedValue: Date?
+    
+    public init(wrappedValue: Date?) {
+        self.wrappedValue = wrappedValue
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try? container.decode(String.self) {
+        case .some(let value):
+            self.wrappedValue = DateFormatter.isoYear.date(from: value)
+        case .none:
+            self.wrappedValue = nil
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch wrappedValue {
+        case .some(let value):
+            try container.encode(DateFormatter.isoYear.string(from: value))
+        case .none:
+            try container.encodeNil()
+        }
+    }
+}
+
+extension KeyedDecodingContainer {
+    public func decode(_ type: ISOYearCodable.Type, forKey key: Self.Key) throws -> ISOYearCodable {
+        try decodeIfPresent(type, forKey: key) ?? ISOYearCodable(wrappedValue: nil)
     }
 }
 
