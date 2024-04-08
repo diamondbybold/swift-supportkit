@@ -9,6 +9,10 @@ extension Date {
         DateFormatter.isoDateTime.string(from: self)
     }
     
+    public var isoLocalDateTimeWithTimeZoneString: String {
+        DateFormatter.isoLocalDateTimeWithTimeZone.string(from: self)
+    }    
+    
     public var isoDateString: String {
         DateFormatter.isoDate.string(from: self)
     }
