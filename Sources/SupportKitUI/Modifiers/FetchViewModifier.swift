@@ -55,33 +55,33 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ fetchRequest: @escaping (Int) async throws -> ([T], Int?),
+                         _ task: @escaping (Int) async throws -> ([T], Int?),
                          expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
-                await store.fetch(refreshing: nil, fetchRequest)
+                await store.fetch(refreshing: nil, task)
             }
         }
     }
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ fetchRequest: @escaping () async throws -> [T],
+                         _ task: @escaping () async throws -> [T],
                          expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
-                await store.fetch(refreshing: nil, fetchRequest)
+                await store.fetch(refreshing: nil, task)
             }
         }
     }
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ fetchRequest: @escaping () async throws -> T?,
+                         _ task: @escaping () async throws -> T?,
                          expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
-                await store.fetch(refreshing: nil, fetchRequest)
+                await store.fetch(refreshing: nil, task)
             }
         }
     }
@@ -93,7 +93,7 @@ extension View {
         }
     }
 }
-    
+
 // MARK: - Side effects
 extension View {
     @MainActor

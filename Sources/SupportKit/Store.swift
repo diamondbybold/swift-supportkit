@@ -96,22 +96,22 @@ public class Store<T: Identifiable>: FetchableObject {
         await fetch(refreshing: refreshing)
     }
     
-    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) async {
-        self.fetchRequest = AnyFetchRequest(fetchRequest)
+    public func fetch(refreshing: Bool? = nil, _ task: @escaping (Int) async throws -> ([T], Int?)) async {
+        self.fetchRequest = .init { try await task($0) }
         await fetch(refreshing: refreshing)
     }
     
-    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping () async throws -> [T]) async {
-        self.fetchRequest = AnyFetchRequest { _ in
-            let r = try await fetchRequest()
+    public func fetch(refreshing: Bool? = nil, _ task: @escaping () async throws -> [T]) async {
+        self.fetchRequest = .init { _ in
+            let r = try await task()
             return (r, nil)
         }
         await fetch(refreshing: refreshing)
     }
     
-    public func fetch(refreshing: Bool? = nil, _ fetchRequest: @escaping () async throws -> T?) async {
-        self.fetchRequest = AnyFetchRequest { _ in
-            if let r = try await fetchRequest() {
+    public func fetch(refreshing: Bool? = nil, _ task: @escaping () async throws -> T?) async {
+        self.fetchRequest = .init { _ in
+            if let r = try await task() {
                 return ([r], nil)
             } else {
                 return ([], nil)
@@ -132,7 +132,7 @@ public class Store<T: Identifiable>: FetchableObject {
         loadingError = nil
         
         do {
-            let res = try await fetchRequest.performFetch(page: 1)
+            let res = try await fetchRequest(page: 1)
             elements = res.elements
             total = res.total ?? elements.count
             
@@ -152,7 +152,7 @@ public class Store<T: Identifiable>: FetchableObject {
         do {
             let nextPage = currentPage + 1
             
-            let res = try await fetchRequest.performFetch(page: nextPage)
+            let res = try await fetchRequest(page: nextPage)
             elements += res.elements
             
             lastUpdated = .now
@@ -166,21 +166,15 @@ public class Store<T: Identifiable>: FetchableObject {
 
 // MARK: - Support Types
 extension Store {
-    open class FetchRequest: ObservableObject {
-        public init() { }
-        open func performFetch(page: Int) async throws -> (elements: [T], total: Int?) { ([], nil) }
-    }
-    
-    public class AnyFetchRequest: FetchRequest {
-        let fetchRequest: (Int) async throws -> ([T], Int?)
+    public struct FetchRequest {
+        public typealias Result = (elements: [T], total: Int?)
+        public typealias Task = (Int) async throws -> Result
         
-        public init(_ fetchRequest: @escaping (Int) async throws -> ([T], Int?)) {
-            self.fetchRequest = fetchRequest
-        }
+        private let task: Task
         
-        public override func performFetch(page: Int) async throws -> (elements: [T], total: Int?) {
-            try await fetchRequest(page)
-        }
+        public init(_ task: @escaping Task) { self.task = task }
+        
+        public func callAsFunction(page: Int) async throws -> Result { try await task(page) }
     }
 }
 
