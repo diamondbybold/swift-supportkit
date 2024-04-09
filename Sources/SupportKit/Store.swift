@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 public class Store<T: Identifiable>: FetchableObject {
     public var fetchRequest: FetchRequest? = nil
@@ -221,9 +220,4 @@ extension Store {
                                         object: element,
                                         userInfo: ["tag" : tag])
     }
-}
-
-extension ObservableObject {
-    @MainActor
-    fileprivate func sendObjectWillChange() { (objectWillChange as? ObservableObjectPublisher)?.send() }
 }
