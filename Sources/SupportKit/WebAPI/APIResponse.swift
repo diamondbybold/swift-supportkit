@@ -109,6 +109,15 @@ extension APIResponse {
         public var recoverySuggestion: String? { detail }
     }
     
+    public func verifyInContainer(_ decoder: JSONDecoder) throws {
+        do {
+            try verify()
+        } catch {
+            let erros = errorInContainer(decoder)
+            throw erros.isEmpty ? error : erros
+        }
+    }
+    
     public func container<D: Decodable, M: Decodable>(_ decoder: JSONDecoder) throws -> (data: D, meta: M) {
         let res: Container<D, M>
         do {
