@@ -75,6 +75,7 @@ public class Store<T: Identifiable>: FetchableObject {
                    let notificationTag = notification.userInfo?["tag"] as? String,
                    notificationTag == tag {
                     self?.elements.append(element)
+                    self?.total += 1
                 }
             }
         }
@@ -86,6 +87,7 @@ public class Store<T: Identifiable>: FetchableObject {
                    let notificationTag = notification.userInfo?["tag"] as? String,
                    notificationTag == tag {
                     self?.elements.remove(element)
+                    self?.total -= 1
                 }
             }
         }
