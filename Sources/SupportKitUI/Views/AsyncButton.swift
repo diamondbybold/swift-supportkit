@@ -90,7 +90,7 @@ public struct AsyncButton<Label>: View where Label: View {
     public var body: some View {
         Button(role: role) {
             if debounce {
-                TaskLimiter.debounce { await performTask() }
+                TaskLimiter.shortDebounce { await performTask() }
             } else {
                 Task { await performTask() }
             }

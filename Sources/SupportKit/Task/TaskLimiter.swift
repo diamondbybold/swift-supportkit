@@ -3,6 +3,7 @@ import Foundation
 public class TaskLimiter {
     public static let delay = TaskLimiter(.delay, duration: 0.3)
     public static let debounce = TaskLimiter(.debounce)
+    public static let shortDebounce = TaskLimiter(.debounce, duration: 0.3)
     public static let throttle = TaskLimiter(.throttle)
     public static let autoDismiss = TaskLimiter(.debounce, duration: 5)
     public static let ping1sec = TaskLimiter(.ping, duration: 1)
