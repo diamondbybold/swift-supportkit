@@ -93,6 +93,12 @@ extension APIResponse {
         public let data: D?
         public let meta: M?
         public let errors: [ContainerError]?
+        
+        public init(data: D?, meta: M?, errors: [ContainerError]?) {
+            self.data = data
+            self.meta = meta
+            self.errors = errors
+        }
     }
     
     struct EmptyData: Decodable { }
@@ -107,6 +113,13 @@ extension APIResponse {
         
         public var failureReason: String? { title }
         public var recoverySuggestion: String? { detail }
+        
+        public init(status: String, code: String?, title: String?, detail: String?) {
+            self.status = status
+            self.code = code
+            self.title = title
+            self.detail = detail
+        }
     }
     
     public func verifyInContainer(_ decoder: JSONDecoder) throws {
