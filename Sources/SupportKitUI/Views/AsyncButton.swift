@@ -7,6 +7,7 @@ public struct AsyncButton<Label>: View where Label: View {
     private let label: Label
     private let role: ButtonRole?
     private let debounce: Bool
+    private let ignoreState: Bool
     private let successMessage: SuccessMessage?
     private let action: () async throws -> Void
     
@@ -16,23 +17,27 @@ public struct AsyncButton<Label>: View where Label: View {
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
+                ignoreState: Bool = false,
                 successMessage: SuccessMessage? = nil,
                 debounce: Bool = true,
                 action: @escaping () async throws -> Void) where Label == Text {
         self.label = Text(titleKey)
         self.role = role
+        self.ignoreState = ignoreState
         self.successMessage = successMessage
         self.debounce = debounce
         self.action = action
     }
     
     public init(role: ButtonRole? = nil,
+                ignoreState: Bool = false,
                 successMessage: SuccessMessage? = nil,
                 action: @escaping () async throws -> Void,
                 debounce: Bool = true,
                 @ViewBuilder label: () -> Label) {
         self.label = label()
         self.role = role
+        self.ignoreState = ignoreState
         self.successMessage = successMessage
         self.debounce = debounce
         self.action = action
@@ -40,11 +45,13 @@ public struct AsyncButton<Label>: View where Label: View {
     
     public init(image: String,
                 role: ButtonRole? = nil,
+                ignoreState: Bool = false,
                 successMessage: SuccessMessage? = nil,
                 debounce: Bool = true,
                 action: @escaping () async throws -> Void) where Label == Image {
         self.label = Image(image)
         self.role = role
+        self.ignoreState = ignoreState
         self.successMessage = successMessage
         self.debounce = debounce
         self.action = action
@@ -52,11 +59,13 @@ public struct AsyncButton<Label>: View where Label: View {
     
     public init(systemImage: String,
                 role: ButtonRole? = nil,
+                ignoreState: Bool = false,
                 successMessage: SuccessMessage? = nil,
                 debounce: Bool = true,
                 action: @escaping () async throws -> Void) where Label == Image {
         self.label = Image(systemName: systemImage)
         self.role = role
+        self.ignoreState = ignoreState
         self.successMessage = successMessage
         self.debounce = debounce
         self.action = action
@@ -69,7 +78,7 @@ public struct AsyncButton<Label>: View where Label: View {
         do {
             try await action()
             
-            if let successMessage {
+            if !ignoreState, let successMessage {
                 navigationContext.alert(title: successMessage.title,
                                         message: successMessage.description,
                                         confirmation: false) {
@@ -77,10 +86,12 @@ public struct AsyncButton<Label>: View where Label: View {
                 }
             }
         } catch let e as LocalizedError {
-            navigationContext.alert(title: LocalizedStringKey(e.failureReason ?? ""),
-                                    message: LocalizedStringKey(e.recoverySuggestion ?? ""),
-                                    confirmation: false) {
-                Button("OK") { }
+            if !ignoreState {
+                navigationContext.alert(title: LocalizedStringKey(e.failureReason ?? ""),
+                                        message: LocalizedStringKey(e.recoverySuggestion ?? ""),
+                                        confirmation: false) {
+                    Button("OK") { }
+                }
             }
         } catch { }
         
@@ -95,7 +106,7 @@ public struct AsyncButton<Label>: View where Label: View {
                 Task { await performTask() }
             }
         } label: {
-            if waiting {
+            if !ignoreState, waiting {
                 ProgressView()
             } else {
                 label
