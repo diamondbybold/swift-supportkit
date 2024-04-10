@@ -1,6 +1,27 @@
 import Foundation
 
 @propertyWrapper
+public struct NonCodable<T>: Hashable, Codable {
+    public var wrappedValue: T?
+    
+    public init(wrappedValue: T?) {
+        self.wrappedValue = wrappedValue
+    }
+    
+    public init(from decoder: Decoder) throws { }
+    public func encode(to encoder: Encoder) throws { }
+    
+    public static func == (lhs: NonCodable<T>, rhs: NonCodable<T>) -> Bool { true }
+    public func hash(into hasher: inout Hasher) { }
+}
+
+extension KeyedDecodingContainer {
+    public func decode<T: Decodable>(_ type: NonCodable<T>.Type, forKey key: Self.Key) throws -> NonCodable<T> {
+        NonCodable<T>(wrappedValue: nil)
+    }
+}
+
+@propertyWrapper
 public struct NullCodable<T: Hashable>: Hashable, Codable where T: Codable {
     public var wrappedValue: T?
     
