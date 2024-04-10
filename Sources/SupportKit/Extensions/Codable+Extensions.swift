@@ -1,7 +1,7 @@
 import Foundation
 
 @propertyWrapper
-public struct NullCodable<T>: Codable where T: Codable {
+public struct NullCodable<T: Hashable>: Hashable, Codable where T: Codable {
     public var wrappedValue: T?
     
     public init(wrappedValue: T?) {
@@ -31,7 +31,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISODateTimeUTCCodable: Codable {
+public struct ISODateTimeUTCCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
@@ -66,7 +66,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISODateTimeCodable: Codable {
+public struct ISODateTimeCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
@@ -101,7 +101,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISODateCodable: Codable {
+public struct ISODateCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
@@ -136,7 +136,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISOYearCodable: Codable {
+public struct ISOYearCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
@@ -171,7 +171,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISOTimeCodable: Codable {
+public struct ISOTimeCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
@@ -206,7 +206,7 @@ extension KeyedDecodingContainer {
 }
 
 @propertyWrapper
-public struct ISOTimeWithSecondsCodable: Codable {
+public struct ISOTimeWithSecondsCodable: Hashable, Codable {
     public var wrappedValue: Date?
     
     public init(wrappedValue: Date?) {
