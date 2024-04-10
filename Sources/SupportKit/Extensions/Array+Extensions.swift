@@ -13,6 +13,8 @@ extension Array where Element: Equatable {
 }
 
 extension Array where Element: Identifiable {
+    public var unique: [Element] { reduce([]) { $0.contains(element: $1) ? $0 : $0 + [$1] } }
+    
     public func contains(element: Element) -> Bool { contains { $0.id == element.id } }
     
     public func index(of element: Element) -> Int? { firstIndex { $0.id == element.id } }
