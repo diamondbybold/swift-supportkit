@@ -1,6 +1,10 @@
 import Foundation
 
 extension Date {
+    public static var startOfToday: Date { Calendar.current.startOfDay(for: .now) }
+    
+    public static var endOfToday: Date { Calendar.current.endOfDay(for: .now) }
+    
     public func hasExpired(in interval: TimeInterval) -> Bool {
         Date(timeIntervalSinceNow:-interval) > self
     }
