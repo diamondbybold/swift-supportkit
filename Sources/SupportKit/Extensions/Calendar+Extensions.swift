@@ -10,6 +10,10 @@ extension Calendar {
         return self.date(from: components)!
     }
     
+    public func endOfMonth(for date: Date) -> Date {
+        Calendar.current.date(byAdding: DateComponents(month: 1, day: -1, hour: 23, minute: 59, second: 59), to: startOfMonth(for: date))!
+    }
+    
     public func dates(interval: DateInterval, matching: DateComponents) -> [Date] {
         var dates: [Date] = []
         dates.append(interval.start)
