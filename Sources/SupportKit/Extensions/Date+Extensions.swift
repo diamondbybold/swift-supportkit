@@ -25,6 +25,10 @@ extension Date {
         DateFormatter.isoYear.string(from: self)
     }
     
+    public var isoYearMonthString: String {
+        DateFormatter.isoYearMonth.string(from: self)
+    }
+    
     public var isoTimeString: String {
         DateFormatter.isoTime.string(from: self)
     }

@@ -34,6 +34,14 @@ extension DateFormatter {
         return formatter
     }()
     
+    public static let isoYearMonth: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM"
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+    
     public static let isoTime: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
