@@ -23,6 +23,8 @@ public struct CalendarView: UIViewRepresentable {
         view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
+        view.wantsDateDecorations = false
+        
         view.availableDateRange = dateInterval
         
         let selectionBehavior = UICalendarSelectionSingleDate(delegate: context.coordinator)
