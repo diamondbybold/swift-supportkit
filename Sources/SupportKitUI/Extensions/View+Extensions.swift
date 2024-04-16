@@ -101,8 +101,8 @@ extension View {
     }
     
     @MainActor
-    public func onChangeAsync<V: Equatable>(of value: V, task: @escaping () async -> Void) -> some View {
-        self.onChange(of: value) { _ in Task { await task() } }
+    public func onChangeAsync<V: Equatable>(of value: V, debounce: Bool = false, task: @escaping () async -> Void) -> some View {
+        self.onChange(of: value) { _ in if debounce { TaskLimiter.debounce { await task() } } else { Task { await task() } } }
     }
     
     @MainActor
