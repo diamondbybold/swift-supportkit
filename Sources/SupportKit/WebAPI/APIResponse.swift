@@ -85,6 +85,11 @@ public struct APIResponse {
         guard statusCode != 204, statusCode != 404 else { return nil }
         return try resource(decoder) as T
     }
+    
+    public func emptyableResource<T: Decodable>(_ decoder: JSONDecoder) throws -> [T] {
+        guard statusCode != 204, statusCode != 404 else { return [] }
+        return try resource(decoder) as [T]
+    }
 }
 
 // MARK: - Container
@@ -185,6 +190,11 @@ extension APIResponse {
         return try resourceInContainer(decoder)
     }
     
+    public func emptyableResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> [D] {
+        guard statusCode != 204, statusCode != 404 else { return [] }
+        return try resourceInContainer(decoder)
+    }
+    
     public func pagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (elements: D, total: Int) {
         let res: Container<D, PaginationMeta>
         do {
@@ -199,6 +209,11 @@ extension APIResponse {
         if let errors = res.errors { throw errors }
         guard let data = res.data else { throw APIError.unavailable }
         return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
+    }
+    
+    public func emptyablePagedResourceInContainer<D: Decodable>(_ decoder: JSONDecoder) throws -> (elements: [D], total: Int) {
+        guard statusCode != 204, statusCode != 404 else { return ([], 0) }
+        return try pagedResourceInContainer(decoder)
     }
     
     public func errorInContainer(_ decoder: JSONDecoder) -> [ContainerError] {
