@@ -2,6 +2,8 @@ import UIKit
 import CryptoKit
 
 extension String {
+    public func find(_ string: String) -> Bool { range(of: string, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
+    
     public var base64Encoded: String {
         data(using: .utf8)?.base64EncodedString() ?? ""
     }
