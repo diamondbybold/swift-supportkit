@@ -5,6 +5,10 @@ extension Date {
     
     public static var endOfToday: Date { Calendar.current.endOfDay(for: .now) }
     
+    public func adding(_ value: Int, _ component: Calendar.Component) -> Date {
+        Calendar.current.date(byAdding: component, value: value, to: self) ?? self
+    }
+    
     public func hasExpired(in interval: TimeInterval) -> Bool {
         Date(timeIntervalSinceNow:-interval) > self
     }
