@@ -25,9 +25,23 @@ extension View {
     }
     
     @MainActor
+    public func fetch<S: Equatable>(refetchTrigger: S,
+                                    _ task: @escaping () async -> Void) -> some View {
+        self.modifier(FetchViewModifier(task: task))
+            .onChangeAsync(of: refetchTrigger, task: task)
+    }
+    
+    @MainActor
     public func fetch(_ object: any FetchableObject,
                       expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch([object], expiresIn: interval)
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable>(refetchTrigger: S,
+                                    _ object: any FetchableObject,
+                                    expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch(refetchTrigger: refetchTrigger, [object], expiresIn: interval)
     }
     
     @MainActor
@@ -38,6 +52,24 @@ extension View {
                 if object.needsUpdate(in: interval) {
                     await object.fetch(refreshing: nil)
                 }
+            }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable>(refetchTrigger: S,
+                                    _ objects: [any FetchableObject],
+                                    expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            for object in objects {
+                if object.needsUpdate(in: interval) {
+                    await object.fetch(refreshing: nil)
+                }
+            }
+        }
+        .onChangeAsync(of: refetchTrigger) {
+            for object in objects {
+                await object.fetch(refreshing: nil)
             }
         }
     }
@@ -54,6 +86,21 @@ extension View {
     }
     
     @MainActor
+    public func fetch<S: Equatable, T>(refetchTrigger: S,
+                                       _ store: Store<T>,
+                                       _ fetchRequest: Store<T>.FetchRequest,
+                                       expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(fetchRequest, refreshing: nil)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger) {
+            await store.fetch(fetchRequest, refreshing: nil)
+        }
+    }
+    
+    @MainActor
     public func fetch<T>(_ store: Store<T>,
                          _ task: @escaping (Int) async throws -> ([T], Int?),
                          expiresIn interval: TimeInterval = 900) -> some View {
@@ -61,6 +108,21 @@ extension View {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
             }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable, T>(refetchTrigger: S,
+                                       _ store: Store<T>,
+                                       _ task: @escaping (Int) async throws -> ([T], Int?),
+                                       expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger) {
+            await store.fetch(refreshing: nil, task)
         }
     }
     
@@ -76,6 +138,21 @@ extension View {
     }
     
     @MainActor
+    public func fetch<S: Equatable, T>(refetchTrigger: S,
+                                       _ store: Store<T>,
+                                       _ task: @escaping () async throws -> [T],
+                                       expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger) {
+            await store.fetch(refreshing: nil, task)
+        }
+    }
+    
+    @MainActor
     public func fetch<T>(_ store: Store<T>,
                          _ task: @escaping () async throws -> T?,
                          expiresIn interval: TimeInterval = 900) -> some View {
@@ -83,6 +160,21 @@ extension View {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
             }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable, T>(refetchTrigger: S,
+                                       _ store: Store<T>,
+                                       _ task: @escaping () async throws -> T?,
+                                       expiresIn interval: TimeInterval = 900) -> some View {
+        self.fetch {
+            if store.needsUpdate(in: interval) {
+                await store.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger) {
+            await store.fetch(refreshing: nil, task)
         }
     }
     
