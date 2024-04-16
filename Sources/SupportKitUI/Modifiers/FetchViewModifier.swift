@@ -38,10 +38,10 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable>(refetchTrigger: S,
-                                    _ object: any FetchableObject,
+    public func fetch<S: Equatable>(_ object: any FetchableObject,
+                                    refetchTrigger: S,
                                     expiresIn interval: TimeInterval = 900) -> some View {
-        self.fetch(refetchTrigger: refetchTrigger, [object], expiresIn: interval)
+        self.fetch([object], refetchTrigger: refetchTrigger, expiresIn: interval)
     }
     
     @MainActor
@@ -57,8 +57,8 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable>(refetchTrigger: S,
-                                    _ objects: [any FetchableObject],
+    public func fetch<S: Equatable>(_ objects: [any FetchableObject],
+                                    refetchTrigger: S,
                                     expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
             for object in objects {
@@ -86,8 +86,8 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable, T>(refetchTrigger: S,
-                                       _ store: Store<T>,
+    public func fetch<S: Equatable, T>(_ store: Store<T>,
+                                       refetchTrigger: S,
                                        _ fetchRequest: Store<T>.FetchRequest,
                                        expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
@@ -112,8 +112,8 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable, T>(refetchTrigger: S,
-                                       _ store: Store<T>,
+    public func fetch<S: Equatable, T>(_ store: Store<T>,
+                                       refetchTrigger: S,
                                        _ task: @escaping (Int) async throws -> ([T], Int?),
                                        expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
@@ -138,8 +138,8 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable, T>(refetchTrigger: S,
-                                       _ store: Store<T>,
+    public func fetch<S: Equatable, T>(_ store: Store<T>,
+                                       refetchTrigger: S,
                                        _ task: @escaping () async throws -> [T],
                                        expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
@@ -164,8 +164,8 @@ extension View {
     }
     
     @MainActor
-    public func fetch<S: Equatable, T>(refetchTrigger: S,
-                                       _ store: Store<T>,
+    public func fetch<S: Equatable, T>(_ store: Store<T>,
+                                       refetchTrigger: S,
                                        _ task: @escaping () async throws -> T?,
                                        expiresIn interval: TimeInterval = 900) -> some View {
         self.fetch {
