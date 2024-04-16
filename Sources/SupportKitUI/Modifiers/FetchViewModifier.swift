@@ -72,7 +72,7 @@ extension View {
         }
         .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
             for object in objects {
-                await object.fetch(refreshing: nil)
+                await object.fetch(refreshing: false)
             }
         }
     }
@@ -100,7 +100,7 @@ extension View {
             }
         }
         .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
-            await store.fetch(fetchRequest, refreshing: nil)
+            await store.fetch(fetchRequest, refreshing: false)
         }
     }
     
@@ -127,7 +127,7 @@ extension View {
             }
         }
         .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
-            await store.fetch(refreshing: nil, task)
+            await store.fetch(refreshing: false, task)
         }
     }
     
@@ -154,7 +154,7 @@ extension View {
             }
         }
         .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
-            await store.fetch(refreshing: nil, task)
+            await store.fetch(refreshing: false, task)
         }
     }
     
@@ -181,7 +181,7 @@ extension View {
             }
         }
         .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
-            await store.fetch(refreshing: nil, task)
+            await store.fetch(refreshing: false, task)
         }
     }
     
