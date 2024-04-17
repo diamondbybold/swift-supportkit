@@ -47,7 +47,7 @@ extension APIRequest {
         // Query string
         if !query.isEmpty {
             var queryItems: [URLQueryItem] = []
-            for (k, v) in query { if let v { queryItems.append(.init(name: k.escaped, value: v.escaped)) } }
+            for (k, v) in query { if let v, !v.isEmpty { queryItems.append(.init(name: k.escaped, value: v.escaped)) } }
             
             if var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
                 components.percentEncodedQueryItems = queryItems
