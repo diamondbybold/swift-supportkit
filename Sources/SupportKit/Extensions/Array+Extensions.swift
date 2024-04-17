@@ -1,6 +1,8 @@
 import Foundation
 
 extension Array where Element: Equatable {
+    public var unique: [Element] { reduce([]) { $0.contains($1) ? $0 : $0 + [$1] } }
+    
     public func after(element: Element) -> Element? {
         guard let index = firstIndex(of: element), index + 1 < count else { return nil }
         return self[index + 1]
@@ -13,7 +15,7 @@ extension Array where Element: Equatable {
 }
 
 extension Array where Element: Identifiable {
-    public var unique: [Element] { reduce([]) { $0.contains(element: $1) ? $0 : $0 + [$1] } }
+    public var uniqueElements: [Element] { reduce([]) { $0.contains(element: $1) ? $0 : $0 + [$1] } }
     
     public func contains(element: Element) -> Bool { contains { $0.id == element.id } }
     
