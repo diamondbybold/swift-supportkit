@@ -35,6 +35,7 @@ extension APIRequest {
         // Compose URL
         var url = baseURL
         
+        // API version
         if let v = self.version, !v.isEmpty {
             url = url.appendingPathComponent(v)
         } else if let v = version {
@@ -43,10 +44,15 @@ extension APIRequest {
         
         url = url.appendingPathComponent(path)
         
-        if !query.isEmpty,
-           var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-            components.queryItems = query.compactMapValues { $0?.contentOrNil }.map(URLQueryItem.init)
-            url = components.url ?? url
+        // Query string
+        if !query.isEmpty {
+            var queryItems: [URLQueryItem] = []
+            for (k, v) in query { if let v { queryItems.append(.init(name: k.escaped, value: v.escaped)) } }
+            
+            if var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                components.percentEncodedQueryItems = queryItems
+                url = components.url ?? url
+            }
         }
         
         // Request object

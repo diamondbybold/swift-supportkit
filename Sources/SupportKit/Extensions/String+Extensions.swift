@@ -19,14 +19,15 @@ extension String {
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
-    public var addingPercentEncodingForURLQueryValue: String? {
-        let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
-        return addingPercentEncoding(withAllowedCharacters: allowedCharacters)
-    }
-    
-    public var addingPercentEncodingForURLFormValue: String? {
-        let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._* ")
-        return addingPercentEncoding(withAllowedCharacters: allowedCharacters)?.replacingOccurrences(of: " ", with: "+")
+    // Returns a percent-escaped string following RFC 3986, e.g. for a query string key or value
+    public var escaped: String {
+        let generalDelimitersToEncode = ":#[]@"
+        let subDelimitersToEncode = "!$&'()*+,;="
+        
+        var allowedCharacterSet = CharacterSet.urlQueryAllowed
+        allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
+        
+        return addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? self
     }
     
     public var removingSpaces: String { replacingOccurrences(of: " ", with: "") }
