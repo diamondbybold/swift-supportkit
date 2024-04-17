@@ -14,6 +14,12 @@ extension Array where Element: Equatable {
     }
 }
 
+extension Array where Element == Date {
+    public var uniqueDate: [Element] { reduce([]) { $0.map { $0.isoDateString }.contains($1.isoDateString) ? $0 : $0 + [$1] } }
+    public var uniqueYear: [Element] { reduce([]) { $0.map { $0.isoYearString }.contains($1.isoYearString) ? $0 : $0 + [$1] } }
+    public var uniqueYearMonth: [Element] { reduce([]) { $0.map { $0.isoYearMonthString }.contains($1.isoYearMonthString) ? $0 : $0 + [$1] } }
+}
+
 extension Array where Element: Identifiable {
     public var uniqueElements: [Element] { reduce([]) { $0.contains(element: $1) ? $0 : $0 + [$1] } }
     
