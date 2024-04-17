@@ -27,7 +27,7 @@ extension View {
     @MainActor
     public func fetch<S: Equatable>(refetchTrigger: S,
                                     refetchDebounce: Bool = false,
-                                    _ task: @escaping () async -> Void) -> some View {
+                                    task: @escaping () async -> Void) -> some View {
         self.modifier(FetchViewModifier(task: task))
             .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce, task: task)
     }
@@ -106,8 +106,8 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ task: @escaping (Int) async throws -> ([T], Int?),
-                         expiresIn interval: TimeInterval = 900) -> some View {
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping (Int) async throws -> ([T], Int?)) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -117,10 +117,10 @@ extension View {
     
     @MainActor
     public func fetch<S: Equatable, T>(_ store: Store<T>,
-                                       _ task: @escaping (Int) async throws -> ([T], Int?),
                                        refetchTrigger: S,
                                        refetchDebounce: Bool = false,
-                                       expiresIn interval: TimeInterval = 900) -> some View {
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping (Int) async throws -> ([T], Int?)) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -133,8 +133,8 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ task: @escaping () async throws -> [T],
-                         expiresIn interval: TimeInterval = 900) -> some View {
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping () async throws -> [T]) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -144,10 +144,10 @@ extension View {
     
     @MainActor
     public func fetch<S: Equatable, T>(_ store: Store<T>,
-                                       _ task: @escaping () async throws -> [T],
                                        refetchTrigger: S,
                                        refetchDebounce: Bool = false,
-                                       expiresIn interval: TimeInterval = 900) -> some View {
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping () async throws -> [T]) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -160,8 +160,8 @@ extension View {
     
     @MainActor
     public func fetch<T>(_ store: Store<T>,
-                         _ task: @escaping () async throws -> T?,
-                         expiresIn interval: TimeInterval = 900) -> some View {
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping () async throws -> T?) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -171,10 +171,10 @@ extension View {
     
     @MainActor
     public func fetch<S: Equatable, T>(_ store: Store<T>,
-                                       _ task: @escaping () async throws -> T?,
                                        refetchTrigger: S,
                                        refetchDebounce: Bool = false,
-                                       expiresIn interval: TimeInterval = 900) -> some View {
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping () async throws -> T?) -> some View {
         self.fetch {
             if store.needsUpdate(in: interval) {
                 await store.fetch(refreshing: nil, task)
@@ -219,7 +219,7 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                debounce: Bool = false,
                                                store: Store<T>,
-                                               _ fetchRequest: Store<T>.FetchRequest,
+                                               fetchRequest: Store<T>.FetchRequest,
                                                refreshing: Bool? = nil) -> some View {
         self.onChangeAsync(of: value, debounce: debounce) {
             await store.fetch(fetchRequest, refreshing: refreshing)
@@ -230,7 +230,7 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                equals: V,
                                                store: Store<T>,
-                                               _ fetchRequest: Store<T>.FetchRequest,
+                                               fetchRequest: Store<T>.FetchRequest,
                                                refreshing: Bool? = nil) -> some View {
         self.onChangeAsync(of: value, equals: equals) {
             await store.fetch(fetchRequest, refreshing: refreshing)
@@ -241,8 +241,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                debounce: Bool = false,
                                                store: Store<T>,
-                                               _ task: @escaping (Int) async throws -> ([T], Int?),
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping (Int) async throws -> ([T], Int?)) -> some View {
         self.onChangeAsync(of: value, debounce: debounce) {
             await store.fetch(refreshing: refreshing, task)
         }
@@ -252,8 +252,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                equals: V,
                                                store: Store<T>,
-                                               _ task: @escaping (Int) async throws -> ([T], Int?),
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping (Int) async throws -> ([T], Int?)) -> some View {
         self.onChangeAsync(of: value, equals: equals) {
             await store.fetch(refreshing: refreshing, task)
         }
@@ -263,8 +263,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                debounce: Bool = false,
                                                store: Store<T>,
-                                               _ task: @escaping () async throws -> [T],
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> [T]) -> some View {
         self.onChangeAsync(of: value, debounce: debounce) {
             await store.fetch(refreshing: refreshing, task)
         }
@@ -274,8 +274,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                equals: V,
                                                store: Store<T>,
-                                               _ task: @escaping () async throws -> [T],
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> [T]) -> some View {
         self.onChangeAsync(of: value, equals: equals) {
             await store.fetch(refreshing: refreshing, task)
         }
@@ -285,8 +285,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                debounce: Bool = false,
                                                store: Store<T>,
-                                               _ task: @escaping () async throws -> T?,
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> T?) -> some View {
         self.onChangeAsync(of: value, debounce: debounce) {
             await store.fetch(refreshing: refreshing, task)
         }
@@ -296,8 +296,8 @@ extension View {
     public func fetchOnChange<V: Equatable, T>(of value: V,
                                                equals: V,
                                                store: Store<T>,
-                                               _ task: @escaping () async throws -> T?,
-                                               refreshing: Bool? = nil) -> some View {
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> T?) -> some View {
         self.onChangeAsync(of: value, equals: equals) {
             await store.fetch(refreshing: refreshing, task)
         }
