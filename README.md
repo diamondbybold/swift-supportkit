@@ -1,1 +1,394 @@
-# SupportKit
+# Swift SupportKit
+
+Every great software has a great foundation. Swift SupportKit is a foundation for every Swift / SwiftUI project that uses remote data and needs flexible navigation. Also includes extensions and components to make our day more easy and productive.
+
+Like Apple technologies, SupportKit package is splitted into two frameworks:
+
+- **SupportKit** (Non-UI objects)
+- **SupportKitUI** (UI objects)
+
+And following platform software design patterns.
+
+## Use Cases
+
+Imagine a shopping app where the user can browse products, browse related products of a product, read product reviews, add product review, ...
+
+###### API endpoints:
+
+```
+ GET /products
+ GET /products/{id}
+ GET /products/{id}/relatedProducts
+ GET /products/{id}/reviews
+POST /products/{id}/reviews
+```
+
+###### Product contract:
+
+```swift
+import Foundation
+
+struct Product: Identifiable, Codable {
+    let id: String
+    let name: String
+    let description: String
+    let price: Double
+    let currencyCode: String
+    let image: URL?
+}
+
+// MARK: - Derived Properties
+extension Product {
+    var formattedPrice: String { price.formatted(.currency(code: currencyCode)) }
+}
+
+// MARK: - Support Types
+extension Product {
+    struct Review: Identifiable, Codable {
+        let id: String
+        let rating: Int
+        let comment: String
+        let author: String
+    }
+}
+```
+
+###### Simple Request Example
+
+```swift
+do {
+	// Define url or request object
+	let url = URL(string: "https://api.dev.myshopping.com/products")!
+	// Request data and response
+    let (data, response) = try await URLSession.shared.data(from: url)
+	// Decode json
+    products = try JSONDecoder().decode([Product].self, from: data)
+} catch {
+    // Error handling
+}
+```
+
+### Implementing API gateway
+
+API gateway object is a central point for a web service access, handling configuration, environments and inspect every request / response.
+
+```swift
+import Foundation
+import SupportKit
+
+class MyShoppingAPIGateway: APIGateway {
+    static let shared = ShoppingAPIGateway()
+    
+#if DEVELOPMENT
+    let baseURL = URL(string: "https://api.dev.myshopping.com")!
+#elseif QA
+    let baseURL = URL(string: "https://api.qa.myshopping.com")!
+#else
+    let baseURL = URL(string: "https://api.myshopping.com")!
+#endif
+    
+    let version: String? = "v1"
+    let session: URLSession = URLSession.defaultJSONAPI
+    
+    func willSendRequest(_ request: inout APIRequest) async throws {        
+        // e.g. Handle authorization token and other header things
+    }
+    
+    func didReceiveResponse(_ response: inout APIResponse) async throws {
+        // e.g. Handle refresh token and other errors
+    }
+}
+```
+
+### Fetching products
+
+```swift
+// MARK: - Fetching products
+extension Product {
+	static func products(query: String = "") async throws -> [Product] {
+		// 1) Make a request, we have other params for method, query string, body payload, form data, ...
+		let request = APIRequest(path: "products",
+								query: ["query": query])
+
+		// 2) Get the response on an API gateway
+		let response = try await request.response(on: MyShoppingAPIGateway.shared)
+
+		// 3) Handle respose data or error, SupportKit includes default common status codes, rest resources, jsonapi container, paging, ...
+		return try response.resource(.snakeCase)
+	}
+
+	var relatedProducts: [Product] {
+		get await throws {
+			try await APIRequest(path: "products/\(id)/relatedProducts")
+				.response(on: MyShoppingAPIGateway.shared)
+				.resource(.snakeCase)
+		}
+	}
+}
+```
+
+###### Example
+
+```swift
+let products = try await Product.products()
+```
+
+```swift
+let relatedProducts = try await product.relatedProducts
+```
+
+### Fetching product reviews
+
+```swift
+// MARK: - Fetching products reviews
+extension Product {
+	var reviews: [Product.Review] {
+		get await throws {
+			try await APIRequest(path: "products/\(id)/reviews")
+				.response(on: MyShoppingAPIGateway.shared)
+				.resource(.snakeCase)
+		}
+	}
+}
+```
+
+###### Example
+
+```swift
+let reviews = try await product.reviews
+```
+
+### Sending a product review
+
+```swift
+// MARK: - Sending a review
+extension Product {
+	func sendReview(rating: Int, comment: String) async throws {
+		try await APIRequest(path: "products/\(id)/reviews",
+							method: .post,
+							body: .formData(["rating": "\(rating)",
+											"comment": comment]))
+			.response(on: MyShoppingAPIGateway.shared)
+			.verify()
+	}
+}
+```
+
+###### Example
+
+```swift
+try await product.sendReview(rating: 4, text: "Amazing!")
+```
+
+### Display products
+
+```swift
+import SwiftUI
+
+struct ProductList: View {
+	@State private var products: [Product] = []
+
+	var body {
+	    ScrollView {
+            ForEach(store.elements) { product in
+                ProductRow(product)
+            }
+        }
+		.task {
+			do {
+				products = try await Product.products(query: query)
+			} catch {
+				// Error handling
+			}
+		}
+		.navigationTitle("Products")
+	}
+}
+```
+
+### Preparing the app for SupportKit navigation capabilities
+
+NavigationContext is an object responsive for the state of navigation. NavigationContainer is a container View that configures a NavigationStack to use the NavigationContext. We should use .navigationContainer() on every root element of a stack or a modal. Any View in hierarchy can access NavigationContext using @EnvironmentObject.
+
+```swift
+import SwiftUI
+import SupportKitUI
+
+@main
+struct ShoppingApp: App {
+    var body: some Scene {
+        WindowGroup {
+	        ProductList()
+		        .navigationContainer() // Embeds ProductList as root of a NavigationStack with SupportKit capabilities
+        }
+    }
+}
+```
+
+### Display products using store
+
+The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object if needed.
+
+```swift
+import SwiftUI
+import SupportKit
+import SupportKitUI
+
+struct ProductList: View {
+	@State private var query: String = ""
+	@StateObject private var store = Store<Product>()
+
+	var body {
+		AsyncView(store) { phase in
+		    switch phase {
+            case .loading:
+                ProgressView()
+            case .loaded:
+	            ScrollView {
+		            LazyVStack {
+	                    ForEach(store.elements) { product in
+	                        productRow(product)
+	                    }
+		                
+		                // Infinite scrolling
+	                    if store.hasMoreContent {
+                            ProgressView()
+                                .fetchMoreContent(store)
+                        }
+                    }
+                }
+            case .empty:
+                Text("No products")
+            case let .error(error):
+                Text("Error \(error.localizedDescription)")
+	                .onTapGesture {
+		                store.refetch() // Try again
+	                }
+            }
+		}
+		.fetch(store, refetchTrigger: query, refetchDebounce: true) {
+			try await Product.products(query: query)
+		}
+		.refreshable(store) // Pull down to refresh
+		.searchable(text: $query) // Enable search bar
+		.navigationTitle("Products")
+	}
+}
+
+// MARK: - Components
+extension ProductList {
+	func productRow(_ product: Product) -> some View {
+		NavigationButton(destination: .stack) {
+			ProductDetails(product: product)
+		} label: {
+			// Display product information
+		}
+	}
+}
+```
+
+NavigationButton is a button with navigation capabilities, uses NavigationContext.
+### Display product details
+
+```swift
+import SwiftUI
+import SupportKit
+import SupportKitUI
+
+struct ProductDetails: View {
+	let product: Product
+	
+	@StateObject private var productReviewStore = Store<Product.Review>()
+	@StateObject private var relatedProductStore = Store<Product>()
+
+    enum TabItem {
+        case reviews
+        case related
+    }
+    
+    @State private var selectedTabItem: TabItem = .reviews
+
+	var body {
+		ScrollView {
+			// Display product information
+			
+			Picker(selection: $selectedTabItem) {
+				Text("Reviews")
+					.tag(.reviews)
+				Text("Related")
+					.tag(.related)
+			}
+			.pickerStyle(.segmented)
+			
+	        switch selectedTabItem {
+	        case .reviews:
+		        reviewList()
+	        case .related:
+		        relatedList()
+	        }
+		}
+		.safeAreaInset(edge: .bottom) {
+			NavigationButton("Add Review", destination: .sheet) {
+				ProductReviewView(product: product)
+					.navigationContainer()
+			}
+        }
+		.navigationTitle("Product Details")
+	}
+}
+
+// MARK: - Components
+extension ProductDetails {
+	func reviewList() -> some View {
+		AsyncView(productReviewStore) { phase in
+			// Handle state and display reviews
+		}
+		.fetch(productReviewStore) {
+			try await product.reviews
+		}
+	}
+	
+	func relatedList() -> some View {
+		AsyncView(relatedProductStore) { phase in
+			// Handle state and display related products
+		}
+		.fetch(relatedProductStore) {
+			try await product.relatedProducts
+		}
+	}
+}
+```
+
+### Review product
+
+AsyncButton is a button with async throw capabilities, change button state during task execution and present an error alert on task failure.
+
+```swift
+import SwiftUI
+import SupportKitUI
+
+struct ProductReviewView: View {
+	let product: Product
+
+	@State private var rating: Int = 0
+	@State private var comment: String = ""
+
+	var body {
+		ScrollView {
+			// Display rating and comment form elements
+		}
+		.safeAreaInset(edge: .bottom) {
+			AsyncButton("Submit") {
+				try await product.sendReview(rating: rating, comment: comment)
+			}
+			.disabled(rating == 0)
+        }
+		.navigationTitle("Product Review")
+		.toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+            	DismissContainerButton("Cancel") // Dismiss the stack
+            }
+        }
+	}
+}
+```
