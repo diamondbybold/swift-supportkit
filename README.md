@@ -88,7 +88,7 @@ class MyShoppingAPIGateway: APIGateway {
 #endif
     
     let version: String? = "v1"
-    let session: URLSession = URLSession.defaultJSONAPI
+    let session: URLSession = .defaultJSONAPI
     
     func willSendRequest(_ request: inout APIRequest) async throws {        
         // e.g. Handle authorization token and other header things
