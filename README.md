@@ -57,11 +57,11 @@ extension Product {
 
 ```swift
 do {
-	// Define url or request object
-	let url = URL(string: "https://api.dev.myshopping.com/products")!
-	// Request data and response
+    // Define url or request object
+    let url = URL(string: "https://api.dev.myshopping.com/products")!
+    // Request data and response
     let (data, response) = try await URLSession.shared.data(from: url)
-	// Decode json
+    // Decode json
     products = try JSONDecoder().decode([Product].self, from: data)
 } catch {
     // Error handling
@@ -105,25 +105,24 @@ class MyShoppingAPIGateway: APIGateway {
 ```swift
 // MARK: - Fetching products
 extension Product {
-	static func products(query: String = "") async throws -> [Product] {
-		// 1) Make a request, we have other params for method, query string, body payload, form data, ...
-		let request = APIRequest(path: "products",
-								query: ["query": query])
-
-		// 2) Get the response on an API gateway
-		let response = try await request.response(on: MyShoppingAPIGateway.shared)
-
-		// 3) Handle respose data or error, SupportKit includes default common status codes, rest resources, jsonapi container, paging, ...
-		return try response.resource(.snakeCase)
-	}
-
-	var relatedProducts: [Product] {
-		get await throws {
-			try await APIRequest(path: "products/\(id)/relatedProducts")
-				.response(on: MyShoppingAPIGateway.shared)
-				.resource(.snakeCase)
-		}
-	}
+    static func products(query: String = "") async throws -> [Product] {
+        // 1) Make a request, we have other params for method, query string, body payload, form data, ...
+        let request = APIRequest(path: "products", query: ["query": query])
+        
+        // 2) Get the response on an API gateway
+        let response = try await request.response(on: MyShoppingAPIGateway.shared)
+        
+        // 3) Handle respose data or error, SupportKit includes default common status codes, rest resources, jsonapi container, paging, ...
+        return try response.resource(.snakeCase)
+    }
+    
+    var relatedProducts: [Product] {
+        get await throws {
+            try await APIRequest(path: "products/\(id)/relatedProducts")
+                .response(on: MyShoppingAPIGateway.shared)
+                .resource(.snakeCase)
+        }
+    }
 }
 ```
 
@@ -142,13 +141,13 @@ let relatedProducts = try await product.relatedProducts
 ```swift
 // MARK: - Fetching products reviews
 extension Product {
-	var reviews: [Product.Review] {
-		get await throws {
-			try await APIRequest(path: "products/\(id)/reviews")
-				.response(on: MyShoppingAPIGateway.shared)
-				.resource(.snakeCase)
-		}
-	}
+    var reviews: [Product.Review] {
+        get await throws {
+            try await APIRequest(path: "products/\(id)/reviews")
+                .response(on: MyShoppingAPIGateway.shared)
+                .resource(.snakeCase)
+        }
+    }
 }
 ```
 
@@ -163,14 +162,14 @@ let reviews = try await product.reviews
 ```swift
 // MARK: - Sending a review
 extension Product {
-	func sendReview(rating: Int, comment: String) async throws {
-		try await APIRequest(path: "products/\(id)/reviews",
-							method: .post,
-							body: .formData(["rating": "\(rating)",
-											"comment": comment]))
-			.response(on: MyShoppingAPIGateway.shared)
-			.verify()
-	}
+    func sendReview(rating: Int, comment: String) async throws {
+        try await APIRequest(path: "products/\(id)/reviews",
+                            method: .post,
+                            body: .formData(["rating": "\(rating)",
+                                            "comment": comment]))
+            .response(on: MyShoppingAPIGateway.shared)
+            .verify()
+    }
 }
 ```
 
@@ -186,23 +185,23 @@ try await product.sendReview(rating: 4, text: "Amazing!")
 import SwiftUI
 
 struct ProductList: View {
-	@State private var products: [Product] = []
+    @State private var products: [Product] = []
 
-	var body {
-	    ScrollView {
+    var body {
+        ScrollView {
             ForEach(store.elements) { product in
                 ProductRow(product)
             }
         }
-		.task {
-			do {
-				products = try await Product.products(query: query)
-			} catch {
-				// Error handling
-			}
-		}
-		.navigationTitle("Products")
-	}
+        .task {
+            do {
+                products = try await Product.products(query: query)
+            } catch {
+                // Error handling
+            }
+        }
+        .navigationTitle("Products")
+    }
 }
 ```
 
@@ -218,8 +217,8 @@ import SupportKitUI
 struct ShoppingApp: App {
     var body: some Scene {
         WindowGroup {
-	        ProductList()
-		        .navigationContainer() // Embeds ProductList as root of a NavigationStack with SupportKit capabilities
+            ProductList()
+                .navigationContainer() // Embeds ProductList as root of a NavigationStack with SupportKit capabilities
         }
     }
 }
@@ -235,23 +234,23 @@ import SupportKit
 import SupportKitUI
 
 struct ProductList: View {
-	@State private var query: String = ""
-	@StateObject private var store = Store<Product>()
+    @State private var query: String = ""
+    @StateObject private var store = Store<Product>()
 
-	var body {
-		AsyncView(store) { phase in
-		    switch phase {
+    var body {
+        AsyncView(store) { phase in
+            switch phase {
             case .loading:
                 ProgressView()
             case .loaded:
-	            ScrollView {
-		            LazyVStack {
-	                    ForEach(store.elements) { product in
-	                        productRow(product)
-	                    }
-		                
-		                // Infinite scrolling
-	                    if store.hasMoreContent {
+                ScrollView {
+                    LazyVStack {
+                        ForEach(store.elements) { product in
+                            productRow(product)
+                        }
+                        
+                        // Infinite scrolling
+                        if store.hasMoreContent {
                             ProgressView()
                                 .fetchMoreContent(store)
                         }
@@ -261,29 +260,29 @@ struct ProductList: View {
                 Text("No products")
             case let .error(error):
                 Text("Error \(error.localizedDescription)")
-	                .onTapGesture {
-		                store.refetch() // Try again
-	                }
+                    .onTapGesture {
+                        store.refetch() // Try again
+                    }
             }
-		}
-		.fetch(store, refetchTrigger: query, refetchDebounce: true) {
-			try await Product.products(query: query)
-		}
-		.refreshable(store) // Pull down to refresh
-		.searchable(text: $query) // Enable search bar
-		.navigationTitle("Products")
-	}
+        }
+        .fetch(store, refetchTrigger: query, refetchDebounce: true) {
+            try await Product.products(query: query)
+        }
+        .refreshable(store) // Pull down to refresh
+        .searchable(text: $query) // Enable search bar
+        .navigationTitle("Products")
+    }
 }
 
 // MARK: - Components
 extension ProductList {
-	func productRow(_ product: Product) -> some View {
-		NavigationButton(destination: .stack) {
-			ProductDetails(product: product)
-		} label: {
-			// Display product information
-		}
-	}
+    func productRow(_ product: Product) -> some View {
+        NavigationButton(destination: .stack) {
+            ProductDetails(product: product)
+        } label: {
+            // Display product information
+        }
+    }
 }
 ```
 
@@ -296,10 +295,10 @@ import SupportKit
 import SupportKitUI
 
 struct ProductDetails: View {
-	let product: Product
-	
-	@StateObject private var productReviewStore = Store<Product.Review>()
-	@StateObject private var relatedProductStore = Store<Product>()
+    let product: Product
+    
+    @StateObject private var productReviewStore = Store<Product.Review>()
+    @StateObject private var relatedProductStore = Store<Product>()
 
     enum TabItem {
         case reviews
@@ -308,54 +307,54 @@ struct ProductDetails: View {
     
     @State private var selectedTabItem: TabItem = .reviews
 
-	var body {
-		ScrollView {
-			// Display product information
-			
-			Picker(selection: $selectedTabItem) {
-				Text("Reviews")
-					.tag(.reviews)
-				Text("Related")
-					.tag(.related)
-			}
-			.pickerStyle(.segmented)
-			
-	        switch selectedTabItem {
-	        case .reviews:
-		        reviewList()
-	        case .related:
-		        relatedList()
-	        }
-		}
-		.safeAreaInset(edge: .bottom) {
-			NavigationButton("Add Review", destination: .sheet) {
-				ProductReviewView(product: product)
-					.navigationContainer()
-			}
+    var body {
+        ScrollView {
+            // Display product information
+            
+            Picker(selection: $selectedTabItem) {
+                Text("Reviews")
+                    .tag(.reviews)
+                Text("Related")
+                    .tag(.related)
+            }
+            .pickerStyle(.segmented)
+            
+            switch selectedTabItem {
+            case .reviews:
+                reviewList()
+            case .related:
+                relatedList()
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            NavigationButton("Add Review", destination: .sheet) {
+                ProductReviewView(product: product)
+                    .navigationContainer()
+            }
         }
-		.navigationTitle("Product Details")
-	}
+        .navigationTitle("Product Details")
+    }
 }
 
 // MARK: - Components
 extension ProductDetails {
-	func reviewList() -> some View {
-		AsyncView(productReviewStore) { phase in
-			// Handle state and display reviews
-		}
-		.fetch(productReviewStore) {
-			try await product.reviews
-		}
-	}
-	
-	func relatedList() -> some View {
-		AsyncView(relatedProductStore) { phase in
-			// Handle state and display related products
-		}
-		.fetch(relatedProductStore) {
-			try await product.relatedProducts
-		}
-	}
+    func reviewList() -> some View {
+        AsyncView(productReviewStore) { phase in
+            // Handle state and display reviews
+        }
+        .fetch(productReviewStore) {
+            try await product.reviews
+        }
+    }
+    
+    func relatedList() -> some View {
+        AsyncView(relatedProductStore) { phase in
+            // Handle state and display related products
+        }
+        .fetch(relatedProductStore) {
+            try await product.relatedProducts
+        }
+    }
 }
 ```
 
@@ -368,27 +367,27 @@ import SwiftUI
 import SupportKitUI
 
 struct ProductReviewView: View {
-	let product: Product
+    let product: Product
 
-	@State private var rating: Int = 0
-	@State private var comment: String = ""
+    @State private var rating: Int = 0
+    @State private var comment: String = ""
 
-	var body {
-		ScrollView {
-			// Display rating and comment form elements
-		}
-		.safeAreaInset(edge: .bottom) {
-			AsyncButton("Submit") {
-				try await product.sendReview(rating: rating, comment: comment)
-			}
-			.disabled(rating == 0)
+    var body {
+        ScrollView {
+            // Display rating and comment form elements
+        }
+        .safeAreaInset(edge: .bottom) {
+            AsyncButton("Submit") {
+                try await product.sendReview(rating: rating, comment: comment)
+            }
+            .disabled(rating == 0)
         }
-		.navigationTitle("Product Review")
-		.toolbar {
+        .navigationTitle("Product Review")
+        .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-            	DismissContainerButton("Cancel") // Dismiss the stack
+                DismissContainerButton("Cancel") // Dismiss the stack
             }
         }
-	}
+    }
 }
 ```
