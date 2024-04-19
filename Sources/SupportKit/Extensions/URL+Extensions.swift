@@ -33,7 +33,7 @@ extension URL {
     
     public static func cachedItemURL(name: String, secure: Bool = false) -> URL {
         URL.cachesDirectory
-            .appending(path: secure ? name.sha256 : name)
+            .appending(path: secure ? name.SHA256 : name)
             .appendingPathExtension("json")
     }
 }

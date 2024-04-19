@@ -13,9 +13,15 @@ extension String {
         return String(data: data, encoding: .utf8) ?? ""
     }
     
-    public var sha256: String {
+    public var MD5: String {
+        guard let data = data(using: .utf8) else { return "" }
+        let computed = Insecure.MD5.hash(data: data)
+        return computed.map { String(format: "%02hhx", $0) }.joined()
+    }
+    
+    public var SHA256: String {
         let inputData = Data(self.utf8)
-        let hashed = SHA256.hash(data: inputData)
+        let hashed = CryptoKit.SHA256.hash(data: inputData)
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
