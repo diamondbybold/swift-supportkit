@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 import CryptoKit
 
 extension String {
@@ -14,14 +14,14 @@ extension String {
     }
     
     public var MD5: String {
-        guard let data = data(using: .utf8) else { return "" }
-        let computed = Insecure.MD5.hash(data: data)
-        return computed.map { String(format: "%02hhx", $0) }.joined()
+        let data = data(using: .utf8) ?? Data()
+        let hashed = Insecure.MD5.hash(data: data)
+        return hashed.map { String(format: "%02hhx", $0) }.joined()
     }
     
     public var SHA256: String {
-        let inputData = Data(self.utf8)
-        let hashed = CryptoKit.SHA256.hash(data: inputData)
+        let data = data(using: .utf8) ?? Data()
+        let hashed = CryptoKit.SHA256.hash(data: data)
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
     
