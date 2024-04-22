@@ -1,6 +1,8 @@
 # Swift SupportKit
 
-Every great software has a great foundation. Swift SupportKit is a foundation for every Swift / SwiftUI project that uses remote data and needs flexible navigation. Also includes extensions and components to make our day more easy and productive.
+## Overview
+
+Every great software has a great foundation. Swift SupportKit is a foundation for every Swift / SwiftUI project that uses remote data and needs unified and flexible navigation. Also includes extensions and components to make our day more easy and productive.
 
 Like Apple technologies, SupportKit package is splitted into two frameworks:
 
@@ -287,6 +289,7 @@ extension ProductList {
 ```
 
 NavigationButton is a button with navigation capabilities, uses NavigationContext.
+
 ### Display product details
 
 ```swift
@@ -360,7 +363,7 @@ extension ProductDetails {
 
 ### Review product
 
-AsyncButton is a button with async throw capabilities, change button state during task execution and present an error alert on task failure.
+AsyncButton is a button with async throw capabilities, this button change it state during task execution and present an error alert on task failure.
 
 ```swift
 import SwiftUI
