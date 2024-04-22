@@ -236,7 +236,7 @@ Included buttons that uses **NavigationContext**:
 - **DismissContainerButton** (dismiss the container)
 - **AlertButton**
 - **ConfirmationButton**
-- **AsyncButton** (to present alert on tasks error)
+- **AsyncButton** (to present alert on task error)
 
 ### Display products using store
 
