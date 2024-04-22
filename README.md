@@ -1,6 +1,8 @@
 # Swift SupportKit
 
-Every great software has a great foundation. Swift SupportKit is a foundation for every Swift / SwiftUI project that uses remote data and needs flexible navigation. Also includes extensions and components to make our day more easy and productive.
+## Overview
+
+Every great software has a great foundation. Swift SupportKit is a foundation for every Swift / SwiftUI project that uses remote data and needs unified and flexible navigation. Also includes extensions and components to make our day more easy and productive.
 
 Like Apple technologies, SupportKit package is splitted into two frameworks:
 
@@ -218,11 +220,23 @@ struct ShoppingApp: App {
     var body: some Scene {
         WindowGroup {
             ProductList()
-                .navigationContainer() // Embeds ProductList as root of a NavigationStack with SupportKit capabilities
+                .navigationContainer() // Embeds ProductList as root of a NavigationStack with NavigationContext capabilities
         }
     }
 }
 ```
+
+![navigation-context](https://github.com/diamondbybold/swift-supportkit/assets/20373652/f32980eb-777e-4160-990f-5f7a1b02c173)
+
+Included buttons that uses **NavigationContext**:
+
+- **NavigationButton** (possible destinations: stack, sheet, fullscreen cover)
+- **PopoverButton**
+- **DismissButton** (dismiss the view)
+- **DismissContainerButton** (dismiss the container)
+- **AlertButton**
+- **ConfirmationButton**
+- **AsyncButton** (to present alert on task error)
 
 ### Display products using store
 
@@ -287,6 +301,7 @@ extension ProductList {
 ```
 
 NavigationButton is a button with navigation capabilities, uses NavigationContext.
+
 ### Display product details
 
 ```swift
@@ -360,7 +375,7 @@ extension ProductDetails {
 
 ### Review product
 
-AsyncButton is a button with async throw capabilities, change button state during task execution and present an error alert on task failure.
+AsyncButton is a button with async throw capabilities, this button change it state during task execution and present an error alert on task failure.
 
 ```swift
 import SwiftUI
@@ -384,10 +399,34 @@ struct ProductReviewView: View {
         }
         .navigationTitle("Product Review")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 DismissContainerButton("Cancel") // Dismiss the stack
             }
         }
     }
+}
+```
+
+### Update a store when a product changes
+
+This feature allow to reload or update any store of a type in the hierarchy.
+
+###### Refetch
+
+```swift
+Store<Product>.invalidate()
+```
+
+###### Update
+
+```swift
+Store<Product>.update(product)
+```
+
+###### Batch update
+
+```swift
+Store<Product>.updateAll { element in
+    // operations
 }
 ```
