@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 public struct PopoverButton<Label>: View where Label: View {
     private let label: Label
@@ -6,6 +7,9 @@ public struct PopoverButton<Label>: View where Label: View {
     private let content: () -> any View
     
     @State private var popover: NavigationContext.DestinationData? = nil
+    
+    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -44,6 +48,11 @@ public struct PopoverButton<Label>: View where Label: View {
         Button(role: role) {
             if popover == nil {
                 popover = NavigationContext.DestinationData(content: content)
+                
+                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                name: analyticsActionLog.name,
+                                                identifier: analyticsActionLog.identifier,
+                                                parameters: analyticsActionLog.parameters)
             } else {
                 popover = nil
             }

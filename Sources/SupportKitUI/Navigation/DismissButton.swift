@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 public struct DismissButton<Label>: View where Label: View {
     private let label: Label
@@ -7,6 +8,9 @@ public struct DismissButton<Label>: View where Label: View {
     private let action: () -> Void
     
     @Environment(\.dismiss) private var dismiss
+    
+    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -57,6 +61,11 @@ public struct DismissButton<Label>: View where Label: View {
             withTransaction(transaction) {
                 dismiss()
             }
+            
+            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                            name: analyticsActionLog.name,
+                                            identifier: analyticsActionLog.identifier,
+                                            parameters: analyticsActionLog.parameters)
         } label: {
             label
         }

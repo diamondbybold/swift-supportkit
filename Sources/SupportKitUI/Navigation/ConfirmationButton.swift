@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 public struct ConfirmationButton<Label, Action>: View where Label: View, Action: View {
     private let label: Label
@@ -9,6 +10,9 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     private let actions: () -> Action
     
     @EnvironmentObject private var navigationContext: NavigationContext
+    
+    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
     
     public init(_ label: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -64,6 +68,11 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
                                     message: message,
                                     confirmation: true,
                                     actions: actions)
+            
+            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                            name: analyticsActionLog.name,
+                                            identifier: analyticsActionLog.identifier,
+                                            parameters: analyticsActionLog.parameters)
         } label: {
             label
         }
