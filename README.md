@@ -226,6 +226,18 @@ struct ShoppingApp: App {
 }
 ```
 
+![navigation-context](https://github.com/diamondbybold/swift-supportkit/assets/20373652/f32980eb-777e-4160-990f-5f7a1b02c173)
+
+Included buttons that uses **NavigationContext**:
+
+- **NavigationButton** (possible destinations: stack, sheet, fullscreen cover)
+- **PopoverButton**
+- **DismissButton** (dismiss the view)
+- **DismissContainerButton** (dismiss the container)
+- **AlertButton**
+- **ConfirmationButton**
+- **AsyncButton** (to present alert on tasks error)
+
 ### Display products using store
 
 The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object if needed.
@@ -387,10 +399,32 @@ struct ProductReviewView: View {
         }
         .navigationTitle("Product Review")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 DismissContainerButton("Cancel") // Dismiss the stack
             }
         }
     }
+}
+```
+
+### Update all stores when a product changes
+
+###### Refetch
+
+```swift
+Store<Product>.invalidate()
+```
+
+###### Update
+
+```swift
+Store<Product>.update(product)
+```
+
+###### Batch update
+
+```swift
+Store<Product>.updateAll { element in
+    // operations
 }
 ```
