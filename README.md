@@ -220,7 +220,7 @@ struct ShoppingApp: App {
     var body: some Scene {
         WindowGroup {
             ProductList()
-                .navigationContainer() // Embeds ProductList as root of a NavigationStack with SupportKit capabilities
+                .navigationContainer() // Embeds ProductList as root of a NavigationStack with NavigationContext capabilities
         }
     }
 }
