@@ -407,7 +407,9 @@ struct ProductReviewView: View {
 }
 ```
 
-### Update all stores when a product changes
+### Update a store when a product changes
+
+This feaure will reload or update any store of a type in the hierarchy.
 
 ###### Refetch
 
