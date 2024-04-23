@@ -50,10 +50,10 @@ public struct PopoverButton<Label>: View where Label: View {
                 popover = NavigationContext.DestinationData(content: content)
                 
                 if let analyticsActionLog {
-                    sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                                    name: analyticsActionLog.name,
-                                                    identifier: analyticsActionLog.identifier,
-                                                    parameters: analyticsActionLog.parameters)
+                    logEvent(.action(analyticsViewIdentifier),
+                             name: analyticsActionLog.name,
+                             identifier: analyticsActionLog.identifier,
+                             parameters: analyticsActionLog.parameters)
                 }
             } else {
                 popover = nil

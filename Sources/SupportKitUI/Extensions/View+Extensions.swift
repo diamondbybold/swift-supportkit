@@ -152,7 +152,7 @@ extension View {
     public func logViewEvent(name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
         self.environment(\.analyticsViewIdentifier, identifier)
             .onAppear {
-                sharedAnalyticsObject?.logEvent(.view, name: name, identifier: identifier, parameters: parameters)
+                logEvent(.view, name: name, identifier: identifier, parameters: parameters)
             }
     }
     

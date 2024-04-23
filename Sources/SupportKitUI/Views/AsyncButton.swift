@@ -110,10 +110,10 @@ public struct AsyncButton<Label>: View where Label: View {
             }
             
             if let analyticsActionLog {
-                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                                name: analyticsActionLog.name,
-                                                identifier: analyticsActionLog.identifier,
-                                                parameters: analyticsActionLog.parameters)
+                logEvent(.action(analyticsViewIdentifier),
+                         name: analyticsActionLog.name,
+                         identifier: analyticsActionLog.identifier,
+                         parameters: analyticsActionLog.parameters)
             }
         } label: {
             if !ignoreState, waiting {

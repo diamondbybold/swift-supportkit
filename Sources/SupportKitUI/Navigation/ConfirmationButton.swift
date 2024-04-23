@@ -70,10 +70,10 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
                                     actions: actions)
             
             if let analyticsActionLog {
-                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                                name: analyticsActionLog.name,
-                                                identifier: analyticsActionLog.identifier,
-                                                parameters: analyticsActionLog.parameters)
+                logEvent(.action(analyticsViewIdentifier),
+                         name: analyticsActionLog.name,
+                         identifier: analyticsActionLog.identifier,
+                         parameters: analyticsActionLog.parameters)
             }
         } label: {
             label
