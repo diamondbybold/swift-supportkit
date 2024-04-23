@@ -10,7 +10,7 @@ public struct DismissButton<Label>: View where Label: View {
     @Environment(\.dismiss) private var dismiss
     
     @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -62,10 +62,12 @@ public struct DismissButton<Label>: View where Label: View {
                 dismiss()
             }
             
-            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                            name: analyticsActionLog.name,
-                                            identifier: analyticsActionLog.identifier,
-                                            parameters: analyticsActionLog.parameters)
+            if let analyticsActionLog {
+                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                name: analyticsActionLog.name,
+                                                identifier: analyticsActionLog.identifier,
+                                                parameters: analyticsActionLog.parameters)
+            }
         } label: {
             label
         }

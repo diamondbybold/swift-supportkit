@@ -9,7 +9,7 @@ public struct PopoverButton<Label>: View where Label: View {
     @State private var popover: NavigationContext.DestinationData? = nil
     
     @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -49,10 +49,12 @@ public struct PopoverButton<Label>: View where Label: View {
             if popover == nil {
                 popover = NavigationContext.DestinationData(content: content)
                 
-                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                                name: analyticsActionLog.name,
-                                                identifier: analyticsActionLog.identifier,
-                                                parameters: analyticsActionLog.parameters)
+                if let analyticsActionLog {
+                    sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                    name: analyticsActionLog.name,
+                                                    identifier: analyticsActionLog.identifier,
+                                                    parameters: analyticsActionLog.parameters)
+                }
             } else {
                 popover = nil
             }

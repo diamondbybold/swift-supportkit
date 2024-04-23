@@ -12,7 +12,7 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     @EnvironmentObject private var navigationContext: NavigationContext
     
     @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ label: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -69,10 +69,12 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
                                     confirmation: true,
                                     actions: actions)
             
-            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                            name: analyticsActionLog.name,
-                                            identifier: analyticsActionLog.identifier,
-                                            parameters: analyticsActionLog.parameters)
+            if let analyticsActionLog {
+                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                name: analyticsActionLog.name,
+                                                identifier: analyticsActionLog.identifier,
+                                                parameters: analyticsActionLog.parameters)
+            }
         } label: {
             label
         }

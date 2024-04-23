@@ -16,7 +16,7 @@ public struct AsyncButton<Label>: View where Label: View {
     @EnvironmentObject private var navigationContext: NavigationContext
     
     @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -109,10 +109,12 @@ public struct AsyncButton<Label>: View where Label: View {
                 Task { await performTask() }
             }
             
-            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                            name: analyticsActionLog.name,
-                                            identifier: analyticsActionLog.identifier,
-                                            parameters: analyticsActionLog.parameters)
+            if let analyticsActionLog {
+                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                name: analyticsActionLog.name,
+                                                identifier: analyticsActionLog.identifier,
+                                                parameters: analyticsActionLog.parameters)
+            }
         } label: {
             if !ignoreState, waiting {
                 ProgressView()

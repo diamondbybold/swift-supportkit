@@ -8,7 +8,7 @@ public struct ActionButton<Label>: View where Label: View {
     private let action: () -> Void
     
     @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -54,10 +54,12 @@ public struct ActionButton<Label>: View where Label: View {
         Button(role: role) {
             action()
             
-            sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
-                                            name: analyticsActionLog.name,
-                                            identifier: analyticsActionLog.identifier,
-                                            parameters: analyticsActionLog.parameters)
+            if let analyticsActionLog {
+                sharedAnalyticsObject?.logEvent(.action(analyticsViewIdentifier),
+                                                name: analyticsActionLog.name,
+                                                identifier: analyticsActionLog.identifier,
+                                                parameters: analyticsActionLog.parameters)
+            }
         } label: {
             label
         }
