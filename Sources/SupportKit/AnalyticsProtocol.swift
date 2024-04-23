@@ -6,7 +6,7 @@ public protocol AnalyticsProtocol: AnyObject {
     var contextIdentifier: String? { get set }
     
     func logContextEvent(_ name: String, identifier: String, parameters: [String: Any?]?)
-    func logActionEvent(_ name: String, identifier: String, contextIdentifier: String, parameters: [String: Any?]?)
+    func logActionEvent(_ name: String, identifier: String, contextIdentifier: String?, parameters: [String: Any?]?)
     func logDataEvent(_ name: String, parameters: [String: Any?]?)
 }
 
@@ -17,7 +17,7 @@ public func logContextEvent(_ name: String, identifier: String, parameters: [Str
     sharedAnalyticsObject?.logContextEvent(name, identifier: identifier, parameters: parameters)
 }
 
-public func logActionEvent(_ name: String, identifier: String, contextIdentifier: String, parameters: [String: Any?]? = nil) {
+public func logActionEvent(_ name: String, identifier: String, contextIdentifier: String? = nil, parameters: [String: Any?]? = nil) {
     sharedAnalyticsObject?.logActionEvent(name, identifier: identifier, contextIdentifier: contextIdentifier, parameters: parameters)
 }
 
