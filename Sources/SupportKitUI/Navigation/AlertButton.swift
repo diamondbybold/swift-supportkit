@@ -70,10 +70,10 @@ public struct AlertButton<Label, Action>: View where Label: View, Action: View {
                                     actions: actions)
             
             if let analyticsActionLog {
-                logEvent(.action(analyticsViewIdentifier),
-                         name: analyticsActionLog.name,
-                         identifier: analyticsActionLog.identifier,
-                         parameters: analyticsActionLog.parameters)
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               viewIdentifier: analyticsViewIdentifier,
+                               parameters: analyticsActionLog.parameters)
             }
         } label: {
             label

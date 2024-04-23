@@ -55,10 +55,10 @@ public struct ActionButton<Label>: View where Label: View {
             action()
             
             if let analyticsActionLog {
-                logEvent(.action(analyticsViewIdentifier),
-                         name: analyticsActionLog.name,
-                         identifier: analyticsActionLog.identifier,
-                         parameters: analyticsActionLog.parameters)
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               viewIdentifier: analyticsViewIdentifier,
+                               parameters: analyticsActionLog.parameters)
             }
         } label: {
             label

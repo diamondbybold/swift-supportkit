@@ -1,22 +1,25 @@
 import Foundation
 
-public var sharedAnalyticsObject: (any AnalyticsProtocol)? = nil
-
-public func logEvent(_ event: AnalyticsEvent = .data,
-                     name: String,
-                     identifier: String? = nil,
-                     parameters: [String: Any?]? = nil) {
-    sharedAnalyticsObject?.logEvent(event, name: name, identifier: identifier, parameters: parameters)
-}
-
 public protocol AnalyticsProtocol: AnyObject {
+    var deviceIdentifier: String? { get set }
     var userIdentifier: String? { get set }
     
-    func logEvent(_ event: AnalyticsEvent, name: String, identifier: String?, parameters: [String: Any?]?)
+    func logViewEvent(_ name: String, identifier: String, parameters: [String: Any?]?)
+    func logActionEvent(_ name: String, identifier: String, viewIdentifier: String, parameters: [String: Any?]?)
+    func logDataEvent(_ name: String, parameters: [String: Any?]?)
 }
 
-public enum AnalyticsEvent {
-    case view
-    case action(String)
-    case data
+// MARK: - Global functions
+public var sharedAnalyticsObject: (any AnalyticsProtocol)? = nil
+
+public func logViewEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) {
+    sharedAnalyticsObject?.logViewEvent(name, identifier: identifier, parameters: parameters)
+}
+
+public func logActionEvent(_ name: String, identifier: String, viewIdentifier: String, parameters: [String: Any?]? = nil) {
+    sharedAnalyticsObject?.logActionEvent(name, identifier: identifier, viewIdentifier: viewIdentifier, parameters: parameters)
+}
+
+public func logDataEvent(_ name: String, parameters: [String: Any?]? = nil) {
+    sharedAnalyticsObject?.logDataEvent(name, parameters: parameters)
 }

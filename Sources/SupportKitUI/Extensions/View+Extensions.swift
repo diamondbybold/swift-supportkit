@@ -149,14 +149,14 @@ extension View {
 
 // MARK: - Analytics
 extension View {
-    public func logViewEvent(name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
+    public func viewEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
         self.environment(\.analyticsViewIdentifier, identifier)
             .onAppear {
-                logEvent(.view, name: name, identifier: identifier, parameters: parameters)
+                logViewEvent(name, identifier: identifier, parameters: parameters)
             }
     }
     
-    public func logActionEvent(name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
+    public func actionEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
         self.environment(\.analyticsActionLog, .init(name: name, identifier: identifier, parameters: parameters))
     }
 }

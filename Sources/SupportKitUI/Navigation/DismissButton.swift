@@ -63,10 +63,10 @@ public struct DismissButton<Label>: View where Label: View {
             }
             
             if let analyticsActionLog {
-                logEvent(.action(analyticsViewIdentifier),
-                         name: analyticsActionLog.name,
-                         identifier: analyticsActionLog.identifier,
-                         parameters: analyticsActionLog.parameters)
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               viewIdentifier: analyticsViewIdentifier,
+                               parameters: analyticsActionLog.parameters)
             }
         } label: {
             label
