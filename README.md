@@ -240,7 +240,7 @@ Included buttons that uses **NavigationContext**:
 
 ### Display products using store
 
-The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object if needed. And don't forget other model objects like e.g. UserSession, ShoppingCart, CheckoutProcess, ChatSession, UserRegistration, ReviewProduct, ... remember **UI = f(State)** where State == model
+The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object conforming **FetchableObject** protocol if needed. And don't forget other model objects like e.g. UserSession, ShoppingCart, CheckoutProcess, ChatSession, UserRegistration, ReviewProduct, ... remember **UI = f(State)** where State = Model
 
 ```swift
 import SwiftUI
