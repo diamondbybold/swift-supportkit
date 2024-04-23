@@ -240,7 +240,7 @@ Included buttons that uses **NavigationContext**:
 
 ### Display products using store
 
-The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object if needed.
+The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object if needed. And don't forget other model objects like e.g. UserSession, ShoppingCart, CheckoutProcess, ChatSession, UserRegistration, ReviewProduct, ... remember **UI = f(State)** where State == model
 
 ```swift
 import SwiftUI
@@ -430,3 +430,13 @@ Store<Product>.updateAll { element in
     // operations
 }
 ```
+
+## Useful Links
+
+[Swift](https://developer.apple.com/swift/)
+
+[SwiftUI](https://developer.apple.com/xcode/swiftui/)
+
+[SwiftData](https://developer.apple.com/xcode/swiftdata/)
+
+[An Introduction to MV Pattern](https://swiftandtips.com/is-mvvm-necessary-for-developing-apps-with-swiftui)
