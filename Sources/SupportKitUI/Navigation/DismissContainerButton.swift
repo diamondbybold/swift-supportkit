@@ -1,4 +1,5 @@
 import SwiftUI
+import SupportKit
 
 public struct DismissContainerButton<Label>: View where Label: View {
     private let label: Label
@@ -7,6 +8,9 @@ public struct DismissContainerButton<Label>: View where Label: View {
     private let action: () -> Void
     
     @EnvironmentObject private var navigationContext: NavigationContext
+    
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
+    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -50,6 +54,13 @@ public struct DismissContainerButton<Label>: View where Label: View {
     
     public var body: some View {
         Button(role: role) {
+            if let analyticsActionLog {
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               contextIdentifier: analyticsContextIdentifier,
+                               parameters: analyticsActionLog.parameters)
+            }
+            
             action()
             
             var transaction = Transaction()

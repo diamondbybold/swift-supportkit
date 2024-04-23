@@ -72,15 +72,15 @@ public struct NavigationButton<Label>: View where Label: View {
     
     public var body: some View {
         Button(role: role) {
-            action()
-            navigationContext.destination(destination, disableTransition: disableTransition, content: content)
-            
             if let analyticsActionLog {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
                                contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
+            
+            action()
+            navigationContext.destination(destination, disableTransition: disableTransition, content: content)
         } label: {
             label
         }

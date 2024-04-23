@@ -47,14 +47,14 @@ public struct PopoverButton<Label>: View where Label: View {
     public var body: some View {
         Button(role: role) {
             if popover == nil {
-                popover = NavigationContext.DestinationData(content: content)
-                
                 if let analyticsActionLog {
                     logActionEvent(analyticsActionLog.name,
                                    identifier: analyticsActionLog.identifier,
                                    contextIdentifier: analyticsContextIdentifier,
                                    parameters: analyticsActionLog.parameters)
                 }
+                
+                popover = NavigationContext.DestinationData(content: content)
             } else {
                 popover = nil
             }

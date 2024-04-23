@@ -54,19 +54,19 @@ public struct DismissButton<Label>: View where Label: View {
     
     public var body: some View {
         Button(role: role) {
+            if let analyticsActionLog {
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               contextIdentifier: analyticsContextIdentifier,
+                               parameters: analyticsActionLog.parameters)
+            }
+            
             action()
             
             var transaction = Transaction()
             transaction.disablesAnimations = disableTransition
             withTransaction(transaction) {
                 dismiss()
-            }
-            
-            if let analyticsActionLog {
-                logActionEvent(analyticsActionLog.name,
-                               identifier: analyticsActionLog.identifier,
-                               contextIdentifier: analyticsContextIdentifier,
-                               parameters: analyticsActionLog.parameters)
             }
         } label: {
             label

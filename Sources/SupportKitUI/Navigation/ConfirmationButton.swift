@@ -64,17 +64,17 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     
     public var body: some View {
         Button(role: role) {
-            navigationContext.alert(title: title,
-                                    message: message,
-                                    confirmation: true,
-                                    actions: actions)
-            
             if let analyticsActionLog {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
                                contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
+            
+            navigationContext.alert(title: title,
+                                    message: message,
+                                    confirmation: true,
+                                    actions: actions)
         } label: {
             label
         }
