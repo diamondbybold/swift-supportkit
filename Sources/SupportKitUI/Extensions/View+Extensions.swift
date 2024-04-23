@@ -149,10 +149,11 @@ extension View {
 
 // MARK: - Analytics
 extension View {
-    public func viewEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
-        self.environment(\.analyticsViewIdentifier, identifier)
+    public func contextEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
+        self.environment(\.analyticsContextIdentifier, identifier)
             .onAppear {
-                logViewEvent(name, identifier: identifier, parameters: parameters)
+                sharedAnalyticsObject?.contextIdentifier = identifier
+                logContextEvent(name, identifier: identifier, parameters: parameters)
             }
     }
     

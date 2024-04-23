@@ -11,7 +11,7 @@ public struct AlertButton<Label, Action>: View where Label: View, Action: View {
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
-    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ label: LocalizedStringKey,
@@ -64,17 +64,17 @@ public struct AlertButton<Label, Action>: View where Label: View, Action: View {
     
     public var body: some View {
         Button(role: role) {
+            if let analyticsActionLog {
+                logActionEvent(analyticsActionLog.name,
+                               identifier: analyticsActionLog.identifier,
+                               contextIdentifier: analyticsContextIdentifier,
+                               parameters: analyticsActionLog.parameters)
+            }
+            
             navigationContext.alert(title: title,
                                     message: message,
                                     confirmation: false,
                                     actions: actions)
-            
-            if let analyticsActionLog {
-                logActionEvent(analyticsActionLog.name,
-                               identifier: analyticsActionLog.identifier,
-                               viewIdentifier: analyticsViewIdentifier,
-                               parameters: analyticsActionLog.parameters)
-            }
         } label: {
             label
         }

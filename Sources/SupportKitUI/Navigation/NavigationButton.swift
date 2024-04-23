@@ -11,7 +11,7 @@ public struct NavigationButton<Label>: View where Label: View {
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
-    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
@@ -78,7 +78,7 @@ public struct NavigationButton<Label>: View where Label: View {
             if let analyticsActionLog {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
-                               viewIdentifier: analyticsViewIdentifier,
+                               contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
         } label: {

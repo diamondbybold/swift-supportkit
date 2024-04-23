@@ -7,7 +7,7 @@ public struct ActionButton<Label>: View where Label: View {
     private let disableTransition: Bool
     private let action: () -> Void
     
-    @Environment(\.analyticsViewIdentifier) private var analyticsViewIdentifier: String
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
     public init(_ titleKey: LocalizedStringKey,
@@ -52,14 +52,14 @@ public struct ActionButton<Label>: View where Label: View {
     
     public var body: some View {
         Button(role: role) {
-            action()
-            
             if let analyticsActionLog {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
-                               viewIdentifier: analyticsViewIdentifier,
+                               contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
+            
+            action()
         } label: {
             label
         }
