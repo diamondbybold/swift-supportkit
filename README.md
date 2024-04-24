@@ -191,13 +191,13 @@ struct ProductList: View {
 
     var body {
         ScrollView {
-            ForEach(store.elements) { product in
+            ForEach(products) { product in
                 ProductRow(product)
             }
         }
         .task {
             do {
-                products = try await Product.products(query: query)
+                products = try await Product.products()
             } catch {
                 // Error handling
             }
@@ -279,8 +279,8 @@ struct ProductList: View {
                     }
             }
         }
-        .fetch(store, refetchTrigger: query, refetchDebounce: true) {
-            try await Product.products(query: query)
+        .fetch(store, refetchTrigger: query, refetchDebounce: true) { page in
+            try await Product.products(query: query, page: page)
         }
         .refreshable(store) // Pull down to refresh
         .searchable(text: $query) // Enable search bar
