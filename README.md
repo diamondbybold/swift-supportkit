@@ -191,13 +191,13 @@ struct ProductList: View {
 
     var body {
         ScrollView {
-            ForEach(store.elements) { product in
+            ForEach(products) { product in
                 ProductRow(product)
             }
         }
         .task {
             do {
-                products = try await Product.products(query: query)
+                products = try await Product.products()
             } catch {
                 // Error handling
             }
