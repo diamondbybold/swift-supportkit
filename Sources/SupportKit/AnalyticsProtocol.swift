@@ -8,6 +8,7 @@ public protocol AnalyticsProtocol: AnyObject {
     func logContextEvent(_ name: String, identifier: String, parameters: [String: Any?]?)
     func logActionEvent(_ name: String, identifier: String, contextIdentifier: String?, parameters: [String: Any?]?)
     func logDataEvent(_ name: String, parameters: [String: Any?]?)
+    func logEvent(_ name: String, parameters: [String: Any?]?)
 }
 
 // MARK: - Global functions
@@ -23,4 +24,8 @@ public func logActionEvent(_ name: String, identifier: String, contextIdentifier
 
 public func logDataEvent(_ name: String, parameters: [String: Any?]? = nil) {
     sharedAnalyticsObject?.logDataEvent(name, parameters: parameters)
+}
+
+public func logEvent(_ name: String, parameters: [String: Any?]? = nil) {
+    sharedAnalyticsObject?.logEvent(name, parameters: parameters)
 }
