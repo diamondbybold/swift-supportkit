@@ -157,6 +157,10 @@ extension View {
             }
     }
     
+    public func screenEvent(_ view: any View, parameters: [String: Any?]? = nil) -> some View {
+        self.screenEvent("\(type(of: view))", parameters: parameters)
+    }
+    
     public func actionEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
         self.environment(\.analyticsActionLog, .init(name: name, identifier: identifier, parameters: parameters))
     }
