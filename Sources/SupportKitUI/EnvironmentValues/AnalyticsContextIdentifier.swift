@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AnalyticsContextIdentifierKey: EnvironmentKey {
+struct AnalyticsScreenIdentifierKey: EnvironmentKey {
     static var defaultValue: String = ""
     
     static func reduce(value: inout String, nextValue: () -> String) {
@@ -9,8 +9,8 @@ struct AnalyticsContextIdentifierKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    public var analyticsContextIdentifier: String {
-        get { self[AnalyticsContextIdentifierKey.self] }
-        set { self[AnalyticsContextIdentifierKey.self] = newValue }
+    public var analyticsScreenIdentifier: String {
+        get { self[AnalyticsScreenIdentifierKey.self] }
+        set { self[AnalyticsScreenIdentifierKey.self] = newValue }
     }
 }
