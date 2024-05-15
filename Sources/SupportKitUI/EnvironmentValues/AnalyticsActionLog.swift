@@ -3,7 +3,7 @@ import SwiftUI
 public struct AnalyticsActionLog {
     let name: String
     let identifier: String
-    let parameters: [String: Any?]?
+    let parameters: [String: String]?
 }
 
 struct AnalyticsActionLogKey: EnvironmentKey {

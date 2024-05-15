@@ -11,6 +11,7 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
@@ -68,6 +69,7 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
                                screenIdentifier: analyticsScreenIdentifier,
+                               contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
             

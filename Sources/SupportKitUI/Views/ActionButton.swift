@@ -7,6 +7,7 @@ public struct ActionButton<Label>: View where Label: View {
     private let disableTransition: Bool
     private let action: () -> Void
     
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
@@ -56,6 +57,7 @@ public struct ActionButton<Label>: View where Label: View {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
                                screenIdentifier: analyticsScreenIdentifier,
+                               contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
             

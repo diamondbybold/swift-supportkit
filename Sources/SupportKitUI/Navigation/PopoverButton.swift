@@ -8,6 +8,7 @@ public struct PopoverButton<Label>: View where Label: View {
     
     @State private var popover: NavigationContext.DestinationData? = nil
     
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
@@ -51,6 +52,7 @@ public struct PopoverButton<Label>: View where Label: View {
                     logActionEvent(analyticsActionLog.name,
                                    identifier: analyticsActionLog.identifier,
                                    screenIdentifier: analyticsScreenIdentifier,
+                                   contextIdentifier: analyticsContextIdentifier,
                                    parameters: analyticsActionLog.parameters)
                 }
                 

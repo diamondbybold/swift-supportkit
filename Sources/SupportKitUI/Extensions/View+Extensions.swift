@@ -149,7 +149,14 @@ extension View {
 
 // MARK: - Analytics
 extension View {
-    public func screenEvent(_ identifier: String, parameters: [String: Any?]? = nil) -> some View {
+    public func analyticsContext(_ context: String) -> some View {
+        self.environment(\.analyticsContextIdentifier, context)
+            .onAppear {
+                sharedAnalyticsObject?.contextIdentifier = context
+            }
+    }
+    
+    public func screenEvent(_ identifier: String, parameters: [String: String]? = nil) -> some View {
         self.environment(\.analyticsScreenIdentifier, identifier)
             .onAppear {
                 sharedAnalyticsObject?.screenIdentifier = identifier
@@ -157,11 +164,11 @@ extension View {
             }
     }
     
-    public func screenEvent(_ view: any View, parameters: [String: Any?]? = nil) -> some View {
+    public func screenEvent(_ view: any View, parameters: [String: String]? = nil) -> some View {
         self.screenEvent("\(type(of: view))", parameters: parameters)
     }
     
-    public func actionEvent(_ name: String, identifier: String, parameters: [String: Any?]? = nil) -> some View {
+    public func actionEvent(_ name: String, identifier: String, parameters: [String: String]? = nil) -> some View {
         self.environment(\.analyticsActionLog, .init(name: name, identifier: identifier, parameters: parameters))
     }
 }

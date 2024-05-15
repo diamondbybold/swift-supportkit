@@ -9,6 +9,7 @@ public struct DismissButton<Label>: View where Label: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
     @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
     @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
     
@@ -58,6 +59,7 @@ public struct DismissButton<Label>: View where Label: View {
                 logActionEvent(analyticsActionLog.name,
                                identifier: analyticsActionLog.identifier,
                                screenIdentifier: analyticsScreenIdentifier,
+                               contextIdentifier: analyticsContextIdentifier,
                                parameters: analyticsActionLog.parameters)
             }
             
