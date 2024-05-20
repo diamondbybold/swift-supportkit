@@ -16,7 +16,7 @@ public struct APIRequest {
                 query: [String: String?] = [:],
                 body: APIBody? = nil,
                 headers: [String: String] = [:],
-                cachePolicy: URLRequest.CachePolicy? = nil,
+                cachePolicy: URLRequest.CachePolicy? = .useProtocolCachePolicy,
                 retry: Bool = true) {
         self.path = path
         self.version = version
