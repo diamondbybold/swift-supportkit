@@ -111,8 +111,8 @@ extension View {
     }
     
     @MainActor
-    func onReceiveNotification(_ name: Notification.Name,
-                               perform action: @escaping (Any?, [AnyHashable: Any]?) -> Void) -> some View {
+    public func onReceiveNotification(_ name: Notification.Name,
+                                      perform action: @escaping (Any?, [AnyHashable: Any]?) -> Void) -> some View {
         self.onReceive(NotificationCenter.default.publisher(for: name)) {
             action($0.object, $0.userInfo)
         }
