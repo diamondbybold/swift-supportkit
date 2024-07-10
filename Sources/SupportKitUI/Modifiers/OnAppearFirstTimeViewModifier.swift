@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct OnAppearOneTimeViewModifier: ViewModifier {
+struct OnAppearFirstTimeViewModifier: ViewModifier {
     let perform: () -> Void
     
     @State private var performed: Bool = false
@@ -17,7 +17,7 @@ struct OnAppearOneTimeViewModifier: ViewModifier {
 }
 
 extension View {
-    public func onAppearOneTime(_ perform: @escaping () -> Void) -> some View {
-        self.modifier(OnAppearOneTimeViewModifier(perform: perform))
+    public func onAppearFirstTime(_ perform: @escaping () -> Void) -> some View {
+        self.modifier(OnAppearFirstTimeViewModifier(perform: perform))
     }
 }
