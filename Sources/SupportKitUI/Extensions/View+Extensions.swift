@@ -111,13 +111,10 @@ extension View {
     }
     
     @MainActor
-    public func onNotification(_ named: Notification.Name, perform: @escaping (Notification) -> Void) -> some View {
-        self.task {
-            let notifications = NotificationCenter.default.notifications(named: named,
-                                                                         object: nil)
-            for await notification in notifications {
-                perform(notification)
-            }
+    func onReceiveNotification(_ name: Notification.Name,
+                               perform action: @escaping (Any?, [AnyHashable: Any]?) -> Void) -> some View {
+        self.onReceive(NotificationCenter.default.publisher(for: name)) {
+            action($0.object, $0.userInfo)
         }
     }
 }

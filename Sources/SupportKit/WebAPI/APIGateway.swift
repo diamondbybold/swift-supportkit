@@ -72,6 +72,11 @@ extension Notification.Name {
     public static let APIGatewayUnconnected = Notification.Name("APIGatewayUnconnected")
     public static let APIGatewayUnauthorized = Notification.Name("APIGatewayUnauthorized")
     public static let APIGatewayForbidden = Notification.Name("APIGatewayForbidden")
+    
+    public static let APIGatewayDataInserted = Notification.Name("APIGatewayDataInserted")
+    public static let APIGatewayDataUpdated = Notification.Name("APIGatewayDataUpdated")
+    public static let APIGatewayDataDeleted = Notification.Name("APIGatewayDataDeleted")
+    public static let APIGatewayDataInvalidated = Notification.Name("APIGatewayDataInvalidated")
 }
 
 // MARK: - Utilities
