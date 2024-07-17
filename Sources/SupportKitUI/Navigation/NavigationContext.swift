@@ -49,6 +49,7 @@ public class NavigationContext: ObservableObject {
     }
     
     public func dismiss() { shouldDismiss = true }
+    public func dismissModal() { sheet = nil; fullScreenCover = nil; confirmation = nil; alert = nil }
 }
 
 // MARK: - Stack Management
