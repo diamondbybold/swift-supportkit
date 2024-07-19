@@ -29,7 +29,7 @@ public func logScreenEvent(_ event: AnalyticsEvent) {
 }
 
 public func logScreenEvent(_ name: String,
-                           parameters: [String: String]) {
+                           parameters: [String: String] = [:]) {
     sharedAnalyticsObject?.logScreenEvent(.init(name: name, parameters: parameters))
 }
 
@@ -38,6 +38,6 @@ public func logActionEvent(_ event: AnalyticsEvent) {
 }
 
 public func logActionEvent(_ name: String,
-                           parameters: [String: String]) {
+                           parameters: [String: String] = [:]) {
     sharedAnalyticsObject?.logActionEvent(.init(name: name, parameters: parameters))
 }
