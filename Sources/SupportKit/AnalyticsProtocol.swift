@@ -28,7 +28,7 @@ public func logScreenEvent(_ event: AnalyticsEvent) {
     sharedAnalyticsObject?.logScreenEvent(event)
 }
 
-public func logScreenEvent(name: String,
+public func logScreenEvent(_ name: String,
                            parameters: [String: String]) {
     sharedAnalyticsObject?.logScreenEvent(.init(name: name, parameters: parameters))
 }
@@ -37,7 +37,7 @@ public func logActionEvent(_ event: AnalyticsEvent) {
     sharedAnalyticsObject?.logActionEvent(event)
 }
 
-public func logActionEvent(name: String,
+public func logActionEvent(_ name: String,
                            parameters: [String: String]) {
     sharedAnalyticsObject?.logActionEvent(.init(name: name, parameters: parameters))
 }
