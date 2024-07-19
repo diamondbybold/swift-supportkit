@@ -163,6 +163,10 @@ extension View {
     public func analyticsActionEvent(_ name: String, parameters: [String: String] = [:]) -> some View {
         self.environment(\.analyticsActionEvent, .init(name: name, parameters: parameters))
     }
+    
+    public func analyticsPrepareForChange<V: Equatable>(of value: V) -> some View {
+        self.modifier(PrepareForChangeViewModifier(value: value))
+    }
 }
 
 struct LogScreenEventViewModifier: ViewModifier {
@@ -174,6 +178,21 @@ struct LogScreenEventViewModifier: ViewModifier {
             .onAppear {
                 sharedAnalyticsObject?.contextData = analyticsContextData
                 if let analyticsScreenEvent { logScreenEvent(analyticsScreenEvent) }
+            }
+    }
+}
+
+struct PrepareForChangeViewModifier<V: Equatable>: ViewModifier {
+    let value: V
+    
+    @Environment(\.analyticsContextData) private var analyticsContextData
+    @Environment(\.analyticsScreenEvent) private var analyticsScreenEvent
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: value) { _ in
+                sharedAnalyticsObject?.contextData = analyticsContextData
+                sharedAnalyticsObject?.screenEvent = analyticsScreenEvent
             }
     }
 }
