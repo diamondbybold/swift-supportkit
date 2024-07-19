@@ -1,47 +1,43 @@
 import Foundation
 
+public struct AnalyticsEvent {
+    public let name: String
+    public let parameters: [String: String]
+    
+    public init(name: String,
+                parameters: [String: String]) {
+        self.name = name
+        self.parameters = parameters
+    }
+}
+
 public protocol AnalyticsProtocol: AnyObject {
     var deviceIdentifier: String? { get set }
     var userIdentifier: String? { get set }
-    var contextIdentifier: String? { get set }
-    var screenIdentifier: String? { get set }
+    var contextData: [String: String] { get set }
+    var screenEvent: AnalyticsEvent? { get set }
     
-    func logScreenEvent(_ identifier: String,
-                        parameters: [String: String]?)
-    
-    func logActionEvent(_ name: String,
-                        identifier: String,
-                        screenIdentifier: String?,
-                        contextIdentifier: String?,
-                        parameters: [String: String]?)
-    
-    func logDataEvent(_ name: String,
-                      parameters: [String: String]?)
+    func logScreenEvent(_ event: AnalyticsEvent)
+    func logActionEvent(_ event: AnalyticsEvent)
 }
 
 // MARK: - Global functions
 public var sharedAnalyticsObject: (any AnalyticsProtocol)? = nil
 
-public func logScreenEvent(_ identifier: String,
-                           parameters: [String: String]? = nil) {
-    sharedAnalyticsObject?.logScreenEvent(identifier,
-                                          parameters: parameters)
+public func logScreenEvent(_ event: AnalyticsEvent) {
+    sharedAnalyticsObject?.logScreenEvent(event)
 }
 
-public func logActionEvent(_ name: String,
-                           identifier: String,
-                           screenIdentifier: String? = nil,
-                           contextIdentifier: String? = nil,
-                           parameters: [String: String]? = nil) {
-    sharedAnalyticsObject?.logActionEvent(name,
-                                          identifier: identifier,
-                                          screenIdentifier: screenIdentifier,
-                                          contextIdentifier: contextIdentifier,
-                                          parameters: parameters)
+public func logScreenEvent(name: String,
+                           parameters: [String: String]) {
+    sharedAnalyticsObject?.logScreenEvent(.init(name: name, parameters: parameters))
 }
 
-public func logDataEvent(_ name: String,
-                         parameters: [String: String]? = nil) {
-    sharedAnalyticsObject?.logDataEvent(name,
-                                        parameters: parameters)
+public func logActionEvent(_ event: AnalyticsEvent) {
+    sharedAnalyticsObject?.logActionEvent(event)
+}
+
+public func logActionEvent(name: String,
+                           parameters: [String: String]) {
+    sharedAnalyticsObject?.logActionEvent(.init(name: name, parameters: parameters))
 }

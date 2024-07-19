@@ -9,9 +9,9 @@ public struct DismissButton<Label>: View where Label: View {
     
     @Environment(\.dismiss) private var dismiss
     
-    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
-    @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
+    @Environment(\.analyticsContextData) private var analyticsContextData: [String: String]
+    @Environment(\.analyticsScreenEvent) private var analyticsScreenEvent: AnalyticsEvent?
+    @Environment(\.analyticsActionEvent) private var analyticsActionEvent: AnalyticsEvent?
     
     public init(_ titleKey: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -55,12 +55,11 @@ public struct DismissButton<Label>: View where Label: View {
     
     public var body: some View {
         Button(role: role) {
-            if let analyticsActionLog {
-                logActionEvent(analyticsActionLog.name,
-                               identifier: analyticsActionLog.identifier,
-                               screenIdentifier: analyticsScreenIdentifier,
-                               contextIdentifier: analyticsContextIdentifier,
-                               parameters: analyticsActionLog.parameters)
+            sharedAnalyticsObject?.contextData = analyticsContextData
+            sharedAnalyticsObject?.screenEvent = analyticsScreenEvent
+            
+            if let analyticsActionEvent {
+                logActionEvent(analyticsActionEvent)
             }
             
             action()

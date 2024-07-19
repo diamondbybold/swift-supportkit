@@ -146,26 +146,34 @@ extension View {
 
 // MARK: - Analytics
 extension View {
-    public func analyticsContext(_ context: String) -> some View {
-        self.environment(\.analyticsContextIdentifier, context)
+    public func analyticsContextData(_ data: [String: String]) -> some View {
+        self.environment(\.analyticsContextData, data)
+    }
+    
+    public func analyticsScreenEvent(_ name: String, parameters: [String: String] = [:]) -> some View {
+        self
+            .modifier(LogScreenEventViewModifier())
+            .environment(\.analyticsScreenEvent, .init(name: name, parameters: parameters))
+    }
+    
+    public func analyticsScreenEvent(_ view: any View, parameters: [String: String] = [:]) -> some View {
+        self.analyticsScreenEvent("\(type(of: view))", parameters: parameters)
+    }
+    
+    public func analyticsActionEvent(_ name: String, parameters: [String: String] = [:]) -> some View {
+        self.environment(\.analyticsActionEvent, .init(name: name, parameters: parameters))
+    }
+}
+
+struct LogScreenEventViewModifier: ViewModifier {
+    @Environment(\.analyticsContextData) private var analyticsContextData
+    @Environment(\.analyticsScreenEvent) private var analyticsScreenEvent
+    
+    func body(content: Content) -> some View {
+        content
             .onAppear {
-                sharedAnalyticsObject?.contextIdentifier = context
+                sharedAnalyticsObject?.contextData = analyticsContextData
+                if let analyticsScreenEvent { logScreenEvent(analyticsScreenEvent) }
             }
-    }
-    
-    public func screenEvent(_ identifier: String, parameters: [String: String]? = nil) -> some View {
-        self.environment(\.analyticsScreenIdentifier, identifier)
-            .onAppear {
-                sharedAnalyticsObject?.screenIdentifier = identifier
-                logScreenEvent(identifier, parameters: parameters)
-            }
-    }
-    
-    public func screenEvent(_ view: any View, parameters: [String: String]? = nil) -> some View {
-        self.screenEvent("\(type(of: view))", parameters: parameters)
-    }
-    
-    public func actionEvent(_ name: String, identifier: String, parameters: [String: String]? = nil) -> some View {
-        self.environment(\.analyticsActionLog, .init(name: name, identifier: identifier, parameters: parameters))
     }
 }

@@ -11,9 +11,9 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     
     @EnvironmentObject private var navigationContext: NavigationContext
     
-    @Environment(\.analyticsContextIdentifier) private var analyticsContextIdentifier: String
-    @Environment(\.analyticsScreenIdentifier) private var analyticsScreenIdentifier: String
-    @Environment(\.analyticsActionLog) private var analyticsActionLog: AnalyticsActionLog?
+    @Environment(\.analyticsContextData) private var analyticsContextData: [String: String]
+    @Environment(\.analyticsScreenEvent) private var analyticsScreenEvent: AnalyticsEvent?
+    @Environment(\.analyticsActionEvent) private var analyticsActionEvent: AnalyticsEvent?
     
     public init(_ label: LocalizedStringKey,
                 role: ButtonRole? = nil,
@@ -65,12 +65,10 @@ public struct ConfirmationButton<Label, Action>: View where Label: View, Action:
     
     public var body: some View {
         Button(role: role) {
-            if let analyticsActionLog {
-                logActionEvent(analyticsActionLog.name,
-                               identifier: analyticsActionLog.identifier,
-                               screenIdentifier: analyticsScreenIdentifier,
-                               contextIdentifier: analyticsContextIdentifier,
-                               parameters: analyticsActionLog.parameters)
+            
+            
+            if let analyticsActionEvent {
+                logActionEvent(analyticsActionEvent)
             }
             
             navigationContext.alert(title: title,
