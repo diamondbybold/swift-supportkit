@@ -1,13 +1,13 @@
 import Foundation
 
-public enum Fetch {
+public enum FetchState {
     case waiting
     case empty
     case success(Info)
     case failure(any Error)
 }
 
-extension Fetch {
+extension FetchState {
     public struct Info {
         public let date: Date = .now
         public let page: Int
@@ -16,7 +16,7 @@ extension Fetch {
     }
 }
 
-extension Fetch {
+extension FetchState {
     public var isWaiting: Bool {
         if case .waiting = self { true }
         else { false }
@@ -53,41 +53,51 @@ extension Fetch {
     }
 }
 
-extension Fetch {
-    private mutating func prepare(refreshing: Bool? = nil) {
+extension Task {
+    private static func prepare(_ state: inout FetchState,
+                                refreshing: Bool? = nil) {
         if let refreshing {
-            if !refreshing { self = .waiting }
+            if !refreshing { state = .waiting }
         } else {
-            if error != nil || isEmpty || page > 1 { self = .waiting }
+            if state.error != nil || state.isEmpty || state.page > 1 { state = .waiting }
         }
     }
     
-    public mutating func perform<T>(in store: inout T?, refreshing: Bool? = nil, _ task: () async throws -> T?) async {
-        prepare(refreshing: refreshing)
+    public static func fetch<T>(_ state: inout FetchState,
+                                in store: inout T?,
+                                refreshing: Bool? = nil,
+                                task: () async throws -> T?) async {
+        prepare(&state, refreshing: refreshing)
         
         do {
             store = try await task()
-            self = .success(.init(page: 1, total: 1, partial: false))
+            state = .success(.init(page: 1, total: 1, partial: false))
         } catch is CancellationError {
         } catch {
-            self = .failure(error)
+            state = .failure(error)
         }
     }
     
-    public mutating func perform<T>(in store: inout [T], refreshing: Bool? = nil, _ task: () async throws -> [T]) async {
-        prepare(refreshing: refreshing)
+    public static func fetch<T>(_ state: inout FetchState,
+                                in store: inout [T],
+                                refreshing: Bool? = nil,
+                                task: () async throws -> [T]) async {
+        prepare(&state, refreshing: refreshing)
         
         do {
             store = try await task()
-            self = .success(.init(page: 1, total: store.count, partial: false))
+            state = .success(.init(page: 1, total: store.count, partial: false))
         } catch is CancellationError {
         } catch {
-            self = .failure(error)
+            state = .failure(error)
         }
     }
     
-    public mutating func perform<T>(in store: inout [T], refreshing: Bool? = nil, _ task: (Int) async throws -> ([T], Int)) async {
-        prepare(refreshing: refreshing)
+    public static func fetch<T>(_ state: inout FetchState,
+                                in store: inout [T],
+                                refreshing: Bool? = nil,
+                                task: (Int) async throws -> ([T], Int)) async {
+        prepare(&state, refreshing: refreshing)
         
         do {
             let result = try await task(1)
@@ -95,15 +105,17 @@ extension Fetch {
             let total = result.1
             
             store = result.0
-            self = .success(.init(page: 1, total: total, partial: count < total))
+            state = .success(.init(page: 1, total: total, partial: count < total))
         } catch is CancellationError {
         } catch {
-            self = .failure(error)
+            state = .failure(error)
         }
     }
     
-    public mutating func next<T>(in store: inout [T], _ task: (Int) async throws -> ([T], Int)) async {
-        let nextPage = page + 1
+    public static func fetchMore<T>(_ state: inout FetchState,
+                                    in store: inout [T],
+                                    task: (Int) async throws -> ([T], Int)) async {
+        let nextPage = state.page + 1
         
         do {
             let result = try await task(nextPage)
@@ -111,10 +123,10 @@ extension Fetch {
             let total = result.1
             
             store.append(contentsOf: result.0)
-            self = .success(.init(page: nextPage, total: total, partial: count < total))
+            state = .success(.init(page: nextPage, total: total, partial: count < total))
         } catch is CancellationError {
         } catch {
-            self = .failure(error)
+            state = .failure(error)
         }
     }
 }
