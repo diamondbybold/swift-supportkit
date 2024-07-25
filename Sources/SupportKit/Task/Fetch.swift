@@ -17,14 +17,14 @@ extension Fetch {
 }
 
 extension Fetch {
-    public var isEmpty: Bool {
-        if case .empty = self { true }
+    public var isWaiting: Bool {
+        if case .waiting = self { true }
         else { false }
     }
     
-    public func needsUpdate(in interval: TimeInterval = 900) -> Bool {
-        if case let .success(info) = self { info.date.hasExpired(in: interval) }
-        else { true }
+    public var isEmpty: Bool {
+        if case .empty = self { true }
+        else { false }
     }
     
     public var page: Int {
@@ -45,6 +45,11 @@ extension Fetch {
     public var error: (any Error)? {
         if case let .failure(error) = self { error }
         else { nil }
+    }
+    
+    public func needsUpdate(in interval: TimeInterval = 900) -> Bool {
+        if case let .success(info) = self { info.date.hasExpired(in: interval) }
+        else { true }
     }
 }
 
