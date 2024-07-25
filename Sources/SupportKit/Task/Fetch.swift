@@ -54,6 +54,7 @@ extension FetchState {
 }
 
 extension Task where Success == Never, Failure == Never {
+    @MainActor
     private static func prepareForFetch(_ state: inout FetchState,
                                         refreshing: Bool? = nil) {
         if let refreshing {
@@ -63,6 +64,7 @@ extension Task where Success == Never, Failure == Never {
         }
     }
     
+    @MainActor
     public static func fetch<T>(_ state: inout FetchState,
                                 in store: inout T?,
                                 refreshing: Bool? = nil,
@@ -78,6 +80,7 @@ extension Task where Success == Never, Failure == Never {
         }
     }
     
+    @MainActor
     public static func fetch<T>(_ state: inout FetchState,
                                 in store: inout [T],
                                 refreshing: Bool? = nil,
@@ -93,6 +96,7 @@ extension Task where Success == Never, Failure == Never {
         }
     }
     
+    @MainActor
     public static func fetch<T>(_ state: inout FetchState,
                                 in store: inout [T],
                                 refreshing: Bool? = nil,
@@ -112,6 +116,7 @@ extension Task where Success == Never, Failure == Never {
         }
     }
     
+    @MainActor
     public static func fetchMore<T>(_ state: inout FetchState,
                                     in store: inout [T],
                                     task: (Int) async throws -> ([T], Int)) async {
