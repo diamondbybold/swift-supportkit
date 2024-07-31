@@ -193,6 +193,96 @@ extension View {
     }
 }
 
+extension View {
+    @MainActor
+    public func fetch<T>(_ resource: ResourceRequest<T>,
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping () async throws -> T?) -> some View {
+        self.fetch {
+            if resource.needsUpdate(in: interval) {
+                await resource.fetch(refreshing: nil, task)
+            }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable, T>(_ resource: ResourceRequest<T>,
+                                       refetchTrigger: S,
+                                       refetchDebounce: Bool = false,
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping () async throws -> T?) -> some View {
+        self.fetch {
+            if resource.needsUpdate(in: interval) {
+                await resource.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
+            await resource.fetch(refreshing: false, task)
+        }
+    }
+    
+    @MainActor
+    public func fetch<T>(_ collection: CollectionRequest<T>,
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping () async throws -> [T]) -> some View {
+        self.fetch {
+            if collection.needsUpdate(in: interval) {
+                await collection.fetch(refreshing: nil, task)
+            }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable, T>(_ collection: CollectionRequest<T>,
+                                       refetchTrigger: S,
+                                       refetchDebounce: Bool = false,
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping () async throws -> [T]) -> some View {
+        self.fetch {
+            if collection.needsUpdate(in: interval) {
+                await collection.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
+            await collection.fetch(refreshing: false, task)
+        }
+    }
+    
+    @MainActor
+    public func fetch<T>(_ collection: CollectionRequest<T>,
+                         expiresIn interval: TimeInterval = 900,
+                         task: @escaping (Int) async throws -> ([T], Int)) -> some View {
+        self.fetch {
+            if collection.needsUpdate(in: interval) {
+                await collection.fetch(refreshing: nil, task)
+            }
+        }
+    }
+    
+    @MainActor
+    public func fetch<S: Equatable, T>(_ collection: CollectionRequest<T>,
+                                       refetchTrigger: S,
+                                       refetchDebounce: Bool = false,
+                                       expiresIn interval: TimeInterval = 900,
+                                       task: @escaping (Int) async throws -> ([T], Int)) -> some View {
+        self.fetch {
+            if collection.needsUpdate(in: interval) {
+                await collection.fetch(refreshing: nil, task)
+            }
+        }
+        .onChangeAsync(of: refetchTrigger, debounce: refetchDebounce) {
+            await collection.fetch(refreshing: false, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchMoreContent<T>(_ collection: CollectionRequest<T>) -> some View {
+        self.task {
+            await collection.fetchMoreContents()
+        }
+    }
+}
+
 // MARK: - Side effects
 extension View {
     @MainActor
@@ -300,6 +390,114 @@ extension View {
                                                task: @escaping () async throws -> T?) -> some View {
         self.onChangeAsync(of: value, equals: equals) {
             await store.fetch(refreshing: refreshing, task)
+        }
+    }
+}
+
+extension View {
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               debounce: Bool = false,
+                                               resource: ResourceRequest<T>,
+                                               refreshing: Bool? = nil) -> some View {
+        self.onChangeAsync(of: value, debounce: debounce) {
+            await resource.fetch(refreshing: refreshing)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               equals: V,
+                                               resource: ResourceRequest<T>,
+                                               refreshing: Bool? = nil) -> some View {
+        self.onChangeAsync(of: value, equals: equals) {
+            await resource.fetch(refreshing: refreshing)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               debounce: Bool = false,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil) -> some View {
+        self.onChangeAsync(of: value, debounce: debounce) {
+            await collection.fetch(refreshing: refreshing)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               equals: V,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil) -> some View {
+        self.onChangeAsync(of: value, equals: equals) {
+            await collection.fetch(refreshing: refreshing)
+        }
+    }
+
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               debounce: Bool = false,
+                                               resource: ResourceRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> T?) -> some View {
+        self.onChangeAsync(of: value, debounce: debounce) {
+            await resource.fetch(refreshing: refreshing, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               equals: V,
+                                               resource: ResourceRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> T?) -> some View {
+        self.onChangeAsync(of: value, equals: equals) {
+            await resource.fetch(refreshing: refreshing, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               debounce: Bool = false,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> [T]) -> some View {
+        self.onChangeAsync(of: value, debounce: debounce) {
+            await collection.fetch(refreshing: refreshing, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               equals: V,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping () async throws -> [T]) -> some View {
+        self.onChangeAsync(of: value, equals: equals) {
+            await collection.fetch(refreshing: refreshing, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               debounce: Bool = false,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping (Int) async throws -> ([T], Int)) -> some View {
+        self.onChangeAsync(of: value, debounce: debounce) {
+            await collection.fetch(refreshing: refreshing, task)
+        }
+    }
+    
+    @MainActor
+    public func fetchOnChange<V: Equatable, T>(of value: V,
+                                               equals: V,
+                                               collection: CollectionRequest<T>,
+                                               refreshing: Bool? = nil,
+                                               task: @escaping (Int) async throws -> ([T], Int)) -> some View {
+        self.onChangeAsync(of: value, equals: equals) {
+            await collection.fetch(refreshing: refreshing, task)
         }
     }
 }

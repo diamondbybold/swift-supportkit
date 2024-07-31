@@ -1,6 +1,6 @@
 import Foundation
 
-public class Store<T: Identifiable>: FetchableObject {
+public class Store<T: Identifiable>: FetchableObject, ObservableObject {
     public var fetchRequest: FetchRequest? = nil
     
     @Published public var elements: [T] = []
@@ -15,7 +15,7 @@ public class Store<T: Identifiable>: FetchableObject {
     
     @Published public private(set) var lastUpdated: Date = .distantPast
     @Published public var isLoading: Bool = false
-    @Published public var loadingError: Error? = nil
+    @Published public var loadingError: (any Error)? = nil
     
     private var storeDidChangeTask: Task<Void, Never>? = nil
     private var elementInStoreDidChangeTask: Task<Void, Never>? = nil

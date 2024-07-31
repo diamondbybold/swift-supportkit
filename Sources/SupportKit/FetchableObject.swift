@@ -1,12 +1,12 @@
 import Foundation
 
 @MainActor
-public protocol FetchableObject: ObservableObject {
+public protocol FetchableObject {
     var contentUnavailable: Bool { get }
     
     var lastUpdated: Date { get }
     var isLoading: Bool { get set }
-    var loadingError: Error? { get set }
+    var loadingError: (any Error)? { get set }
     
     func fetch(refreshing: Bool?) async
 }
