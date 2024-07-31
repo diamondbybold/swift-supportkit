@@ -302,6 +302,58 @@ extension ProductList {
 
 NavigationButton is a button with navigation capabilities, uses NavigationContext.
 
+### Display products using property wrapper (recommended)
+
+For convenience theres two property wrappers, ResourceRequest and CollectionRequest, like Store, conforming **FetchableObject** protocol. 
+
+```swift
+import SwiftUI
+import SupportKit
+import SupportKitUI
+
+struct ProductList: View {
+    @State private var query: String = ""
+    
+    @CollectionRequest
+    private var products: [Product]
+
+    var body {
+        AsyncView(_products) { phase in
+            switch phase {
+            case .loading:
+                ProgressView()
+            case .loaded:
+                ScrollView {
+                    LazyVStack {
+                        ForEach(products) { product in
+                            productRow(product)
+                        }
+                        
+                        // Infinite scrolling
+                        if _products.hasMoreContent {
+                            ProgressView()
+                                .fetchMoreContent(_products)
+                        }
+                    }
+                }
+            case .empty:
+                Text("No products")
+            case let .error(error):
+                Text("Error \(error.localizedDescription)")
+                    .onTapGesture {
+                        _products.refetch() // Try again
+                    }
+            }
+        }
+        .fetch(_products, refetchTrigger: query, refetchDebounce: true) { page in
+            try await Product.products(query: query, page: page)
+        }
+        .refreshable(_products) // Pull down to refresh
+        .searchable(text: $query) // Enable search bar
+        .navigationTitle("Products")
+    }
+}
+
 ### Display product details
 
 ```swift
@@ -312,8 +364,11 @@ import SupportKitUI
 struct ProductDetails: View {
     let product: Product
     
-    @StateObject private var productReviewStore = Store<Product.Review>()
-    @StateObject private var relatedProductStore = Store<Product>()
+    @CollectionRequest
+    private var productReviews: [Product.Review]
+    
+    @CollectionRequest
+    private var relatedProducts: [Product]
 
     enum TabItem {
         case reviews
@@ -354,19 +409,19 @@ struct ProductDetails: View {
 // MARK: - Components
 extension ProductDetails {
     func reviewList() -> some View {
-        AsyncView(productReviewStore) { phase in
+        AsyncView(_productReviews) { phase in
             // Handle state and display reviews
         }
-        .fetch(productReviewStore) {
+        .fetch(_productReviews) {
             try await product.reviews
         }
     }
     
     func relatedList() -> some View {
-        AsyncView(relatedProductStore) { phase in
+        AsyncView(_relatedProducts) { phase in
             // Handle state and display related products
         }
-        .fetch(relatedProductStore) {
+        .fetch(_relatedProducts) {
             try await product.relatedProducts
         }
     }
@@ -404,6 +459,19 @@ struct ProductReviewView: View {
             }
         }
     }
+}
+```
+
+### Updates when a product changes (recommended)
+
+Use NotificationCenter, post and observe APIGateway data changes notifications
+
+```swift
+extension Notification.Name {
+    public static let APIGatewayDataInserted = Notification.Name("APIGatewayDataInserted")
+    public static let APIGatewayDataUpdated = Notification.Name("APIGatewayDataUpdated")
+    public static let APIGatewayDataDeleted = Notification.Name("APIGatewayDataDeleted")
+    public static let APIGatewayDataInvalidated = Notification.Name("APIGatewayDataInvalidated")
 }
 ```
 
