@@ -1,14 +1,13 @@
 import Foundation
 
-public enum APIError: Sendable, LocalizedError {
+public enum APIError: LocalizedError {
     case unknown
-    case required
     case unconnected
     case clientError(Int)
     case serverError(Int)
 }
 
-public struct APIValidationError: Sendable, LocalizedError {
+public struct APIValidationError: LocalizedError {
     public let name: String
     
     public enum ValidationType: Sendable {
@@ -29,7 +28,7 @@ public struct APIValidationError: Sendable, LocalizedError {
     }
 }
 
-public struct APITaggedError: Sendable, LocalizedError {
+public struct APITaggedError: LocalizedError {
     let tag: String
     
     public init(tag: String) {
@@ -37,7 +36,7 @@ public struct APITaggedError: Sendable, LocalizedError {
     }
 }
 
-public struct APICustomError: Sendable, LocalizedError {
+public struct APICustomError: LocalizedError {
     let title: String?
     let description: String?
     

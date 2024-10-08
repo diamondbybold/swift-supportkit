@@ -1,6 +1,6 @@
 import Foundation
 
-public struct APIRequest {
+public struct APIRequest: Sendable {
     public var path: String
     public var version: String?
     public var method: APIMethod

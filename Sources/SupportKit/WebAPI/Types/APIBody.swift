@@ -1,7 +1,7 @@
 import Foundation
 
-public enum APIBody {
-    case jsonAny(Any, encoder: JSONEncoder)
-    case jsonObject(Encodable, encoder: JSONEncoder)
-    case formData([String: Any?])
+public enum APIBody: Sendable {
+    case jsonAny(Sendable, encoder: JSONEncoder)
+    case jsonObject(Encodable & Sendable, encoder: JSONEncoder)
+    case formData([String: Sendable?])
 }

@@ -416,10 +416,13 @@ struct ProductReviewView: View {
 
 ### Updates when a product changes
 
-Use NotificationCenter, post and observe APIGateway data changes notifications
+Use NotificationCenter, post and observe APIClient global notifications and data changes notifications
 
 ```swift
 extension Notification.Name {
+    public static let APIClientUnconnected = Notification.Name("APIClientUnconnected")
+    public static let APIClientUnauthorized = Notification.Name("APIClientUnauthorized")
+    public static let APIClientForbidden = Notification.Name("APIClientForbidden")
     public static let APIClientDataInserted = Notification.Name("APIClientDataInserted")
     public static let APIClientDataUpdated = Notification.Name("APIClientDataUpdated")
     public static let APIClientDataDeleted = Notification.Name("APIClientDataDeleted")

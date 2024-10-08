@@ -1,6 +1,6 @@
 import Foundation
 
-public struct APIDeviceToken: Codable {
+public struct APIDeviceToken: Codable, Sendable {
     public let data: Data
     
     public init(data: Data) {

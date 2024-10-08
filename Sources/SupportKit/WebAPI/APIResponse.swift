@@ -1,6 +1,6 @@
 import Foundation
 
-public struct APIResponse {
+public struct APIResponse: Sendable {
     public let request: APIRequest
     
     public let statusCode: Int

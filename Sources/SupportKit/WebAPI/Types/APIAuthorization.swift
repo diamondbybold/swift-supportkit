@@ -1,6 +1,6 @@
 import Foundation
 
-public struct APIAuthorization: Codable {
+public struct APIAuthorization: Codable, Sendable {
     public let accessToken: String
     public let refreshToken: String
     

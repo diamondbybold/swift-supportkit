@@ -72,7 +72,6 @@ extension Notification.Name {
     public static let APIClientUnconnected = Notification.Name("APIClientUnconnected")
     public static let APIClientUnauthorized = Notification.Name("APIClientUnauthorized")
     public static let APIClientForbidden = Notification.Name("APIClientForbidden")
-    
     public static let APIClientDataInserted = Notification.Name("APIClientDataInserted")
     public static let APIClientDataUpdated = Notification.Name("APIClientDataUpdated")
     public static let APIClientDataDeleted = Notification.Name("APIClientDataDeleted")

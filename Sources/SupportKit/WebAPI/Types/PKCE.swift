@@ -3,7 +3,7 @@ import CryptoKit
 
 /// An easy-to-use implementation of the client side of the [PKCE standard](https://datatracker.ietf.org/doc/html/rfc7636).
 /// Source: https://gist.github.com/travisnewby/b030cf862862c0c55777e3db50eaccf8
-public struct PKCE {    
+public struct PKCE: Sendable {    
     /// A high-entropy cryptographic random value, as described in [Section 4.1](https://datatracker.ietf.org/doc/html/rfc7636#section-4.1) of the PKCE standard.
     public let codeVerifier: String
     
