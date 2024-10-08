@@ -20,7 +20,7 @@ public struct OffsetReader: View {
 }
 
 struct OffsetKey: PreferenceKey {
-    static var defaultValue: CGPoint = .zero
+    static let defaultValue: CGPoint = .zero
     
     static func reduce(value: inout CGPoint, nextValue: () -> CGPoint) {
         value = nextValue()

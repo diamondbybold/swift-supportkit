@@ -1,26 +1,16 @@
 import Foundation
 import AVFoundation
 
+//@MainActor
 public class AVLoopQueuePlayer: AVQueuePlayer {
     public var loop: Bool = false
     public var playlist: [AVPlayerItem] = []
     
-    private var songDidEndTask: Task<Void, Never>? = nil
+    private nonisolated(unsafe) var task: Task<Void, Never>? = nil
     
     public override init() {
         super.init()
-        
-        songDidEndTask = Task { [weak self] in
-            let notifications = NotificationCenter.default.notifications(named: .AVPlayerItemDidPlayToEndTime)
-            for await notification in notifications {
-                guard let self else { return }
-                if loop, playlist.last === notification.object as? AVPlayerItem {
-                    replaceCurrentItems(with: playlist)
-                    seek(to: .zero, completionHandler: { _ in })
-                    play()
-                }
-            }
-        }
+//        task = endTimeTask()
     }
     
     public override init(url URL: URL) {
@@ -39,7 +29,22 @@ public class AVLoopQueuePlayer: AVQueuePlayer {
     }
     
     deinit {
-        songDidEndTask?.cancel()
+        task?.cancel()
+    }
+    
+    private func endTimeTask() -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let notification = NotificationCenter.default.notifications(named: .AVPlayerItemDidPlayToEndTime).map({ $0.object as? AVPlayerItem })
+            for await playerItem in notification {
+                if loop, playlist.last === playerItem {
+                    replaceCurrentItems(with: playlist)
+                    seek(to: .zero, completionHandler: { _ in })
+                    play()
+                }
+            }
+        }
     }
     
     public func replaceCurrentItems(with items: [AVPlayerItem]) {

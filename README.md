@@ -70,16 +70,16 @@ do {
 }
 ```
 
-### Implementing API gateway
+### Implementing API client
 
-API gateway object is a central point for a web service access, handling configuration, environments and inspect every request / response.
+API client object is a central point for a web service access, handling configuration, environments and inspect every request / response.
 
 ```swift
 import Foundation
 import SupportKit
 
-class MyShoppingAPIGateway: APIGateway {
-    static let shared = ShoppingAPIGateway()
+class MyShoppingAPIClient: APIClient {
+    static let shared = MyShoppingAPIClient()
     
 #if DEVELOPMENT
     let baseURL = URL(string: "https://api.dev.myshopping.com")!
@@ -111,8 +111,8 @@ extension Product {
         // 1) Make a request, we have other params for method, query string, body payload, form data, ...
         let request = APIRequest(path: "products", query: ["query": query])
         
-        // 2) Get the response on an API gateway
-        let response = try await request.response(on: MyShoppingAPIGateway.shared)
+        // 2) Get the response on an API client
+        let response = try await request.response(on: MyShoppingAPIClient.shared)
         
         // 3) Handle respose data or error, SupportKit includes default common status codes, rest resources, jsonapi container, paging, ...
         return try response.resource(.snakeCase)
@@ -121,7 +121,7 @@ extension Product {
     var relatedProducts: [Product] {
         get await throws {
             try await APIRequest(path: "products/\(id)/relatedProducts")
-                .response(on: MyShoppingAPIGateway.shared)
+                .response(on: MyShoppingAPIClient.shared)
                 .resource(.snakeCase)
         }
     }
@@ -146,7 +146,7 @@ extension Product {
     var reviews: [Product.Review] {
         get await throws {
             try await APIRequest(path: "products/\(id)/reviews")
-                .response(on: MyShoppingAPIGateway.shared)
+                .response(on: MyShoppingAPIClient.shared)
                 .resource(.snakeCase)
         }
     }
@@ -169,7 +169,7 @@ extension Product {
                             method: .post,
                             body: .formData(["rating": "\(rating)",
                                             "comment": comment]))
-            .response(on: MyShoppingAPIGateway.shared)
+            .response(on: MyShoppingAPIClient.shared)
             .verify()
     }
 }
@@ -238,73 +238,11 @@ Included buttons that uses **NavigationContext**:
 - **ConfirmationButton**
 - **AsyncButton** (to present alert on task error)
 
-### Display products using store
-
-The store object can handle products life cycle and side effects for us. In alternative and for more flexibility we can create a "ProductStore" object conforming **FetchableObject** protocol if needed. And don't forget other model objects like e.g. UserSession, ShoppingCart, CheckoutProcess, ChatSession, UserRegistration, ReviewProduct, ... remember **UI = f(State)** where State = Model
-
-```swift
-import SwiftUI
-import SupportKit
-import SupportKitUI
-
-struct ProductList: View {
-    @State private var query: String = ""
-    @StateObject private var store = Store<Product>()
-
-    var body {
-        AsyncView(store) { phase in
-            switch phase {
-            case .loading:
-                ProgressView()
-            case .loaded:
-                ScrollView {
-                    LazyVStack {
-                        ForEach(store.elements) { product in
-                            productRow(product)
-                        }
-                        
-                        // Infinite scrolling
-                        if store.hasMoreContent {
-                            ProgressView()
-                                .fetchMoreContent(store)
-                        }
-                    }
-                }
-            case .empty:
-                Text("No products")
-            case let .error(error):
-                Text("Error \(error.localizedDescription)")
-                    .onTapGesture {
-                        store.refetch() // Try again
-                    }
-            }
-        }
-        .fetch(store, refetchTrigger: query, refetchDebounce: true) { page in
-            try await Product.products(query: query, page: page)
-        }
-        .refreshable(store) // Pull down to refresh
-        .searchable(text: $query) // Enable search bar
-        .navigationTitle("Products")
-    }
-}
-
-// MARK: - Components
-extension ProductList {
-    func productRow(_ product: Product) -> some View {
-        NavigationButton(destination: .stack) {
-            ProductDetails(product: product)
-        } label: {
-            // Display product information
-        }
-    }
-}
-```
-
 NavigationButton is a button with navigation capabilities, uses NavigationContext.
 
-### Display products using property wrapper (recommended)
+### Display products
 
-For convenience theres two property wrappers, ResourceRequest and CollectionRequest, like Store, conforming **FetchableObject** protocol. 
+For convenience theres two property wrappers, ResourceRequest and CollectionRequest, like Store, conforming **FetchableObject** protocol. In alternative and for more flexibility we can create a "ProductStore" object conforming **FetchableObject** protocol if needed. And don't forget other model objects like e.g. UserSession, ShoppingCart, CheckoutProcess, ChatSession, UserRegistration, ReviewProduct, ... remember **UI = f(State)** where State = Model
 
 ```swift
 import SwiftUI
@@ -353,6 +291,20 @@ struct ProductList: View {
         .navigationTitle("Products")
     }
 }
+
+// MARK: - Components
+extension ProductList {
+    func productRow(_ product: Product) -> some View {
+        NavigationButton(destination: .stack) {
+            ProductDetails(product: product)
+        } label: {
+            // Display product information
+        }
+    }
+}
+```
+
+NavigationButton is a button with navigation capabilities, uses NavigationContext.
 
 ### Display product details
 
@@ -462,40 +414,16 @@ struct ProductReviewView: View {
 }
 ```
 
-### Updates when a product changes (recommended)
+### Updates when a product changes
 
 Use NotificationCenter, post and observe APIGateway data changes notifications
 
 ```swift
 extension Notification.Name {
-    public static let APIGatewayDataInserted = Notification.Name("APIGatewayDataInserted")
-    public static let APIGatewayDataUpdated = Notification.Name("APIGatewayDataUpdated")
-    public static let APIGatewayDataDeleted = Notification.Name("APIGatewayDataDeleted")
-    public static let APIGatewayDataInvalidated = Notification.Name("APIGatewayDataInvalidated")
-}
-```
-
-### Update a store when a product changes
-
-This feature allow to reload or update any store of a type in the hierarchy.
-
-###### Refetch
-
-```swift
-Store<Product>.invalidate()
-```
-
-###### Update
-
-```swift
-Store<Product>.update(product)
-```
-
-###### Batch update
-
-```swift
-Store<Product>.updateAll { element in
-    // operations
+    public static let APIClientDataInserted = Notification.Name("APIClientDataInserted")
+    public static let APIClientDataUpdated = Notification.Name("APIClientDataUpdated")
+    public static let APIClientDataDeleted = Notification.Name("APIClientDataDeleted")
+    public static let APIClientDataInvalidated = Notification.Name("APIClientDataInvalidated")
 }
 ```
 

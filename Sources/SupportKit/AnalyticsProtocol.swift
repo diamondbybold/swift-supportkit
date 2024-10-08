@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AnalyticsEvent {
+public struct AnalyticsEvent: Sendable {
     public let name: String
     public let parameters: [String: String]
     
@@ -22,7 +22,7 @@ public protocol AnalyticsProtocol: AnyObject {
 }
 
 // MARK: - Global functions
-public var sharedAnalyticsObject: (any AnalyticsProtocol)? = nil
+public nonisolated(unsafe) var sharedAnalyticsObject: (any AnalyticsProtocol)? = nil
 
 public func logScreenEvent(_ event: AnalyticsEvent) {
     sharedAnalyticsObject?.logScreenEvent(event)

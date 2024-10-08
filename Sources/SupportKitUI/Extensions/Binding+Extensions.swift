@@ -2,8 +2,8 @@ import SwiftUI
 
 extension Binding where Value == Bool {
     public static func toggle(isSelected: Bool,
-                              onSelect: @escaping () -> Void,
-                              onUnselect: @escaping () -> Void) -> Binding<Value> {
+                              onSelect: @Sendable @escaping () -> Void,
+                              onUnselect: @Sendable @escaping () -> Void) -> Binding<Value> {
         Binding {
             isSelected
         } set: {
@@ -12,7 +12,7 @@ extension Binding where Value == Bool {
         }
     }
     
-    public static func check<T: Equatable>(value: T, set: Binding<Set<T>>) -> Binding<Value> {
+    public static func check<T: Equatable & Sendable>(value: T, set: Binding<Set<T>>) -> Binding<Value> {
         Binding {
             set.wrappedValue.contains(value)
         } set: {
@@ -21,7 +21,7 @@ extension Binding where Value == Bool {
         }
     }
     
-    public static func radio<T: Equatable>(value: T?, currentValue: Binding<T?>) -> Binding<Value> {
+    public static func radio<T: Equatable & Sendable>(value: T?, currentValue: Binding<T?>) -> Binding<Value> {
         Binding {
             value == currentValue.wrappedValue
         } set: { _ in
@@ -29,7 +29,7 @@ extension Binding where Value == Bool {
         }
     }
     
-    public static func present<T>(value: Binding<T?>) -> Binding<Value> {
+    public static func present<T: Sendable>(value: Binding<T?>) -> Binding<Value> {
         Binding {
             value.wrappedValue != nil
         } set: {
@@ -38,8 +38,8 @@ extension Binding where Value == Bool {
     }
 }
 
-extension Binding {
-    public func onChange(_ handler: @escaping () -> Void) -> Binding<Value> {
+extension Binding where Value: Sendable {
+    public func onChange(_ handler: @Sendable @escaping () -> Void) -> Binding<Value> {
         Binding(
             get: { self.wrappedValue },
             set: { newValue in
@@ -49,7 +49,7 @@ extension Binding {
         )
     }
     
-    public func onChange(_ handler: @escaping () async -> Void) -> Binding<Value> {
+    public func onChange(_ handler: @Sendable @escaping () async -> Void) -> Binding<Value> {
         Binding(
             get: { self.wrappedValue },
             set: { newValue in
@@ -61,7 +61,7 @@ extension Binding {
         )
     }
     
-    public func onChange(_ handler: @escaping (Value, Value) -> Void) -> Binding<Value> {
+    public func onChange(_ handler: @Sendable @escaping (Value, Value) -> Void) -> Binding<Value> {
         Binding(
             get: { self.wrappedValue },
             set: { newValue in
@@ -72,7 +72,7 @@ extension Binding {
         )
     }
     
-    public func onChange(_ handler: @escaping (Value, Value) async -> Void) -> Binding<Value> {
+    public func onChange(_ handler: @Sendable @escaping (Value, Value) async -> Void) -> Binding<Value> {
         Binding(
             get: { self.wrappedValue },
             set: { newValue in
@@ -86,7 +86,7 @@ extension Binding {
     }
 }
 
-public func ??<T>(lhs: Binding<Optional<T>>, rhs: T) -> Binding<T> {
+public func ??<T: Sendable>(lhs: Binding<Optional<T>>, rhs: T) -> Binding<T> {
     Binding(
         get: { lhs.wrappedValue ?? rhs },
         set: { lhs.wrappedValue = $0 }

@@ -47,13 +47,15 @@ public class LegacyPhotoPicker: PHPickerViewControllerDelegate {
             return
         }
         
-        provider.loadObject(ofClass: UIImage.self) { image, _ in
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                
-                if let image = image as? UIImage {
+        provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
+            guard let self else { return }
+            
+            if let image = image as? UIImage {
+                MainActor.assumeIsolated {
                     continuation?.resume(returning: image)
-                } else {
+                }
+            } else {
+                MainActor.assumeIsolated {
                     continuation?.resume(throwing: PhotoError.failed)
                 }
             }

@@ -1,7 +1,5 @@
 import Foundation
 
-public typealias APIResults<T> = (elements: [T], total: Int)
-
 public struct APIResponse {
     public let request: APIRequest
     
@@ -13,31 +11,21 @@ public struct APIResponse {
         switch statusCode {
         case 200...299:
             break
-        case 401:
+        case 400...499:
 #if DEBUG
-            print("[Error] Unauthorized")
+            print("[Client Error] \(statusCode)")
 #endif
-            throw APIError.unauthorized
-        case 403:
+            throw APIError.clientError(statusCode)
+        case 500...599:
 #if DEBUG
-            print("[Error] Forbidden")
+            print("[Server Error] \(statusCode)")
 #endif
-            throw APIError.forbidden
-        case 404:
-#if DEBUG
-            print("[Error] Unavailable")
-#endif
-            throw APIError.unavailable
-        case 400, 405...499:
-#if DEBUG
-            print("[Error] Unprocessable")
-#endif
-            throw APIError.unprocessable
+            throw APIError.serverError(statusCode)
         default:
 #if DEBUG
-            print("[Error] Unavailable")
+            print("[Error] Unknown")
 #endif
-            throw APIError.unavailable
+            throw APIError.unknown
         }
     }
     
@@ -49,35 +37,24 @@ public struct APIResponse {
             } catch {
 #if DEBUG
                 print("[Decoding Error] \(error)")
-                print("[Error] Unavailable")
 #endif
-                throw APIError.unavailable
+                throw error
             }
-        case 401:
+        case 400...499:
 #if DEBUG
-            print("[Error] Unauthorized")
+            print("[Client Error] \(statusCode)")
 #endif
-            throw APIError.unauthorized
-        case 403:
+            throw APIError.clientError(statusCode)
+        case 500...599:
 #if DEBUG
-            print("[Error] Forbidden")
+            print("[Server Error] \(statusCode)")
 #endif
-            throw APIError.forbidden
-        case 404:
-#if DEBUG
-            print("[Error] Unavailable")
-#endif
-            throw APIError.unavailable
-        case 400, 405...499:
-#if DEBUG
-            print("[Error] Unprocessable")
-#endif
-            throw APIError.unprocessable
+            throw APIError.serverError(statusCode)
         default:
 #if DEBUG
-            print("[Error] Unavailable")
+            print("[Error] Unknown")
 #endif
-            throw APIError.unavailable
+            throw APIError.unknown
         }
     }
     
@@ -143,12 +120,11 @@ extension APIResponse {
         } catch {
 #if DEBUG
             print("[Decoding Error] \(error)")
-            print("[Error] Unavailable")
 #endif
-            throw APIError.unavailable
+            throw error
         }
         if let errors = res.errors { throw errors }
-        guard let data = res.data, let meta = res.meta else { throw APIError.unavailable }
+        guard let data = res.data, let meta = res.meta else { throw APIError.unknown }
         return (data: data, meta: meta)
     }
     
@@ -161,9 +137,8 @@ extension APIResponse {
         } catch {
 #if DEBUG
             print("[Decoding Error] \(error)")
-            print("[Error] Unavailable")
 #endif
-            throw APIError.unavailable
+            throw error
         }
         if let errors = res.errors { throw errors }
         return (data: res.data, meta: res.meta)
@@ -176,12 +151,11 @@ extension APIResponse {
         } catch {
 #if DEBUG
             print("[Decoding Error] \(error)")
-            print("[Error] Unavailable")
 #endif
-            throw APIError.unavailable
+            throw error
         }
         if let errors = res.errors { throw errors }
-        guard let data = res.data else { throw APIError.unavailable }
+        guard let data = res.data else { throw APIError.unknown }
         return data
     }
     
@@ -202,12 +176,11 @@ extension APIResponse {
         } catch {
 #if DEBUG
             print("[Decoding Error] \(error)")
-            print("[Error] Unavailable")
 #endif
-            throw APIError.unavailable
+            throw error
         }
         if let errors = res.errors { throw errors }
-        guard let data = res.data else { throw APIError.unavailable }
+        guard let data = res.data else { throw APIError.unknown }
         return (elements: data, total: res.meta?.count ?? res.meta?.total ?? 0)
     }
     
@@ -223,7 +196,7 @@ extension APIResponse {
 }
 
 // MARK: - Utils
-extension Array: Error, LocalizedError where Element == APIResponse.ContainerError {
+extension Array: @retroactive Error, @retroactive LocalizedError where Element == APIResponse.ContainerError {
     public var status: String? { first?.status }
     public var errorCode: String? { first?.code }
     public var failureReason: String? { first?.failureReason }

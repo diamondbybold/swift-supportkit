@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol APIGateway {
+public protocol APIClient {
     var session: URLSession { get }
     
     var baseURL: URL { get }
@@ -13,7 +13,7 @@ public protocol APIGateway {
 }
 
 // MARK: - Default Implementation
-extension APIGateway {
+extension APIClient {
     @discardableResult
     public func request(_ request: APIRequest) async throws -> APIResponse {
         var request = request
@@ -33,7 +33,7 @@ extension APIGateway {
             print("[Response Body] \(String(data: result.data, encoding: .utf8) ?? "")")
 #endif
             
-            guard let urlResponse = result.response as? HTTPURLResponse else { throw APIError.unavailable }
+            guard let urlResponse = result.response as? HTTPURLResponse else { throw APIError.unknown }
             
             var resource = APIResponse(request: request,
                                        statusCode: urlResponse.statusCode,
@@ -54,7 +54,7 @@ extension APIGateway {
 #if DEBUG
             print("[Error] \(error)")
 #endif
-            throw APIError.unavailable
+            throw APIError.unknown
         }
     }
     
@@ -64,23 +64,23 @@ extension APIGateway {
 
 // MARK: - Request Extensions
 extension APIRequest {
-    public func response(on gateway: APIGateway) async throws -> APIResponse { try await gateway.request(self) }
+    public func response(on client: APIClient) async throws -> APIResponse { try await client.request(self) }
 }
 
 // MARK: - Notifications
 extension Notification.Name {
-    public static let APIGatewayUnconnected = Notification.Name("APIGatewayUnconnected")
-    public static let APIGatewayUnauthorized = Notification.Name("APIGatewayUnauthorized")
-    public static let APIGatewayForbidden = Notification.Name("APIGatewayForbidden")
+    public static let APIClientUnconnected = Notification.Name("APIClientUnconnected")
+    public static let APIClientUnauthorized = Notification.Name("APIClientUnauthorized")
+    public static let APIClientForbidden = Notification.Name("APIClientForbidden")
     
-    public static let APIGatewayDataInserted = Notification.Name("APIGatewayDataInserted")
-    public static let APIGatewayDataUpdated = Notification.Name("APIGatewayDataUpdated")
-    public static let APIGatewayDataDeleted = Notification.Name("APIGatewayDataDeleted")
-    public static let APIGatewayDataInvalidated = Notification.Name("APIGatewayDataInvalidated")
+    public static let APIClientDataInserted = Notification.Name("APIClientDataInserted")
+    public static let APIClientDataUpdated = Notification.Name("APIClientDataUpdated")
+    public static let APIClientDataDeleted = Notification.Name("APIClientDataDeleted")
+    public static let APIClientDataInvalidated = Notification.Name("APIClientDataInvalidated")
 }
 
 // MARK: - Utilities
-extension APIGateway {
+extension APIClient {
     public func clearCache() {
         session.configuration.urlCache?.removeAllCachedResponses()
     }

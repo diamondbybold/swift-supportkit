@@ -89,7 +89,8 @@ extension NavigationContext {
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
     
-    struct Alert {
+    @MainActor
+    struct Alert: Sendable {
         let title: LocalizedStringKey
         let message: LocalizedStringKey?
         let actions: () -> any View

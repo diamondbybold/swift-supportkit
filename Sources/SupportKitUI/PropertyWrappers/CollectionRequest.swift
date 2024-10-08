@@ -2,7 +2,7 @@ import SwiftUI
 import SupportKit
 
 @propertyWrapper
-public struct CollectionRequest<T>: DynamicProperty, FetchableObject {
+public struct CollectionRequest<T: Sendable>: DynamicProperty, FetchableObject {
     @State public var wrappedValue: [T]
     
     @State public var total: Int = 0

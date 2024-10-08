@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 public class TaskLimiter {
     public static let delay = TaskLimiter(.delay, duration: 0.3)
     public static let debounce = TaskLimiter(.debounce)
@@ -25,7 +26,11 @@ public class TaskLimiter {
         self.duration = duration
     }
     
-    deinit { cancel() }
+    deinit {
+        MainActor.assumeIsolated {
+            cancel()
+        }
+    }
     
     public func callAsFunction(perform: @escaping () async -> Void) {
         switch policy {

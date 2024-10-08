@@ -138,7 +138,7 @@ public struct CustomBottomBarScrollView<Content: View>: View {
 }
 
 struct ScrollContainerSizeKey: PreferenceKey {
-    static var defaultValue: CGFloat = .zero
+    static let defaultValue: CGFloat = .zero
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
@@ -146,7 +146,7 @@ struct ScrollContainerSizeKey: PreferenceKey {
 }
 
 struct ScrollContentTopOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = .zero
+    static let defaultValue: CGFloat = .zero
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
@@ -154,7 +154,7 @@ struct ScrollContentTopOffsetKey: PreferenceKey {
 }
 
 struct ScrollContentBottomOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = .zero
+    static let defaultValue: CGFloat = .zero
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()

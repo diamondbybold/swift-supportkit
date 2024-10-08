@@ -82,7 +82,7 @@ public struct CalendarView: UIViewRepresentable {
 }
 
 extension CalendarView {
-    public class Coordinator: NSObject, UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate {
+    public class Coordinator: NSObject, @preconcurrency UICalendarViewDelegate, UICalendarSelectionSingleDateDelegate {
         @Binding var date: Date?
         var availableDates: [Date]?
         @Binding private var visibleDate: Date?
@@ -95,7 +95,9 @@ extension CalendarView {
             self._visibleDate = visibleDate
         }
         
-        public func calendarView(_ calendarView: UICalendarView, didChangeVisibleDateComponentsFrom previousDateComponents: DateComponents) {
+        @MainActor
+        public func calendarView(_ calendarView: UICalendarView,
+                                 didChangeVisibleDateComponentsFrom previousDateComponents: DateComponents) {
             if let date = Calendar.current.date(from: calendarView.visibleDateComponents) {
                 visibleDate = date
             }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AnalyticsContextDataKey: EnvironmentKey {
-    static var defaultValue: [String: String] = [:]
+    static let defaultValue: [String: String] = [:]
 }
 
 extension EnvironmentValues {

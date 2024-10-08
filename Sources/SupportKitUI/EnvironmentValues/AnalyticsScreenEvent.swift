@@ -2,7 +2,7 @@ import SupportKit
 import SwiftUI
 
 struct AnalyticsScreenEventKey: EnvironmentKey {
-    static var defaultValue: AnalyticsEvent? = nil
+    static let defaultValue: AnalyticsEvent? = nil
 }
 
 extension EnvironmentValues {

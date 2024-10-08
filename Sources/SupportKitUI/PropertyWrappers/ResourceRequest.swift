@@ -2,7 +2,7 @@ import SwiftUI
 import SupportKit
 
 @propertyWrapper
-public struct ResourceRequest<T>: DynamicProperty, FetchableObject {
+public struct ResourceRequest<T: Sendable>: DynamicProperty, FetchableObject {
     @State public var wrappedValue: T?
     
     public var contentUnavailable: Bool { wrappedValue == nil }
